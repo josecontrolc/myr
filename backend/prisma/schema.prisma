@@ -1,0 +1,115 @@
+// Prisma Schema for Better Auth and System Settings
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model compatible with Better Auth
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  emailVerified     Boolean   @default(false)
+  name              String?
+  password          String?
+  image             String?
+  twoFactorEnabled  Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // OAuth fields
+  accounts          Account[]
+  sessions          Session[]
+  twoFactor         TwoFactor?
+  
+  @@map("users")
+}
+
+// Account model for OAuth providers
+model Account {
+  id                String   @id @default(uuid())
+  userId            String
+  accountId         String   // OAuth account identifier
+  providerId        String   // Provider name (e.g., "credential", "google")
+  accessToken       String?  @db.Text
+  refreshToken      String?  @db.Text
+  expiresAt         DateTime?
+  tokenType         String?
+  scope             String?
+  idToken           String?  @db.Text
+  password          String?  // For credential provider
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([providerId, accountId])
+  @@map("accounts")
+}
+
+// Session model for Better Auth
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique  // Better Auth uses "token" not "sessionToken"
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+// System Settings model for dynamic configuration
+model SystemSettings {
+  id             String   @id @default(uuid())
+  settingKey     String   @unique
+  isEnabled      Boolean  @default(false)
+  providerConfig Json?
+  updatedAt      DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  
+  @@map("system_settings")
+}
+
+// Two Factor Authentication model
+model TwoFactor {
+  id            String   @id @default(uuid())
+  secret        String
+  backupCodes   String
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("two_factor")
+}
+
+// Verification model for Better Auth (email verification, 2FA codes, etc.)
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String   // Email or phone number
+  value      String   // Verification code or token
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@map("verification")
+}
+
+// Audit Log model for tracking sensitive actions
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  userId    String?
+  details   Json?
+  timestamp DateTime @default(now())
+  
+  @@map("audit_logs")
+}

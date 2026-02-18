@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyRTest - DMZ Architecture</title>
+  </head>
+  <body>
+    <div id="root"><p id="html-load-marker">Loading...</p></div>
+    <script>
+      window.__showLoadError = function(msg) {
+        var r = document.getElementById('root');
+        if (r) r.innerHTML = '<p style="padding:1rem;font-family:monospace;color:#c00;">' + msg + '</p>';
+      };
+      window.addEventListener('error', function(e) { window.__showLoadError(e.message + ' at ' + (e.filename || '') + ':' + (e.lineno || '')); return false; });
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

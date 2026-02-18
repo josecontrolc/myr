@@ -1,0 +1,121 @@
+import { betterAuth } from 'better-auth';
+import { createAuthMiddleware } from 'better-auth/api';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { twoFactor } from 'better-auth/plugins';
+import prisma from './prisma';
+import { createAuditLog } from '../middleware/auditLog';
+
+/**
+ * Better Auth configuration with email and password authentication.
+ * Configured with Prisma adapter for PostgreSQL database.
+ * Includes Two-Factor Authentication (TOTP) plugin for enhanced security.
+ */
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: 'postgresql'
+  }),
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: true
+  },
+  appName: 'DMZ Secure App',
+  secret: process.env.BETTER_AUTH_SECRET || 'default_secret_change_in_production',
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  advanced: {
+    cookiePrefix: 'dmz_auth'
+  },
+  plugins: [
+    twoFactor({
+      issuer: 'DMZ Secure App',
+      totpOptions: {
+        period: 30
+      }
+    })
+  ],
+  hooks: {
+    // Single after-hook function that runs after every auth endpoint.
+    // The path is checked inside to decide which action to log.
+    after: createAuthMiddleware(async (ctx) => {
+      try {
+        const path = ctx.path;
+
+        if (path === '/sign-in/email') {
+          const session = ctx.context.newSession;
+          if (session?.user) {
+            await createAuditLog('SIGN_IN', session.user.id, {
+              email: session.user.email,
+              sessionId: session.session?.id ?? null
+            });
+          }
+        } else if (path === '/sign-up/email') {
+          const session = ctx.context.newSession;
+          if (session?.user) {
+            await createAuditLog('SIGN_UP', session.user.id, {
+              email: session.user.email,
+              name: session.user.name ?? null
+            });
+          }
+        } else if (path === '/sign-out') {
+          const session = ctx.context.session;
+          if (session?.user) {
+            await createAuditLog('SIGN_OUT', session.user.id, {
+              email: session.user.email
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Audit log hook error:', err);
+      }
+    })
+  }
+});
+
+/**
+ * Load dynamic authentication configuration from the database.
+ * This function queries SystemSettings for auth provider flags.
+ */
+export const loadAuthConfig = async () => {
+  try {
+    const authSettings = await prisma.systemSettings.findMany({
+      where: {
+        settingKey: {
+          startsWith: 'auth_'
+        }
+      }
+    });
+
+    const config = {
+      emailPasswordEnabled: authSettings.find(s => s.settingKey === 'auth_email_password_enabled')?.isEnabled ?? true,
+      googleEnabled: authSettings.find(s => s.settingKey === 'auth_google_enabled')?.isEnabled ?? false,
+      githubEnabled: authSettings.find(s => s.settingKey === 'auth_github_enabled')?.isEnabled ?? false
+    };
+
+    console.log('Auth configuration loaded:', config);
+    return config;
+  } catch (error) {
+    console.error('Error loading auth configuration:', error);
+    return {
+      emailPasswordEnabled: true,
+      googleEnabled: false,
+      githubEnabled: false
+    };
+  }
+};
+
+/**
+ * Middleware to check auth configuration periodically.
+ * This enables hot swapping of providers without server restart.
+ */
+export const createAuthRefreshMiddleware = () => {
+  let lastRefresh = Date.now();
+  const REFRESH_INTERVAL = 60000; // 60 seconds
+
+  return async (req: any, res: any, next: any) => {
+    const now = Date.now();
+    if (now - lastRefresh > REFRESH_INTERVAL) {
+      await loadAuthConfig();
+      lastRefresh = now;
+    }
+    next();
+  };
+};
