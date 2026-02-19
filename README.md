@@ -1,6 +1,13 @@
 # MyRTest - Secure DMZ Architecture
 
-A secure multi tier application implementing network segmentation with separate DMZ and internal networks using Docker Compose.
+A secure multi tier application implementing network segmentation with separate DMZ and internal networks using Docker Compose. Requirements and auth design: see [new_requisites.md](new_requisites.md) and [auth_spec.md](auth_spec.md).
+
+## Using this template
+
+1. Clone the repository.
+2. Copy `.env.example` to `.env` and fill in values (no real secrets in the repo).
+3. Optionally replace the project name "MyRTest" and database name `myrtest` with your own.
+4. Follow **Quick Start** below to run with Docker.
 
 ## Architecture Overview
 
@@ -341,8 +348,12 @@ If you want to install dependencies locally (for IDE autocomplete, etc.):
 cd backend
 npm install
 
-# Install frontend dependencies
-cd ../frontend
+# Install main frontend dependencies
+cd ../main_frontend
+npm install
+
+# Install admin frontend dependencies (optional)
+cd ../admin_frontend
 npm install
 ```
 

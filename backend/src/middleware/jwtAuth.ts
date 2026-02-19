@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import prisma from '../lib/prisma';
+import { hasRoleAccess } from '../lib/rbac';
 
 export interface JwtPayload {
   userId: string;
@@ -41,76 +41,6 @@ function isPublicRoute(method: string, path: string): boolean {
     const pathMatch = exactMatch ? path === cleanPrefix : path.startsWith(cleanPrefix);
     return methodMatch && pathMatch;
   });
-}
-
-/**
- * Check whether any of a user's roles grant access to a given endpoint + method.
- *
- * Logic:
- *  1. If NO role in the system has any mapping covering this path+method, allow
- *     access for any authenticated user (RBAC is opt-in / admin-configured).
- *  2. If at least one mapping exists system-wide for this path+method, only
- *     allow if the requesting user's roles contain a matching mapping.
- *
- * A mapping covers a path when:
- *  - endpoint matches the request path exactly OR is a prefix of the request path
- *  - method is either `*` or matches the request method (case-insensitive)
- */
-async function hasRoleAccess(
-  userId: string,
-  requestMethod: string,
-  requestPath: string
-): Promise<boolean> {
-  // Counter write: treat increment and decrement as one permission (either mapping allows both)
-  const COUNTER_WRITE_PATHS = ['/api/counter/increment', '/api/counter/decrement'];
-  const isCounterWrite =
-    requestMethod.toUpperCase() === 'POST' &&
-    COUNTER_WRITE_PATHS.includes(requestPath);
-
-  function mappingCoversRequest(endpoint: string, method: string): boolean {
-    const methodMatch =
-      method === '*' || method.toUpperCase() === requestMethod.toUpperCase();
-    let pathMatch =
-      requestPath === endpoint ||
-      requestPath.startsWith(endpoint.endsWith('/') ? endpoint : `${endpoint}/`);
-    if (!pathMatch && isCounterWrite && methodMatch) {
-      pathMatch =
-        endpoint === '/api/counter' ||
-        COUNTER_WRITE_PATHS.includes(endpoint);
-    }
-    return methodMatch && pathMatch;
-  }
-
-  // Check whether any mapping in the system covers this request
-  const systemWideMappings = await prisma.roleEndpointMapping.findMany({});
-  const anyMappingExists = systemWideMappings.some((m) =>
-    mappingCoversRequest(m.endpoint, m.method)
-  );
-
-  // No mappings configured → allow any authenticated user
-  if (!anyMappingExists) {
-    return true;
-  }
-
-  // Mappings exist: check whether this user's roles grant access
-  const userRoles = await prisma.userRole.findMany({
-    where: { userId },
-    include: {
-      role: {
-        include: { endpointMappings: true },
-      },
-    },
-  });
-
-  for (const ur of userRoles) {
-    for (const mapping of ur.role.endpointMappings) {
-      if (mappingCoversRequest(mapping.endpoint, mapping.method)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 /**

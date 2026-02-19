@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import prisma from '../lib/prisma';
+import { sendError } from '../lib/sendError';
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ router.get('/roles', async (_req: Request, res: Response): Promise<void> => {
     res.json(roles);
   } catch (error) {
     console.error('Error fetching roles:', error);
-    res.status(500).json({ error: 'Failed to fetch roles' });
+    sendError(res, 500, 'Failed to fetch roles');
   }
 });
 
@@ -85,7 +86,7 @@ router.post('/roles', async (req: Request, res: Response): Promise<void> => {
   const { name, description } = req.body as { name?: string; description?: string };
 
   if (!name?.trim()) {
-    res.status(400).json({ error: 'name is required' });
+    sendError(res, 400, 'name is required');
     return;
   }
 
@@ -97,11 +98,11 @@ router.post('/roles', async (req: Request, res: Response): Promise<void> => {
     res.status(201).json(role);
   } catch (error: any) {
     if (error?.code === 'P2002') {
-      res.status(409).json({ error: `Role "${name}" already exists` });
+      sendError(res, 409, `Role "${name}" already exists`);
       return;
     }
     console.error('Error creating role:', error);
-    res.status(500).json({ error: 'Failed to create role' });
+    sendError(res, 500, 'Failed to create role');
   }
 });
 
@@ -136,11 +137,11 @@ router.delete('/roles/:id', async (req: Request, res: Response): Promise<void> =
     res.status(204).send();
   } catch (error: any) {
     if (error?.code === 'P2025') {
-      res.status(404).json({ error: 'Role not found' });
+      sendError(res, 404, 'Role not found');
       return;
     }
     console.error('Error deleting role:', error);
-    res.status(500).json({ error: 'Failed to delete role' });
+    sendError(res, 500, 'Failed to delete role');
   }
 });
 
@@ -184,13 +185,13 @@ router.get('/roles/:id/endpoints', async (req: Request, res: Response): Promise<
       include: { endpointMappings: true },
     });
     if (!role) {
-      res.status(404).json({ error: 'Role not found' });
+      sendError(res, 404, 'Role not found');
       return;
     }
     res.json(role.endpointMappings);
   } catch (error) {
     console.error('Error fetching endpoint mappings:', error);
-    res.status(500).json({ error: 'Failed to fetch endpoint mappings' });
+    sendError(res, 500, 'Failed to fetch endpoint mappings');
   }
 });
 
@@ -248,21 +249,21 @@ router.post('/roles/:id/endpoints', async (req: Request, res: Response): Promise
   const { endpoint, method } = req.body as { endpoint?: string; method?: string };
 
   if (!endpoint?.trim() || !method?.trim()) {
-    res.status(400).json({ error: 'endpoint and method are required' });
+    sendError(res, 400, 'endpoint and method are required');
     return;
   }
 
   const VALID_METHODS = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', '*'];
   const normalizedMethod = method.trim().toUpperCase();
   if (!VALID_METHODS.includes(normalizedMethod)) {
-    res.status(400).json({ error: `method must be one of: ${VALID_METHODS.join(', ')}` });
+    sendError(res, 400, `method must be one of: ${VALID_METHODS.join(', ')}`);
     return;
   }
 
   try {
     const role = await prisma.role.findUnique({ where: { id: req.params.id } });
     if (!role) {
-      res.status(404).json({ error: 'Role not found' });
+      sendError(res, 404, 'Role not found');
       return;
     }
 
@@ -276,11 +277,11 @@ router.post('/roles/:id/endpoints', async (req: Request, res: Response): Promise
     res.status(201).json(mapping);
   } catch (error: any) {
     if (error?.code === 'P2002') {
-      res.status(409).json({ error: 'Mapping already exists for this role/endpoint/method combination' });
+      sendError(res, 409, 'Mapping already exists for this role/endpoint/method combination');
       return;
     }
     console.error('Error creating endpoint mapping:', error);
-    res.status(500).json({ error: 'Failed to create endpoint mapping' });
+    sendError(res, 500, 'Failed to create endpoint mapping');
   }
 });
 
@@ -320,11 +321,11 @@ router.delete('/roles/:id/endpoints/:mappingId', async (req: Request, res: Respo
     res.status(204).send();
   } catch (error: any) {
     if (error?.code === 'P2025') {
-      res.status(404).json({ error: 'Endpoint mapping not found' });
+      sendError(res, 404, 'Endpoint mapping not found');
       return;
     }
     console.error('Error deleting endpoint mapping:', error);
-    res.status(500).json({ error: 'Failed to delete endpoint mapping' });
+    sendError(res, 500, 'Failed to delete endpoint mapping');
   }
 });
 
@@ -378,7 +379,7 @@ router.get('/users', async (_req: Request, res: Response): Promise<void> => {
     res.json(result);
   } catch (error) {
     console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Failed to fetch users' });
+    sendError(res, 500, 'Failed to fetch users');
   }
 });
 
@@ -426,7 +427,7 @@ router.post('/users/:id/roles', async (req: Request, res: Response): Promise<voi
   const { roleId } = req.body as { roleId?: string };
 
   if (!roleId?.trim()) {
-    res.status(400).json({ error: 'roleId is required' });
+    sendError(res, 400, 'roleId is required');
     return;
   }
 
@@ -436,8 +437,8 @@ router.post('/users/:id/roles', async (req: Request, res: Response): Promise<voi
       prisma.role.findUnique({ where: { id: roleId } }),
     ]);
 
-    if (!user) { res.status(404).json({ error: 'User not found' }); return; }
-    if (!role)  { res.status(404).json({ error: 'Role not found' }); return; }
+    if (!user) { sendError(res, 404, 'User not found'); return; }
+    if (!role)  { sendError(res, 404, 'Role not found'); return; }
 
     const userRole = await prisma.userRole.create({
       data: { userId: req.params.id, roleId },
@@ -447,11 +448,11 @@ router.post('/users/:id/roles', async (req: Request, res: Response): Promise<voi
     res.status(201).json(userRole);
   } catch (error: any) {
     if (error?.code === 'P2002') {
-      res.status(409).json({ error: 'User already has this role' });
+      sendError(res, 409, 'User already has this role');
       return;
     }
     console.error('Error assigning role:', error);
-    res.status(500).json({ error: 'Failed to assign role' });
+    sendError(res, 500, 'Failed to assign role');
   }
 });
 
@@ -493,7 +494,7 @@ router.delete('/users/:id/roles/:roleId', async (req: Request, res: Response): P
     res.status(204).send();
   } catch (error) {
     console.error('Error removing role from user:', error);
-    res.status(500).json({ error: 'Failed to remove role' });
+    sendError(res, 500, 'Failed to remove role');
   }
 });
 

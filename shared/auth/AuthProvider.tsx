@@ -15,6 +15,15 @@ async function safeJson<T = unknown>(res: Response): Promise<T | null> {
   }
 }
 
+/** Extract error message from auth API error response for throwing. */
+async function getAuthErrorMessage(
+  res: Response,
+  getFallback: (status: number) => string
+): Promise<string> {
+  const err = await safeJson<{ message?: string; error?: string }>(res);
+  return err?.message || err?.error || getFallback(res.status);
+}
+
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
@@ -88,18 +97,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (!res.ok) {
-      const err = await safeJson<{ message?: string; error?: string }>(res);
-      const fallback =
-        res.status === 502 || res.status === 503
+      const msg = await getAuthErrorMessage(res, (status) =>
+        status === 502 || status === 503
           ? 'Login failed (backend unreachable—check if the API is running)'
-          : res.status === 403
+          : status === 403
             ? 'Login failed (forbidden—check allowed origins)'
-            : `Login failed (${res.status})`;
-      const displayed = err?.message || err?.error || fallback;
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8d83fd'},body:JSON.stringify({sessionId:'8d83fd',runId:'pre-fix',hypothesisId:'H1',location:'shared/auth/AuthProvider.tsx:login',message:'Login error response',data:{status:res.status,errKeys:err?Object.keys(err):[],displayed,normalized:res.headers.get('X-Auth-Error-Normalized')},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion agent log
-      throw new Error(displayed);
+            : `Login failed (${status})`
+      );
+      throw new Error(msg);
     }
 
     const data = await safeJson<{ user?: User }>(res);
@@ -121,18 +126,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (!res.ok) {
-      const err = await safeJson<{ message?: string; error?: string }>(res);
-      const fallback =
-        res.status === 502 || res.status === 503
+      const msg = await getAuthErrorMessage(res, (status) =>
+        status === 502 || status === 503
           ? 'Registration failed (backend unreachable—check if the API is running)'
-          : res.status === 403
+          : status === 403
             ? 'Registration failed (forbidden—check allowed origins)'
-            : `Registration failed (${res.status})`;
-      const displayed = err?.message || err?.error || fallback;
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8d83fd'},body:JSON.stringify({sessionId:'8d83fd',runId:'pre-fix',hypothesisId:'H2',location:'shared/auth/AuthProvider.tsx:register',message:'Register error response',data:{status:res.status,errKeys:err?Object.keys(err):[],displayed,normalized:res.headers.get('X-Auth-Error-Normalized')},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion agent log
-      throw new Error(displayed);
+            : `Registration failed (${status})`
+      );
+      throw new Error(msg);
     }
 
     const data = await safeJson<{ user?: User }>(res);
