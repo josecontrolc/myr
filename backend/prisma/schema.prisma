@@ -2,8 +2,8 @@
 
 generator client {
   provider      = "prisma-client-js"
-  // Generate binaries for local Windows dev and Docker's linux-musl (Alpine)
-  binaryTargets = ["windows", "linux-musl"]
+  // Windows (local), linux-musl (Alpine x64), linux-musl-arm64 (Alpine ARM e.g. Docker Desktop ARM)
+  binaryTargets = ["windows", "linux-musl", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {

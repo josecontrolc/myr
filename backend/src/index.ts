@@ -114,8 +114,8 @@ app.use('/api/admin', adminRouter);
 app.use('/api/admin', rolesRouter);
 
 // ─── 404 for API (no route matched) ─────────────────────────────────────────────
-app.use('/api', (_req, res) => {
-  res.status(404).json({ error: 'Not found', path: _req.path, method: _req.method });
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'Not found', path: req.path, method: req.method });
 });
 
 // ─── Error Handler ────────────────────────────────────────────────────────────

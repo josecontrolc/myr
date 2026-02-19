@@ -1,5 +1,3 @@
-version: '3.8'
-
 networks:
   dmz_net:
     driver: bridge
@@ -26,6 +24,12 @@ services:
     networks:
       - internal_net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-myrtest}"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   backend:
     build:
@@ -52,7 +56,10 @@ services:
     networks:
       - internal_net
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      email_service:
+        condition: service_started
     restart: unless-stopped
 
   main_frontend:

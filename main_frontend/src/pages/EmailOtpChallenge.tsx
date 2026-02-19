@@ -29,6 +29,7 @@ const EmailOtpChallenge = () => {
 
     try {
       await verifyEmailOtp(userId, code);
+      sessionStorage.removeItem('pending_2fa_email');
       await checkSession();
       navigate('/dashboard');
     } catch (err: unknown) {

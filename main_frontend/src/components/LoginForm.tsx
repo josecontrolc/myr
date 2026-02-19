@@ -27,6 +27,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
         response.data?.twoFactorRedirect ||
         (response.error?.message ?? '').match(/two-factor|2FA|TOTP/i)
       ) {
+        sessionStorage.setItem('pending_2fa_email', email);
         navigate('/auth/2fa-challenge');
         setLoading(false);
         return;

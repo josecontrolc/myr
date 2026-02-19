@@ -141,10 +141,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    await fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' });
-    setUser(null);
-    setJwtToken(null);
-    localStorage.removeItem(JWT_STORAGE_KEY);
+    try {
+      await fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' });
+    } finally {
+      setUser(null);
+      setJwtToken(null);
+      localStorage.removeItem(JWT_STORAGE_KEY);
+    }
   };
 
   const fetchJwtToken = async (email: string, password: string): Promise<boolean> => {

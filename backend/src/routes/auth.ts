@@ -220,6 +220,136 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// In-memory rate limit for "request email OTP" (by email): max 5 per 15 minutes
+const emailOtpRequestCount = new Map<string, { count: number; resetAt: number }>();
+const EMAIL_OTP_RATE_WINDOW_MS = 15 * 60 * 1000;
+const EMAIL_OTP_RATE_MAX = 5;
+
+function checkEmailOtpRateLimit(email: string): boolean {
+  const now = Date.now();
+  const entry = emailOtpRequestCount.get(email.toLowerCase());
+  if (!entry) return true;
+  if (now >= entry.resetAt) {
+    emailOtpRequestCount.delete(email.toLowerCase());
+    return true;
+  }
+  return entry.count < EMAIL_OTP_RATE_MAX;
+}
+
+function incrementEmailOtpRateLimit(email: string): void {
+  const key = email.toLowerCase();
+  const now = Date.now();
+  const entry = emailOtpRequestCount.get(key);
+  if (!entry || now >= entry.resetAt) {
+    emailOtpRequestCount.set(key, { count: 1, resetAt: now + EMAIL_OTP_RATE_WINDOW_MS });
+  } else {
+    entry.count += 1;
+  }
+}
+
+/**
+ * @swagger
+ * /api/auth/request-email-otp:
+ *   post:
+ *     summary: Request a 2FA code by email (alternative to TOTP on the 2FA challenge page)
+ *     description: >
+ *       Call this from the Two-Factor Authentication page when the user chooses
+ *       "Use code sent to my email instead". Sends a 6-digit OTP to the user's email
+ *       and returns userId for use with POST /api/auth/verify-otp.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Required if no session; used when user is on 2FA challenge page.
+ *     responses:
+ *       200:
+ *         description: OTP sent; use returned userId with verify-otp
+ *       400:
+ *         description: Missing email
+ *       401:
+ *         description: Could not identify user (no session and no/invalid email)
+ *       404:
+ *         description: User not found or 2FA not enabled (same response to avoid enumeration)
+ *       429:
+ *         description: Too many requests (rate limited)
+ */
+router.post('/request-email-otp', async (req: Request, res: Response): Promise<void> => {
+  try {
+    let user: { id: string; email: string } | null = null;
+
+    const headers = new Headers();
+    for (const [key, value] of Object.entries(req.headers)) {
+      if (value !== undefined) {
+        headers.set(key, Array.isArray(value) ? value.join(', ') : String(value));
+      }
+    }
+    const session = await auth.api.getSession({ headers });
+    if (session?.user) {
+      const u = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, email: true, twoFactorEnabled: true },
+      });
+      if (u?.twoFactorEnabled) user = { id: u.id, email: u.email };
+    }
+
+    if (!user) {
+      const email = (req.body as { email?: string })?.email?.trim();
+      if (!email) {
+        res.status(400).json({ error: 'email is required when no session' });
+        return;
+      }
+      if (!checkEmailOtpRateLimit(email)) {
+        res.status(429).json({ error: 'Too many email code requests. Try again later.' });
+        return;
+      }
+      const u = await prisma.user.findFirst({
+        where: { email: email.toLowerCase(), twoFactorEnabled: true },
+        select: { id: true, email: true },
+      });
+      if (!u) {
+        res.status(404).json({ error: 'User not found or 2FA not enabled' });
+        return;
+      }
+      user = { id: u.id, email: u.email };
+      incrementEmailOtpRateLimit(email);
+    }
+
+    const identifier = `${OTP_IDENTIFIER_PREFIX}${user.id}`;
+    const code = generateOtp();
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+    await prisma.verification.deleteMany({ where: { identifier } });
+    await prisma.verification.create({ data: { identifier, value: code, expiresAt } });
+    await sendOtp(user.email, code, OTP_EXPIRY_MINUTES);
+
+    res.json({ userId: user.id });
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('Error requesting email OTP:', error);
+    const isUnavailable =
+      !errMsg ||
+      errMsg.includes('EMAIL_SERVICE_SECRET') ||
+      errMsg.includes('ECONNREFUSED') ||
+      errMsg.includes('ENOTFOUND') ||
+      errMsg.includes('fetch failed') ||
+      errMsg.includes('Email service responded');
+    const isSendGridRejected = errMsg.includes('Forbidden') || errMsg.includes('403');
+    const status = isUnavailable || isSendGridRejected ? 503 : 500;
+    const userMessage = isSendGridRejected
+      ? 'Email was rejected (check SendGrid: verify sender and API key). Use your authenticator app or a backup code.'
+      : isUnavailable
+        ? 'Email service is unavailable. Use your authenticator app or a backup code.'
+        : 'Failed to send email code. Use your authenticator app or a backup code.';
+    res.status(status).json({ error: userMessage });
+  }
+});
+
 /**
  * @swagger
  * /api/auth/verify-otp:

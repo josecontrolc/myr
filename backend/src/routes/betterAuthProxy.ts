@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { auth } from '../lib/auth';
 
 const router = express.Router();
@@ -7,15 +7,17 @@ const router = express.Router();
  * Proxies all unmatched /api/auth/* requests to Better Auth handler.
  * Normalizes 4xx/5xx responses to JSON so clients can show message/error.
  */
-export async function betterAuthProxyHandler(req: Request, res: Response): Promise<void> {
+export async function betterAuthProxyHandler(req: ExpressRequest, res: ExpressResponse): Promise<void> {
   try {
     const protocol = req.headers['x-forwarded-proto'] || 'http';
     const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
-    const url = `${protocol}://${host}${req.url}`;
+    // Use originalUrl so Better Auth receives /api/auth/get-session, not just /get-session
+    const url = `${protocol}://${host}${req.originalUrl}`;
 
     const bodyString =
       req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined;
 
+    // Web API Request (fetch), not Express Request
     const webRequest = new Request(url, {
       method: req.method,
       headers: new Headers(req.headers as Record<string, string>),
@@ -26,9 +28,18 @@ export async function betterAuthProxyHandler(req: Request, res: Response): Promi
     const body = await response.text();
 
     res.status(response.status);
+    // Forward all headers; Set-Cookie must be forwarded as an array so we don't lose
+    // the cookie-clear header on sign-out (forEach would overwrite with a single value).
+    const setCookieValues =
+      typeof response.headers.getSetCookie === 'function'
+        ? response.headers.getSetCookie()
+        : [];
     response.headers.forEach((value, key) => {
-      res.setHeader(key, value);
+      if (key.toLowerCase() !== 'set-cookie') res.setHeader(key, value);
     });
+    if (setCookieValues.length > 0) {
+      res.setHeader('Set-Cookie', setCookieValues);
+    }
 
     if (response.status >= 400) {
       let json: { message?: string; error?: string } | null = null;

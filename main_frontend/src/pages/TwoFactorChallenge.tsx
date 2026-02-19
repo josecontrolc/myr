@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@shared/auth';
 
+const PENDING_OTP_KEY = 'pending_email_otp_user_id';
+const PENDING_2FA_EMAIL_KEY = 'pending_2fa_email';
+
 const TwoFactorChallenge = () => {
   const [code, setCode] = useState('');
   const [trustDevice, setTrustDevice] = useState(false);
@@ -9,6 +12,7 @@ const TwoFactorChallenge = () => {
   const [backupCode, setBackupCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emailOtpSending, setEmailOtpSending] = useState(false);
   const { verify2FALogin, user, checkSession } = useAuth();
   const navigate = useNavigate();
 
@@ -30,6 +34,43 @@ const TwoFactorChallenge = () => {
       setCode('');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUseEmailCode = async () => {
+    const email = sessionStorage.getItem(PENDING_2FA_EMAIL_KEY);
+    if (!email) {
+      setError('Email not found. Please go back and sign in again.');
+      return;
+    }
+    setError('');
+    setEmailOtpSending(true);
+    try {
+      const res = await fetch('/api/auth/request-email-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email }),
+      });
+      let data: { error?: string; userId?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+      if (!res.ok) {
+        setError(data?.error || 'Could not send email code. Use authenticator or backup code.');
+        return;
+      }
+      if (data?.userId) {
+        sessionStorage.setItem(PENDING_OTP_KEY, data.userId);
+        sessionStorage.removeItem(PENDING_2FA_EMAIL_KEY);
+        navigate('/auth/email-otp');
+      }
+    } catch {
+      setError('Could not send email code. Try again or use authenticator.');
+    } finally {
+      setEmailOtpSending(false);
     }
   };
 
@@ -130,13 +171,21 @@ const TwoFactorChallenge = () => {
                 {loading ? 'Verifying...' : 'Verify'}
               </button>
 
-              <div className="text-center">
+              <div className="text-center space-y-2">
                 <button
                   type="button"
                   onClick={() => setShowBackupCode(true)}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="block w-full text-sm text-blue-600 hover:text-blue-700"
                 >
                   Use a backup code instead
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUseEmailCode}
+                  disabled={emailOtpSending}
+                  className="block w-full text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50"
+                >
+                  {emailOtpSending ? 'Sending...' : 'Send code to my email instead'}
                 </button>
               </div>
             </form>
@@ -203,7 +252,10 @@ const TwoFactorChallenge = () => {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => {
+                sessionStorage.removeItem(PENDING_2FA_EMAIL_KEY);
+                navigate('/login');
+              }}
               className="text-sm text-gray-600 hover:text-gray-700"
             >
               Back to login
