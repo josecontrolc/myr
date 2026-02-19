@@ -14,10 +14,37 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    // #region agent log
+    fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin_frontend/src/pages/Login.tsx:13',message:'Login attempt started',data:{email},timestamp:Date.now(),runId:'run1',hypothesisId:'H1,H2,H4'})}).catch(()=>{});
+    // #endregion
     try {
-      await login(email, password);
+      const result = await login(email, password);
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin_frontend/src/pages/Login.tsx:20',message:'Login result received',data:{twoFactorRedirect:result?.twoFactorRedirect,emailOtpRequired:result?.emailOtpRequired,hasResult:!!result},timestamp:Date.now(),runId:'run1',hypothesisId:'H1,H2,H4'})}).catch(()=>{});
+      // #endregion
+      if (result?.twoFactorRedirect) {
+        // #region agent log
+        fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin_frontend/src/pages/Login.tsx:23',message:'2FA redirect detected but not handled',data:{email},timestamp:Date.now(),runId:'run1',hypothesisId:'H1,H3'})}).catch(()=>{});
+        // #endregion
+        sessionStorage.setItem('pending_2fa_email', email);
+        navigate('/auth/2fa-challenge');
+        return;
+      }
+      if (result?.emailOtpRequired) {
+        // #region agent log
+        fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin_frontend/src/pages/Login.tsx:30',message:'Email OTP required but not handled',data:{email},timestamp:Date.now(),runId:'run1',hypothesisId:'H2,H3'})}).catch(()=>{});
+        // #endregion
+        navigate('/auth/email-otp');
+        return;
+      }
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin_frontend/src/pages/Login.tsx:35',message:'Login successful, navigating to dashboard',data:{email},timestamp:Date.now(),runId:'run1',hypothesisId:'H5'})}).catch(()=>{});
+      // #endregion
       navigate('/dashboard');
     } catch (err: unknown) {
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin_frontend/src/pages/Login.tsx:38',message:'Login error caught',data:{error:err instanceof Error ? err.message : 'Unknown error',errorType:err?.constructor?.name},timestamp:Date.now(),runId:'run1',hypothesisId:'H4'})}).catch(()=>{});
+      // #endregion
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);

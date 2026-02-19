@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authClient, useAuth } from '@shared/auth';
+import { useAuth } from '@shared/auth';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -11,7 +11,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { checkSession, fetchJwtToken } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -20,43 +20,26 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
     setLoading(true);
 
     try {
-      const response = await authClient.signIn.email({ email, password });
+      const result = await login(email, password);
 
-      // Better Auth TOTP 2FA redirect
-      if (
-        response.data?.twoFactorRedirect ||
-        (response.error?.message ?? '').match(/two-factor|2FA|TOTP/i)
-      ) {
+      if (result.twoFactorRedirect) {
         sessionStorage.setItem('pending_2fa_email', email);
         navigate('/auth/2fa-challenge');
-        setLoading(false);
         return;
       }
 
-      if (response.error) {
-        setError(response.error.message || 'Login failed');
-        setLoading(false);
+      if (result.emailOtpRequired) {
+        navigate('/auth/email-otp');
         return;
       }
 
-      // Session established — now obtain the JWT (handles email 2FA gate)
-      try {
-        const gotToken = await fetchJwtToken(email, password);
-        if (!gotToken) {
-          // Email OTP sent — redirect to verification page
-          navigate('/auth/email-otp');
-          setLoading(false);
-          return;
-        }
-      } catch {
-        // Non-fatal: JWT fetch failure should not block session login
-      }
-
-      await checkSession();
+      // Login successful — user state is committed synchronously by login()
+      // via flushSync, so onSuccess/navigate runs with user already in state.
       onSuccess?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Login failed';
       if (message.match(/two-factor|2FA|TOTP/i)) {
+        sessionStorage.setItem('pending_2fa_email', email);
         navigate('/auth/2fa-challenge');
       } else {
         setError(message);

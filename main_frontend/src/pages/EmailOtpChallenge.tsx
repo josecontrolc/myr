@@ -30,7 +30,8 @@ const EmailOtpChallenge = () => {
     try {
       await verifyEmailOtp(userId, code);
       sessionStorage.removeItem('pending_2fa_email');
-      await checkSession();
+      // checkSession(true) uses flushSync so user state is committed before navigate().
+      await checkSession(true);
       navigate('/dashboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Invalid verification code');

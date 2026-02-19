@@ -15,7 +15,8 @@ export interface AuthContextType {
   user: User | null;
   jwtToken: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  /** Signs in with email/password. Returns flags when extra steps are required. */
+  login: (email: string, password: string) => Promise<{ twoFactorRedirect?: true; emailOtpRequired?: true }>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;

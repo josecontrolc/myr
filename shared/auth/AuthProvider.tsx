@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { authClient } from './authClient';
 import type { User, TwoFactorSetupData, AuthContextType } from './types';
 
@@ -54,17 +55,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const checkSession = async () => {
+  /**
+   * Syncs auth state with the server session.
+   *
+   * @param commitSync - Pass `true` when navigating immediately after this call
+   *   (e.g. after 2FA/OTP verification). Wraps the state update in flushSync so
+   *   the user is committed before the caller calls navigate(), avoiding the
+   *   React 18 concurrent-mode race condition.
+   *   Do NOT pass `true` from inside a useEffect or React lifecycle — only from
+   *   user-initiated event handlers.
+   */
+  const checkSession = async (commitSync = false) => {
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'shared/auth/AuthProvider.tsx:68',
+          message: 'checkSession called',
+          data: { commitSync },
+          timestamp: Date.now(),
+          runId: 'postfix1',
+          hypothesisId: 'S1'
+        })
+      }).catch(() => {});
+      // #endregion
       const res = await fetch('/api/auth/get-session', { credentials: 'include' });
+      const data = await safeJson<{ user?: unknown }>(res);
       if (res.ok) {
-        const data = await safeJson<{ user?: unknown }>(res);
         if (data?.user) {
-          setUser(data.user);
-          const stored = localStorage.getItem(JWT_STORAGE_KEY);
-          if (stored) {
-            setJwtToken(stored);
+          const applyUser = () => {
+            setUser(data.user as User);
+            const stored = localStorage.getItem(JWT_STORAGE_KEY);
+            if (stored) setJwtToken(stored);
+          };
+          if (commitSync) {
+            flushSync(applyUser);
           } else {
+            applyUser();
+          }
+          // #region agent log
+          fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              location: 'shared/auth/AuthProvider.tsx:79',
+              message: 'checkSession user set from server session',
+              data: { hasUser: true },
+              timestamp: Date.now(),
+              runId: 'postfix1',
+              hypothesisId: 'S1'
+            })
+          }).catch(() => {});
+          // #endregion
+          if (!localStorage.getItem(JWT_STORAGE_KEY)) {
             await fetchJwtFromSession();
           }
         } else {
@@ -88,7 +133,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkSession();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const fetchJwtToken = async (email: string, password: string): Promise<boolean> => {
+    const res = await fetch('/api/auth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) throw new Error('Failed to obtain access token');
+
+    const data = await safeJson<{ token?: string; requires2FA?: boolean; userId?: string }>(res);
+
+    if (data?.requires2FA && data?.userId) {
+      sessionStorage.setItem(PENDING_OTP_KEY, data.userId);
+      return false;
+    }
+
+    if (data?.token) {
+      setJwtToken(data.token);
+      localStorage.setItem(JWT_STORAGE_KEY, data.token);
+    }
+    return true;
+  };
+
+  /**
+   * Signs in with email/password.
+   *
+   * Uses flushSync so the user state update is committed to the DOM before the
+   * caller navigates away — this prevents the React 18 concurrent-mode race
+   * condition where Dashboard renders with user=null and immediately redirects
+   * back to /login.
+   *
+   * Returns flags when additional steps are required:
+   *   twoFactorRedirect — TOTP 2FA challenge needed (navigate to /auth/2fa-challenge)
+   *   emailOtpRequired  — Email OTP needed (navigate to /auth/email-otp)
+   */
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ twoFactorRedirect?: true; emailOtpRequired?: true }> => {
     const res = await fetch('/api/auth/sign-in/email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -107,14 +190,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(msg);
     }
 
-    const data = await safeJson<{ user?: User }>(res);
-    if (data?.user) setUser(data.user);
+    const data = await safeJson<{ user?: User; twoFactorRedirect?: boolean }>(res);
 
-    try {
-      await fetchJwtToken(email, password);
-    } catch {
-      // Non-fatal: JWT fetch failure should not block session login
+    if (data?.twoFactorRedirect) {
+      return { twoFactorRedirect: true };
     }
+
+    if (data?.user) {
+      try {
+        const gotToken = await fetchJwtToken(email, password);
+        if (!gotToken) {
+          // Email OTP pending — do not expose user in state until OTP is verified.
+          return { emailOtpRequired: true };
+        }
+      } catch {
+        // JWT fetch failed — proceed as authenticated; JWT can be refreshed later.
+      }
+
+      // flushSync ensures the state update is committed before the caller
+      // calls navigate(), preventing the React 18 concurrent-mode race condition
+      // where Dashboard renders with user=null and redirects back to /login.
+      flushSync(() => {
+        setUser(data.user as User);
+      });
+    }
+
+    return {};
   };
 
   const register = async (name: string, email: string, password: string) => {
@@ -142,35 +243,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' });
+      await fetch('/api/auth/sign-out', {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+      });
     } finally {
       setUser(null);
       setJwtToken(null);
       localStorage.removeItem(JWT_STORAGE_KEY);
     }
-  };
-
-  const fetchJwtToken = async (email: string, password: string): Promise<boolean> => {
-    const res = await fetch('/api/auth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) throw new Error('Failed to obtain access token');
-
-    const data = await safeJson<{ token?: string; requires2FA?: boolean; userId?: string }>(res);
-
-    if (data?.requires2FA && data?.userId) {
-      sessionStorage.setItem(PENDING_OTP_KEY, data.userId);
-      return false;
-    }
-
-    if (data?.token) {
-      setJwtToken(data.token);
-      localStorage.setItem(JWT_STORAGE_KEY, data.token);
-    }
-    return true;
   };
 
   const verifyEmailOtp = async (userId: string, code: string): Promise<void> => {
@@ -212,13 +294,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await checkSession();
   };
 
+  /**
+   * Verifies a TOTP code during the 2FA login challenge.
+   * Uses flushSync so user state is committed before the caller calls navigate().
+   */
   const verify2FALogin = async (code: string, trustDevice = false): Promise<void> => {
+    // #region agent log
+    fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'shared/auth/AuthProvider.tsx:273',
+        message: 'verify2FALogin called',
+        data: { trustDevice },
+        timestamp: Date.now(),
+        runId: 'postfix1',
+        hypothesisId: 'S2'
+      })
+    }).catch(() => {});
+    // #endregion
     const response = await authClient.twoFactor.verifyTotp({ code, trustDevice });
     if (response.error) throw new Error(response.error.message || 'Invalid verification code');
     if (response.data?.user) {
-      setUser(response.data.user);
+      flushSync(() => {
+        setUser(response.data!.user as User);
+      });
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'shared/auth/AuthProvider.tsx:278',
+          message: 'verify2FALogin user set from response',
+          data: { hasUser: true },
+          timestamp: Date.now(),
+          runId: 'postfix1',
+          hypothesisId: 'S2'
+        })
+      }).catch(() => {});
+      // #endregion
     } else {
-      await checkSession();
+      // Fallback: server didn't return user in response body — fetch session with flushSync.
+      await checkSession(true);
     }
   };
 

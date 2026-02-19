@@ -3,24 +3,53 @@ import { auth } from '../lib/auth';
 
 const router = express.Router();
 
+/** Cookie prefix (must match auth.ts advanced.cookiePrefix). */
+const COOKIE_PREFIX = 'dmz_auth';
+/** Better Auth cookie names (prefix.name). */
+const SESSION_COOKIE = `${COOKIE_PREFIX}.session_token`;
+const SESSION_DATA_COOKIE = `${COOKIE_PREFIX}.session_data`;
+
+/**
+ * Set-Cookie values to clear all session-related cookies. Send both path variants
+ * so the browser clears them whether Better Auth set them with Path=/ or Path=/api/auth.
+ */
+function clearSessionCookieHeaders(): string[] {
+  const names = [SESSION_COOKIE, SESSION_DATA_COOKIE];
+  const headers: string[] = [];
+  for (const name of names) {
+    headers.push(`${name}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`);
+    headers.push(`${name}=; Path=/api/auth; Max-Age=0; HttpOnly; SameSite=Lax`);
+  }
+  return headers;
+}
+
 /**
  * Proxies all unmatched /api/auth/* requests to Better Auth handler.
  * Normalizes 4xx/5xx responses to JSON so clients can show message/error.
+ * On sign-out, forces session cookie clearing regardless of Better Auth's response status.
  */
+
 export async function betterAuthProxyHandler(req: ExpressRequest, res: ExpressResponse): Promise<void> {
   try {
     const protocol = req.headers['x-forwarded-proto'] || 'http';
     const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
     // Use originalUrl so Better Auth receives /api/auth/get-session, not just /get-session
     const url = `${protocol}://${host}${req.originalUrl}`;
+    const isSignOut = req.method === 'POST' && req.originalUrl.includes('/sign-out');
 
-    const bodyString =
-      req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined;
-
+    let bodyString =
+      req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body ?? {}) : undefined;
+    const headers = new Headers(req.headers as Record<string, string>);
+    if (req.method !== 'GET' && req.method !== 'HEAD' && !headers.has('content-type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+    if (req.method !== 'GET' && req.method !== 'HEAD' && (bodyString === undefined || bodyString === '')) {
+      bodyString = '{}';
+    }
     // Web API Request (fetch), not Express Request
     const webRequest = new Request(url, {
       method: req.method,
-      headers: new Headers(req.headers as Record<string, string>),
+      headers,
       body: bodyString,
     });
 
@@ -28,12 +57,22 @@ export async function betterAuthProxyHandler(req: ExpressRequest, res: ExpressRe
     const body = await response.text();
 
     res.status(response.status);
-    // Forward all headers; Set-Cookie must be forwarded as an array so we don't lose
-    // the cookie-clear header on sign-out (forEach would overwrite with a single value).
-    const setCookieValues =
-      typeof response.headers.getSetCookie === 'function'
-        ? response.headers.getSetCookie()
-        : [];
+    // Forward all headers. Set-Cookie must be forwarded as an array so we don't lose
+    // the cookie-clear header on sign-out. getSetCookie() exists in Node 21+; fallback for Node 20.
+    let setCookieValues: string[] = [];
+    if (typeof response.headers.getSetCookie === 'function') {
+      setCookieValues = response.headers.getSetCookie();
+    } else {
+      const v = response.headers.get('set-cookie');
+      if (v !== null && v !== undefined) {
+        setCookieValues = Array.isArray(v) ? v : [String(v)];
+      }
+    }
+    // On sign-out, always clear session cookies so the browser logs out even if Better Auth
+    // returns non-2xx (e.g. 415 Unsupported Media Type when body/Content-Type is wrong).
+    if (isSignOut) {
+      setCookieValues = clearSessionCookieHeaders();
+    }
     response.headers.forEach((value, key) => {
       if (key.toLowerCase() !== 'set-cookie') res.setHeader(key, value);
     });

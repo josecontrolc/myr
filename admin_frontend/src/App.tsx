@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from '@shared/auth';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
+import TwoFactorChallenge from './pages/TwoFactorChallenge';
+import EmailOtpChallenge from './pages/EmailOtpChallenge';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -85,6 +87,8 @@ const App = () => {
         <div className="min-h-screen bg-gray-50 flex flex-col">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/auth/2fa-challenge" element={<TwoFactorChallenge />} />
+            <Route path="/auth/email-otp" element={<EmailOtpChallenge />} />
             <Route
               path="/*"
               element={

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@shared/auth';
 
@@ -16,20 +16,57 @@ const TwoFactorChallenge = () => {
   const { verify2FALogin, checkSession } = useAuth();
   const navigate = useNavigate();
 
-  // Note: During 2FA challenge, user may not be fully authenticated yet
-  // Better Auth maintains a temporary session for 2FA verification
-  // So we don't redirect if user is null - the backend will handle the session
-
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // verify2FALogin sets user state via flushSync — navigate is safe immediately after.
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'admin_frontend/src/pages/TwoFactorChallenge.tsx:24',
+          message: 'TwoFactorChallenge handleVerifyCode start',
+          data: { trustDevice },
+          timestamp: Date.now(),
+          runId: 'postfix1',
+          hypothesisId: 'F1'
+        })
+      }).catch(() => {});
+      // #endregion
       await verify2FALogin(code, trustDevice);
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'admin_frontend/src/pages/TwoFactorChallenge.tsx:31',
+          message: 'TwoFactorChallenge verify2FALogin resolved, navigating',
+          data: {},
+          timestamp: Date.now(),
+          runId: 'postfix1',
+          hypothesisId: 'F1,F2'
+        })
+      }).catch(() => {});
+      // #endregion
       navigate('/dashboard');
     } catch (err: any) {
+      // #region agent log
+      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'admin_frontend/src/pages/TwoFactorChallenge.tsx:38',
+          message: 'TwoFactorChallenge verify2FALogin error',
+          data: { error: err?.message },
+          timestamp: Date.now(),
+          runId: 'postfix1',
+          hypothesisId: 'F1'
+        })
+      }).catch(() => {});
+      // #endregion
       setError(err.message || 'Invalid verification code');
       setCode('');
     } finally {
@@ -97,7 +134,6 @@ const TwoFactorChallenge = () => {
         throw new Error(data.message || 'Invalid backup code');
       }
 
-      // checkSession(true) uses flushSync so user state is committed before navigate().
       await checkSession(true);
       navigate('/dashboard');
     } catch (err: any) {
@@ -109,17 +145,17 @@ const TwoFactorChallenge = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-xl p-8">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-gray-800 rounded-2xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 mb-4">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Two-Factor Authentication</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl font-bold text-white mb-2">Two Factor Authentication</h1>
+            <p className="text-gray-400">
               {showBackupCode 
                 ? 'Enter one of your backup codes'
                 : 'Enter the 6-digit code from your authenticator app'}
@@ -129,7 +165,7 @@ const TwoFactorChallenge = () => {
           {!showBackupCode ? (
             <form onSubmit={handleVerifyCode} className="space-y-4">
               <div>
-                <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="code" className="block text-sm font-medium text-gray-300 mb-1.5">
                   Verification Code
                 </label>
                 <input
@@ -140,7 +176,7 @@ const TwoFactorChallenge = () => {
                   required
                   maxLength={6}
                   autoFocus
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-2xl tracking-widest"
+                  className="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-center text-2xl tracking-widest"
                   placeholder="000000"
                 />
               </div>
@@ -151,15 +187,15 @@ const TwoFactorChallenge = () => {
                   type="checkbox"
                   checked={trustDevice}
                   onChange={(e) => setTrustDevice(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700"
                 />
-                <label htmlFor="trustDevice" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="trustDevice" className="ml-2 block text-sm text-gray-300">
                   Trust this device for 30 days
                 </label>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <div className="rounded-lg bg-red-900/50 border border-red-700 px-4 py-3 text-sm text-red-300">
                   {error}
                 </div>
               )}
@@ -167,7 +203,7 @@ const TwoFactorChallenge = () => {
               <button
                 type="submit"
                 disabled={loading || code.length !== 6}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Verifying...' : 'Verify'}
               </button>
@@ -176,7 +212,7 @@ const TwoFactorChallenge = () => {
                 <button
                   type="button"
                   onClick={() => setShowBackupCode(true)}
-                  className="block w-full text-sm text-blue-600 hover:text-blue-700"
+                  className="block w-full text-sm text-indigo-400 hover:text-indigo-300"
                 >
                   Use a backup code instead
                 </button>
@@ -184,7 +220,7 @@ const TwoFactorChallenge = () => {
                   type="button"
                   onClick={handleUseEmailCode}
                   disabled={emailOtpSending}
-                  className="block w-full text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50"
+                  className="block w-full text-sm text-indigo-400 hover:text-indigo-300 disabled:opacity-50"
                 >
                   {emailOtpSending ? 'Sending...' : 'Send code to my email instead'}
                 </button>
@@ -193,7 +229,7 @@ const TwoFactorChallenge = () => {
           ) : (
             <form onSubmit={handleVerifyBackupCode} className="space-y-4">
               <div>
-                <label htmlFor="backupCode" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="backupCode" className="block text-sm font-medium text-gray-300 mb-1.5">
                   Backup Code
                 </label>
                 <input
@@ -203,7 +239,7 @@ const TwoFactorChallenge = () => {
                   onChange={(e) => setBackupCode(e.target.value)}
                   required
                   autoFocus
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-mono"
+                  className="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-center font-mono"
                   placeholder="Enter backup code"
                 />
               </div>
@@ -214,15 +250,15 @@ const TwoFactorChallenge = () => {
                   type="checkbox"
                   checked={trustDevice}
                   onChange={(e) => setTrustDevice(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700"
                 />
-                <label htmlFor="trustDeviceBackup" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="trustDeviceBackup" className="ml-2 block text-sm text-gray-300">
                   Trust this device for 30 days
                 </label>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <div className="rounded-lg bg-red-900/50 border border-red-700 px-4 py-3 text-sm text-red-300">
                   {error}
                 </div>
               )}
@@ -230,7 +266,7 @@ const TwoFactorChallenge = () => {
               <button
                 type="submit"
                 disabled={loading || !backupCode}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Verifying...' : 'Verify Backup Code'}
               </button>
@@ -243,7 +279,7 @@ const TwoFactorChallenge = () => {
                     setBackupCode('');
                     setError('');
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="text-sm text-indigo-400 hover:text-indigo-300"
                 >
                   Use authenticator code instead
                 </button>
@@ -257,14 +293,14 @@ const TwoFactorChallenge = () => {
                 sessionStorage.removeItem(PENDING_2FA_EMAIL_KEY);
                 navigate('/login');
               }}
-              className="text-sm text-gray-600 hover:text-gray-700"
+              className="text-sm text-gray-400 hover:text-gray-300"
             >
               Back to login
             </button>
           </div>
         </div>
 
-        <div className="mt-4 text-center text-sm text-gray-600">
+        <div className="mt-4 text-center text-sm text-gray-500">
           <p>This page will timeout after 5 minutes for security.</p>
         </div>
       </div>
