@@ -39,6 +39,10 @@ const App = () => {
                   element={<PlaceholderPage titleKey="pages.billing.title" />}
                 />
                 <Route
+                  path="/payment-information"
+                  element={<PlaceholderPage titleKey="pages.paymentInfo.title" />}
+                />
+                <Route
                   path="/domiciliation-sepa"
                   element={<PlaceholderPage titleKey="pages.sepa.title" />}
                 />
@@ -49,6 +53,10 @@ const App = () => {
                 <Route
                   path="/reservation-salles-bcp"
                   element={<PlaceholderPage titleKey="pages.bcpRooms.title" />}
+                />
+                <Route
+                  path="/suggestions"
+                  element={<PlaceholderPage titleKey="pages.suggestions.title" />}
                 />
                 <Route
                   path="/offres"
@@ -73,6 +81,10 @@ const App = () => {
                 <Route
                   path="/ressources"
                   element={<PlaceholderPage titleKey="pages.resources.title" />}
+                />
+                <Route
+                  path="/data-deletion"
+                  element={<PlaceholderPage titleKey="pages.dataDeletion.title" />}
                 />
                 <Route
                   path="/commande-rapide"

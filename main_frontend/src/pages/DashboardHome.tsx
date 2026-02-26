@@ -343,8 +343,8 @@ const DashboardHome = () => {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2f0a4f] via-[#5b1e73] to-[#05071a] flex items-center justify-center">
-        <div className="text-white/80">Loading dashboard...</div>
+      <div className="min-h-screen bg-background dark:bg-background-dark flex items-center justify-center">
+        <div className="text-textSecondary dark:text-textSecondary-dark">Loading dashboard...</div>
       </div>
     );
   }
@@ -358,37 +358,39 @@ const DashboardHome = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-[#2f0a4f] via-[#5b1e73] to-[#05071a] text-white flex">
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 flex flex-col justify-center gap-8">
-        <header className="text-center space-y-3">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Welcome to <span className="text-secondary">MyR</span>
-          </h1>
-          <p className="max-w-3xl mx-auto text-sm sm:text-base text-white/75">
-            Your dedicated space allows you to view and manage your tickets, personal data, invoices, and ongoing services.
-            Easily perform essential actions such as creating tickets, exporting data, and accessing your Rsecure training.
-          </p>
-        </header>
+    <div className="min-h-[calc(100vh-4rem)] bg-background dark:bg-background-dark text-textPrimary dark:text-textPrimary-dark flex dark:bg-gradient-to-b dark:from-dark-purple dark:via-black-purple dark:to-black-purple">
+      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 flex flex-col justify-center">
+        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-lg shadow-sm px-6 sm:px-8 py-8 sm:py-10 space-y-8">
+          <header className="text-center space-y-3">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-textPrimary dark:text-textPrimary-dark">
+              Welcome to <span className="text-secondary">MyR</span>
+            </h1>
+            <p className="max-w-3xl mx-auto text-sm sm:text-base text-textSecondary dark:text-textSecondary-dark">
+              Your dedicated space allows you to view and manage your tickets, personal data, invoices, and ongoing services.
+              Easily perform essential actions such as creating tickets, exporting data, and accessing your Rsecure training.
+            </p>
+          </header>
 
-        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 justify-items-center">
-          {links.map((link) => (
-            <button
-              key={link.id}
-              type="button"
-              onClick={() => handleClick(link)}
-              className="group relative flex flex-col items-center justify-center rounded-xl px-3 py-5 text-white hover:bg-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-secondary/70 focus:ring-offset-0"
-            >
-              <div className="flex flex-col items-center space-y-2">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border border-white/25 bg-white/0 flex items-center justify-center text-white group-hover:border-secondary group-hover:text-secondary transition-colors">
-                  {getIconForLink(link.id)}
+          <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 justify-items-center">
+            {links.map((link) => (
+              <button
+                key={link.id}
+                type="button"
+                onClick={() => handleClick(link)}
+                className="group relative flex flex-col items-center justify-center rounded-xl px-3 py-5 text-textPrimary dark:text-textPrimary-dark hover:bg-background dark:hover:bg-background-dark transition-all focus:outline-none focus:ring-2 focus:ring-secondary/70 focus:ring-offset-0"
+              >
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border border-border dark:border-border-dark bg-surface dark:bg-surface-dark flex items-center justify-center text-textPrimary dark:text-textPrimary-dark group-hover:border-secondary group-hover:text-secondary transition-colors">
+                    {getIconForLink(link.id)}
+                  </div>
+                  <p className="text-xs sm:text-sm font-medium text-textPrimary dark:text-textPrimary-dark text-center leading-snug whitespace-nowrap mt-1">
+                    {link.title}
+                  </p>
                 </div>
-                <p className="text-xs sm:text-sm font-medium text-white text-center leading-snug whitespace-nowrap mt-1">
-                  {link.title}
-                </p>
-              </div>
-            </button>
-          ))}
-        </section>
+              </button>
+            ))}
+          </section>
+        </div>
       </div>
     </div>
   );

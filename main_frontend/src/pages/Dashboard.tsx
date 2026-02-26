@@ -105,23 +105,23 @@ const Dashboard = () => {
               <div className="space-y-2 text-sm text-textSecondary dark:text-textSecondary-dark">
                 <div className="flex items-center">
                   <span className="text-green-500 mr-2">✓</span>
-                  <span className="text-gray-700">NGINX Reverse Proxy (DMZ)</span>
+                  <span className="text-textSecondary dark:text-textSecondary-dark">NGINX Reverse Proxy (DMZ)</span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-green-500 mr-2">✓</span>
-                  <span className="text-gray-700">React Frontend (DMZ)</span>
+                  <span className="text-textSecondary dark:text-textSecondary-dark">React Frontend (DMZ)</span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-green-500 mr-2">✓</span>
-                  <span className="text-gray-700">Express Backend (Internal)</span>
+                  <span className="text-textSecondary dark:text-textSecondary-dark">Express Backend (Internal)</span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-green-500 mr-2">✓</span>
-                  <span className="text-gray-700">PostgreSQL Database (Internal)</span>
+                  <span className="text-textSecondary dark:text-textSecondary-dark">PostgreSQL Database (Internal)</span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-green-500 mr-2">✓</span>
-                  <span className="text-gray-700">Better Auth Authentication</span>
+                  <span className="text-textSecondary dark:text-textSecondary-dark">Better Auth Authentication</span>
                 </div>
               </div>
             </div>
@@ -146,8 +146,8 @@ const Dashboard = () => {
                 <div className="flex items-center space-x-3">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     user.twoFactorEnabled 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
+                      : 'bg-primary text-textPrimary dark:bg-surface-dark dark:text-textPrimary-dark'
                   }`}>
                     {user.twoFactorEnabled ? 'Enabled' : 'Disabled'}
                   </span>
@@ -214,7 +214,7 @@ const Dashboard = () => {
                 </div>
 
                 {actionError && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-100 px-4 py-3 rounded-lg">
                     {actionError}
                   </div>
                 )}

@@ -15,6 +15,7 @@
     "tickets": { "title": "Ticket management" },
     "interventions": { "title": "Upcoming interventions" },
     "billing": { "title": "Billing" },
+    "paymentInfo": { "title": "Payment information" },
     "sepa": { "title": "SEPA Direct Debit" },
     "customerInfo": { "title": "Customer information" },
     "bcpRooms": { "title": "BCP room booking" },
@@ -24,7 +25,9 @@
     "kyc": { "title": "KYC" },
     "security": { "title": "Security" },
     "resources": { "title": "Resources" },
-    "quickOrder": { "title": "Quick order" }
+    "quickOrder": { "title": "Quick order" },
+    "suggestions": { "title": "Your suggestions" },
+    "dataDeletion": { "title": "Data deletion" }
   },
   "placeholders": {
     "underConstruction": "This section is under construction. Features will be added soon.",

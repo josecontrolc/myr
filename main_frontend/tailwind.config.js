@@ -20,16 +20,16 @@ export default {
 
         // Background & surfaces
         background: {
-          DEFAULT: "#F4F4F7",
-          dark: "#121212",
+          DEFAULT: "#F2EFFF",
+          dark: "#040225",
         },
         surface: {
           DEFAULT: "#FFFFFF",
-          dark: "#1E1E22",
+          dark: "#28164e",
         },
         border: {
-          DEFAULT: "#E5E7EB",
-          dark: "#2D2D33",
+          DEFAULT: "#D9C9FF",
+          dark: "#3B2A6F",
         },
 
         // Text

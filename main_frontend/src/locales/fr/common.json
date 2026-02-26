@@ -15,6 +15,7 @@
     "tickets": { "title": "Gestion des tickets" },
     "interventions": { "title": "Interventions à venir" },
     "billing": { "title": "Facturation" },
+    "paymentInfo": { "title": "Informations de paiement" },
     "sepa": { "title": "Prélèvement SEPA" },
     "customerInfo": { "title": "Informations client" },
     "bcpRooms": { "title": "Réservation de salles BCP" },
@@ -24,7 +25,9 @@
     "kyc": { "title": "KYC" },
     "security": { "title": "Sécurité" },
     "resources": { "title": "Ressources" },
-    "quickOrder": { "title": "Commande rapide" }
+    "quickOrder": { "title": "Commande rapide" },
+    "suggestions": { "title": "Vos suggestions" },
+    "dataDeletion": { "title": "Suppression des données" }
   },
   "placeholders": {
     "underConstruction": "Cette section est en cours de construction. Les fonctionnalités seront ajoutées prochainement.",

@@ -71,31 +71,51 @@ Light theme:
 
 - **App background**
   - **Token**: `background`
-  - **Hex**: `#F4F4F7`
+  - **Hex**: `#F2EFFF` (soft lavender derived from `primary`)
   - **Tailwind**: `bg-background`
 - **Surface (cards, panels, navbar)**
   - **Token**: `surface`
-  - **Hex**: `#FFFFFF`
+  - **Hex**: `#FFFFFF` (near-white surface to keep text highly readable)
   - **Tailwind**: `bg-surface`
 - **Borders**
   - **Token**: `border`
-  - **Hex**: `#E5E7EB`
+  - **Hex**: `#D9C9FF` (light purple border on pale backgrounds)
   - **Tailwind**: `border-border`
 
 Dark theme:
 
 - **App background**
   - **Token**: `background.dark`
-  - **Hex**: `#121212`
+  - **Hex**: `#040225` (`dark_purple` – very dark purple background)
   - **Tailwind**: `dark:bg-background-dark`
 - **Surface**
   - **Token**: `surface.dark`
-  - **Hex**: `#1E1E22`
+  - **Hex**: `#28164e` (`black_purple` – main dark surfaces like cards/navbar)
   - **Tailwind**: `dark:bg-surface-dark`
 - **Borders**
   - **Token**: `border.dark`
-  - **Hex**: `#2D2D33`
+  - **Hex**: `#3B2A6F` (slightly lighter purple for separating surfaces)
   - **Tailwind**: `dark:border-border-dark`
+
+On these purple backgrounds:
+
+- Use `text-textPrimary` / `text-textPrimary-dark` for most body text on `background` / `surface`.
+- Use pure white (`#FFFFFF`) or the `*-on-light` contrast tokens when placing text directly on the darkest `dark_purple` areas (e.g. solid gradients or chips).
+- Avoid hard-coded `text-gray-*` on brand-colored backgrounds; prefer the semantic text tokens and `*-on-*` contrast colors so light/dark modes stay legible.
+
+#### Dashboards & Full-Page Layouts
+
+- Full-page views like `/dashboard` should:
+  - Use the app background tokens on the page root: `className="bg-background dark:bg-background-dark text-textPrimary dark:text-textPrimary-dark"`.
+  - Place the main content inside a centered shell using surface tokens, for example:
+    - `className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-lg shadow-sm"`.
+  - Keep most body text on these neutral surfaces using `text-textPrimary` / `text-textSecondary` and their dark variants for good contrast.
+- Brand gradients (purple/pink) are optional accents:
+  - They can be used behind the shell (page background) or inside specific hero sections/cards.
+  - When text sits directly on top of a brand gradient, ensure contrast by using:
+    - `text-white` on sufficiently dark gradients, or
+    - The contrast tokens: `text-primary-on-light`, `text-primary-on-dark`, `text-secondary-on-light`, `text-secondary-on-dark`.
+  - Avoid mixing gradients with arbitrary `text-gray-*` colors; prefer the semantic text tokens for readability in both themes.
 
 ### Text Colors
 
