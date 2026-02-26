@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "info": "Infos",
+    "admin": "Admin"
+  },
+  "auth": {
+    "signedInAs": "Connecté en tant que",
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "logout": "Se déconnecter"
+  },
+  "pages": {
+    "tickets": { "title": "Gestion des tickets" },
+    "interventions": { "title": "Interventions à venir" },
+    "billing": { "title": "Facturation" },
+    "sepa": { "title": "Prélèvement SEPA" },
+    "customerInfo": { "title": "Informations client" },
+    "bcpRooms": { "title": "Réservation de salles BCP" },
+    "offers": { "title": "Offres" },
+    "orders": { "title": "Commandes" },
+    "contracts": { "title": "Contrats" },
+    "kyc": { "title": "KYC" },
+    "security": { "title": "Sécurité" },
+    "resources": { "title": "Ressources" },
+    "quickOrder": { "title": "Commande rapide" }
+  },
+  "placeholders": {
+    "underConstruction": "Cette section est en cours de construction. Les fonctionnalités seront ajoutées prochainement.",
+    "loading": "Chargement..."
+  }
+}
+

@@ -24,7 +24,7 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-  const handleDisable2FA = async (e: React.FormEvent) => {
+  const handleDisable2FA = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setActionError('');
     setActionLoading(true);
@@ -34,8 +34,9 @@ const Dashboard = () => {
       setShowDisable2FA(false);
       setDisablePassword('');
       await checkSession();
-    } catch (err: any) {
-      setActionError(err.message || 'Failed to disable 2FA');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to disable 2FA';
+      setActionError(message);
     } finally {
       setActionLoading(false);
     }
@@ -48,8 +49,8 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-background dark:bg-background-dark flex items-center justify-center">
+        <div className="text-textSecondary dark:text-textSecondary-dark">Loading...</div>
       </div>
     );
   }
@@ -59,49 +60,49 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+    <div className="min-h-screen bg-background dark:bg-background-dark p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-surface dark:bg-surface-dark rounded-2xl border border-border dark:border-border-dark shadow-xl p-8">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-              <p className="text-gray-600">Welcome to your secure space</p>
+              <h1 className="text-3xl font-bold text-textPrimary dark:text-textPrimary-dark mb-2">Info</h1>
+              <p className="text-textSecondary dark:text-textSecondary-dark">Detailed information about your account and architecture</p>
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               Logout
             </button>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-6 text-white mb-8">
+          <div className="bg-secondary rounded-lg p-6 text-secondary-on-light dark:text-secondary-on-dark mb-8">
             <h2 className="text-2xl font-bold mb-2">Hello, {user.name || 'User'}!</h2>
-            <p className="text-blue-100">{user.email}</p>
+            <p className="opacity-80">{user.email}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-800 mb-4">User Information</h3>
+            <div className="bg-surface dark:bg-surface-dark rounded-lg p-6 border border-border dark:border-border-dark">
+              <h3 className="font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">User Information</h3>
               <dl className="space-y-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">User ID</dt>
-                  <dd className="text-gray-900 font-mono text-sm">{user.id}</dd>
+                  <dt className="text-sm font-medium text-textSecondary dark:text-textSecondary-dark">User ID</dt>
+                  <dd className="text-textPrimary dark:text-textPrimary-dark font-mono text-sm">{user.id}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Email</dt>
-                  <dd className="text-gray-900">{user.email}</dd>
+                  <dt className="text-sm font-medium text-textSecondary dark:text-textSecondary-dark">Email</dt>
+                  <dd className="text-textPrimary dark:text-textPrimary-dark">{user.email}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Name</dt>
-                  <dd className="text-gray-900">{user.name || 'Not set'}</dd>
+                  <dt className="text-sm font-medium text-textSecondary dark:text-textSecondary-dark">Name</dt>
+                  <dd className="text-textPrimary dark:text-textPrimary-dark">{user.name || 'Not set'}</dd>
                 </div>
               </dl>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-800 mb-4">Architecture Status</h3>
-              <div className="space-y-2 text-sm">
+            <div className="bg-surface dark:bg-surface-dark rounded-lg p-6 border border-border dark:border-border-dark">
+              <h3 className="font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">Architecture Status</h3>
+              <div className="space-y-2 text-sm text-textSecondary dark:text-textSecondary-dark">
                 <div className="flex items-center">
                   <span className="text-green-500 mr-2">✓</span>
                   <span className="text-gray-700">NGINX Reverse Proxy (DMZ)</span>
@@ -130,13 +131,13 @@ const Dashboard = () => {
             <Counter />
           </div>
 
-          <div className="mt-8 bg-gray-50 rounded-lg p-6">
-            <h3 className="font-semibold text-gray-800 mb-4">Security Settings</h3>
+          <div className="mt-8 bg-surface dark:bg-surface-dark rounded-lg p-6 border border-border dark:border-border-dark">
+            <h3 className="font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">Security Settings</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-800">Two-Factor Authentication</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="font-medium text-textPrimary dark:text-textPrimary-dark">Two-Factor Authentication</p>
+                  <p className="text-sm text-textSecondary dark:text-textSecondary-dark">
                     {user.twoFactorEnabled 
                       ? 'Your account is protected with 2FA'
                       : 'Add an extra layer of security to your account'}
@@ -160,7 +161,7 @@ const Dashboard = () => {
                   ) : (
                     <button
                       onClick={() => setShow2FASetup(true)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="px-4 py-2 bg-secondary text-secondary-on-light dark:text-secondary-on-dark rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-secondary"
                     >
                       Enable 2FA
                     </button>
@@ -170,8 +171,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
+          <div className="mt-8 bg-primary rounded-lg p-4 border border-border dark:border-border-dark text-primary-on-light dark:text-primary-on-dark">
+            <p className="text-sm">
               <span className="font-semibold">Security Note:</span> Your session is protected by HTTP-only cookies and all traffic flows through the secure DMZ architecture.
             </p>
           </div>
@@ -179,7 +180,7 @@ const Dashboard = () => {
 
         {show2FASetup && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="bg-surface dark:bg-surface-dark rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 border border-border dark:border-border-dark">
               <TwoFactorSetup 
                 onComplete={handle2FASetupComplete}
                 onCancel={() => setShow2FASetup(false)}
@@ -190,15 +191,15 @@ const Dashboard = () => {
 
         {showDisable2FA && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Disable Two-Factor Authentication</h2>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-surface dark:bg-surface-dark rounded-lg max-w-md w-full p-6 border border-border dark:border-border-dark">
+              <h2 className="text-xl font-bold text-textPrimary dark:text-textPrimary-dark mb-4">Disable Two-Factor Authentication</h2>
+              <p className="text-textSecondary dark:text-textSecondary-dark mb-6">
                 Are you sure you want to disable 2FA? This will make your account less secure.
               </p>
 
               <form onSubmit={handleDisable2FA} className="space-y-4">
                 <div>
-                  <label htmlFor="disablePassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="disablePassword" className="block text-sm font-medium text-textSecondary dark:text-textSecondary-dark mb-1">
                     Confirm Your Password
                   </label>
                   <input
@@ -207,13 +208,13 @@ const Dashboard = () => {
                     value={disablePassword}
                     onChange={(e) => setDisablePassword(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border dark:border-border-dark rounded-lg bg-surface dark:bg-surface-dark focus:outline-none focus:ring-2 focus:ring-secondary"
                     placeholder="Enter your password"
                   />
                 </div>
 
                 {actionError && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                     {actionError}
                   </div>
                 )}
@@ -226,14 +227,14 @@ const Dashboard = () => {
                       setDisablePassword('');
                       setActionError('');
                     }}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="flex-1 px-4 py-2 border border-border dark:border-border-dark rounded-lg hover:bg-background dark:hover:bg-background-dark"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={actionLoading}
-                    className="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {actionLoading ? 'Disabling...' : 'Disable 2FA'}
                   </button>

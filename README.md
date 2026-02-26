@@ -1,4 +1,4 @@
-# MyRTest - Secure DMZ Architecture
+# MyR - Secure DMZ Architecture
 
 A secure multi tier application implementing network segmentation with separate DMZ and internal networks using Docker Compose. Requirements and auth design: see [new_requisites.md](new_requisites.md) and [auth_spec.md](auth_spec.md).
 
@@ -6,7 +6,7 @@ A secure multi tier application implementing network segmentation with separate 
 
 1. Clone the repository.
 2. Copy `.env.example` to `.env` and fill in values (no real secrets in the repo).
-3. Optionally replace the project name "MyRTest" and database name `myrtest` with your own.
+3. Optionally replace the project name "MyR" and database name `myrtest` with your own.
 4. Follow **Quick Start** below to run with Docker.
 
 ## Architecture Overview

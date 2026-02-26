@@ -181,16 +181,16 @@ const Home = () => {
   const anyError = services.some(s => s.status === 'error');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
         {/* ── Header info ── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              DMZ<span className="text-blue-600">Panel</span>
+            <h1 className="text-2xl font-bold text-textPrimary dark:text-textPrimary-dark tracking-tight">
+              MyR<span className="text-secondary"> Panel</span>
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-sm text-textSecondary dark:text-textSecondary-dark mt-0.5">
               Management platform with segmented network architecture
             </p>
           </div>
@@ -209,13 +209,13 @@ const Home = () => {
         </div>
 
         {/* ── Services Status ── */}
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Services Status</h2>
+            <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Services Status</h2>
             <button
               onClick={checkServices}
               disabled={checking}
-              className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 text-xs text-secondary hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <svg className={`w-3.5 h-3.5 ${checking ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -228,8 +228,8 @@ const Home = () => {
             {services.map(svc => <ServiceRow key={svc.id} svc={svc} />)}
           </div>
 
-          {lastChecked && !checking && (
-            <p className="mt-4 text-xs text-gray-400 text-right">
+            {lastChecked && !checking && (
+            <p className="mt-4 text-xs text-textSecondary dark:text-textSecondary-dark text-right">
               Last checked: {lastChecked.toLocaleTimeString()} · Auto-refreshes every 30 s
             </p>
           )}
@@ -240,24 +240,24 @@ const Home = () => {
           <div className="grid grid-cols-1 gap-3">
             <Link
               to="/dashboard"
-              className="flex items-center gap-3 p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-blue-200 hover:shadow-md transition-all group"
+              className="flex items-center gap-3 p-4 bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-sm hover:border-secondary hover:shadow-md transition-all group"
             >
-              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-on-light dark:text-primary-on-dark group-hover:opacity-90 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-800">Dashboard</p>
-                <p className="text-xs text-gray-400">User panel</p>
+                <p className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">Dashboard</p>
+                <p className="text-xs text-textSecondary dark:text-textSecondary-dark">Menu with quick links</p>
               </div>
             </Link>
           </div>
         )}
 
         {/* ── Features ── */}
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-5">Features</h2>
+        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-5">Features</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { icon: '🔐', title: '2FA Authentication', desc: 'TOTP with Google Authenticator and backup codes.' },
@@ -270,8 +270,8 @@ const Home = () => {
               <div key={f.title} className="flex items-start gap-3">
                 <span className="text-xl mt-0.5">{f.icon}</span>
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">{f.title}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed mt-0.5">{f.desc}</p>
+                  <p className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">{f.title}</p>
+                  <p className="text-xs text-textSecondary dark:text-textSecondary-dark leading-relaxed mt-0.5">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -279,14 +279,14 @@ const Home = () => {
         </div>
 
         {/* ── Architecture diagram ── */}
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-6">Architecture Diagram</h2>
+        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-6">Architecture Diagram</h2>
 
           <div className="flex flex-col items-center gap-0 text-xs">
 
             {/* Internet */}
             <div className="flex items-center justify-center w-full">
-              <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-500">
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-dashed border-border dark:border-border-dark bg-background dark:bg-background-dark text-textSecondary dark:text-textSecondary-dark">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                 </svg>
@@ -306,13 +306,13 @@ const Home = () => {
             <div className="w-full border border-blue-200 bg-blue-50 rounded-xl p-4">
               <p className="text-blue-500 font-bold uppercase tracking-widest text-xs mb-3">DMZ Zone</p>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white border border-blue-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-gray-700">NGINX</p>
-                  <p className="text-gray-400 text-xs mt-0.5">Reverse Proxy</p>
+                <div className="bg-surface dark:bg-surface-dark border border-blue-100 rounded-lg px-4 py-2.5 text-center">
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">NGINX</p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Reverse Proxy</p>
                 </div>
-                <div className="bg-white border border-blue-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-gray-700">React + Vite</p>
-                  <p className="text-gray-400 text-xs mt-0.5">Frontend</p>
+                <div className="bg-surface dark:bg-surface-dark border border-blue-100 rounded-lg px-4 py-2.5 text-center">
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">React + Vite</p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Frontend</p>
                 </div>
               </div>
             </div>
@@ -329,13 +329,13 @@ const Home = () => {
             <div className="w-full border border-indigo-200 bg-indigo-50 rounded-xl p-4">
               <p className="text-indigo-500 font-bold uppercase tracking-widest text-xs mb-3">Internal Network</p>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-gray-700">Express.js</p>
-                  <p className="text-gray-400 text-xs mt-0.5">REST API</p>
+                <div className="bg-surface dark:bg-surface-dark border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">Express.js</p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">REST API</p>
                 </div>
-                <div className="bg-white border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-gray-700">Better Auth</p>
-                  <p className="text-gray-400 text-xs mt-0.5">Authentication</p>
+                <div className="bg-surface dark:bg-surface-dark border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">Better Auth</p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Authentication</p>
                 </div>
               </div>
             </div>
@@ -352,13 +352,13 @@ const Home = () => {
             <div className="w-full border border-purple-200 bg-purple-50 rounded-xl p-4">
               <p className="text-purple-500 font-bold uppercase tracking-widest text-xs mb-3">Data Layer</p>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white border border-purple-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-gray-700">PostgreSQL</p>
-                  <p className="text-gray-400 text-xs mt-0.5">Database</p>
+                <div className="bg-surface dark:bg-surface-dark border border-purple-100 rounded-lg px-4 py-2.5 text-center">
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">PostgreSQL</p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Database</p>
                 </div>
-                <div className="bg-white border border-purple-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-gray-700">Prisma ORM</p>
-                  <p className="text-gray-400 text-xs mt-0.5">Access layer</p>
+                <div className="bg-surface dark:bg-surface-dark border border-purple-100 rounded-lg px-4 py-2.5 text-center">
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">Prisma ORM</p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Access layer</p>
                 </div>
               </div>
             </div>
@@ -366,14 +366,14 @@ const Home = () => {
           </div>
 
           {/* Legend */}
-          <div className="mt-5 flex flex-wrap items-center gap-4 pt-4 border-t border-gray-100">
-            <span className="text-xs text-gray-400 font-medium">Legend:</span>
+          <div className="mt-5 flex flex-wrap items-center gap-4 pt-4 border-t border-border dark:border-border-dark">
+            <span className="text-xs text-textSecondary dark:text-textSecondary-dark font-medium">Legend:</span>
             {[
               { color: 'bg-blue-200', label: 'Exposed DMZ' },
               { color: 'bg-indigo-200', label: 'Internal network' },
               { color: 'bg-purple-200', label: 'Isolated data' },
             ].map((l) => (
-              <span key={l.label} className="flex items-center gap-1.5 text-xs text-gray-500">
+              <span key={l.label} className="flex items-center gap-1.5 text-xs text-textSecondary dark:text-textSecondary-dark">
                 <span className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
                 {l.label}
               </span>
@@ -382,8 +382,8 @@ const Home = () => {
         </div>
 
         {/* ── Tech stack ── */}
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-5">Technology Stack</h2>
+        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-5">Technology Stack</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { name: 'React 18', role: 'UI / SPA', tag: 'Frontend', tagColor: 'bg-cyan-50 text-cyan-700' },
@@ -404,8 +404,8 @@ const Home = () => {
                 className="flex flex-col justify-between p-3 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all"
               >
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">{tech.name}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-tight">{tech.role}</p>
+                  <p className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">{tech.name}</p>
+                  <p className="text-xs text-textSecondary dark:text-textSecondary-dark mt-0.5 leading-tight">{tech.role}</p>
                 </div>
                 <span className={`mt-2 self-start text-xs font-medium px-2 py-0.5 rounded-full ${tech.tagColor}`}>
                   {tech.tag}
@@ -417,8 +417,8 @@ const Home = () => {
 
         {/* ── Footer info ── */}
         <div className="text-center pb-4">
-          <p className="text-xs text-gray-400">
-            DMZPanel · Secure architecture with network segmentation · React + Express + PostgreSQL + NGINX
+          <p className="text-xs text-textSecondary dark:text-textSecondary-dark">
+            MyR Panel · Secure architecture with network segmentation · React + Express + PostgreSQL + NGINX
           </p>
         </div>
 

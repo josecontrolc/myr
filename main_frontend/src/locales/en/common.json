@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "info": "Info",
+    "admin": "Admin"
+  },
+  "auth": {
+    "signedInAs": "Signed in as",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "logout": "Log out"
+  },
+  "pages": {
+    "tickets": { "title": "Ticket management" },
+    "interventions": { "title": "Upcoming interventions" },
+    "billing": { "title": "Billing" },
+    "sepa": { "title": "SEPA Direct Debit" },
+    "customerInfo": { "title": "Customer information" },
+    "bcpRooms": { "title": "BCP room booking" },
+    "offers": { "title": "Offers" },
+    "orders": { "title": "Orders" },
+    "contracts": { "title": "Contracts" },
+    "kyc": { "title": "KYC" },
+    "security": { "title": "Security" },
+    "resources": { "title": "Resources" },
+    "quickOrder": { "title": "Quick order" }
+  },
+  "placeholders": {
+    "underConstruction": "This section is under construction. Features will be added soon.",
+    "loading": "Loading..."
+  }
+}
+

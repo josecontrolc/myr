@@ -81,25 +81,25 @@ const UserRolesTab = () => (
 
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">Roles</h2>
+        <h2 className="text-lg font-semibold text-textPrimary dark:text-textPrimary-dark">Roles</h2>
         <button disabled
-          className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white opacity-50 cursor-not-allowed">
+          className="inline-flex items-center gap-1.5 rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-on-light dark:text-secondary-on-dark opacity-50 cursor-not-allowed">
           + New Role
         </button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {PLACEHOLDER_ROLES.map((role) => (
-          <div key={role.id} className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <div key={role.id} className="rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-semibold text-gray-900">{role.name}</h3>
-                <p className="mt-0.5 text-sm text-gray-500">{role.description}</p>
+                <h3 className="font-semibold text-textPrimary dark:text-textPrimary-dark">{role.name}</h3>
+                <p className="mt-0.5 text-sm text-textSecondary dark:text-textSecondary-dark">{role.description}</p>
               </div>
-              <button disabled className="text-xs text-gray-400 cursor-not-allowed">Edit</button>
+              <button disabled className="text-xs text-textSecondary dark:text-textSecondary-dark cursor-not-allowed">Edit</button>
             </div>
-            <div className="mt-4 flex gap-4 text-sm text-gray-600">
-              <span><span className="font-medium text-gray-900">{role.endpoints}</span> endpoints</span>
-              <span><span className="font-medium text-gray-900">{role.users}</span> users</span>
+            <div className="mt-4 flex gap-4 text-sm text-textSecondary dark:text-textSecondary-dark">
+              <span><span className="font-medium text-textPrimary dark:text-textPrimary-dark">{role.endpoints}</span> endpoints</span>
+              <span><span className="font-medium text-textPrimary dark:text-textPrimary-dark">{role.users}</span> users</span>
             </div>
           </div>
         ))}
@@ -107,26 +107,26 @@ const UserRolesTab = () => (
     </section>
 
     <section>
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Endpoint Mappings</h2>
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+      <h2 className="text-lg font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">Endpoint Mappings</h2>
+      <div className="overflow-hidden rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark shadow-sm">
+        <table className="min-w-full divide-y divide-border dark:divide-border-dark text-sm">
+          <thead className="bg-background dark:bg-background-dark">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Method</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Endpoint</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Allowed Roles</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-4 py-3 text-left font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Method</th>
+              <th className="px-4 py-3 text-left font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Endpoint</th>
+              <th className="px-4 py-3 text-left font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Allowed Roles</th>
+              <th className="px-4 py-3 text-right font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-border dark:divide-border-dark">
             {PLACEHOLDER_ENDPOINTS.map((ep) => (
-              <tr key={`${ep.method}-${ep.path}`} className="hover:bg-gray-50">
+              <tr key={`${ep.method}-${ep.path}`} className="hover:bg-background dark:hover:bg-background-dark">
                 <td className="px-4 py-3">
                   <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${METHOD_COLORS[ep.method] ?? 'bg-gray-100 text-gray-600'}`}>
                     {ep.method}
                   </span>
                 </td>
-                <td className="px-4 py-3 font-mono text-gray-800">{ep.path}</td>
+                <td className="px-4 py-3 font-mono text-textPrimary dark:text-textPrimary-dark">{ep.path}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
                     {ep.roles.map((r) => (
@@ -135,7 +135,7 @@ const UserRolesTab = () => (
                   </div>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button disabled className="text-xs text-gray-400 cursor-not-allowed">Configure</button>
+                  <button disabled className="text-xs text-textSecondary dark:text-textSecondary-dark cursor-not-allowed">Configure</button>
                 </td>
               </tr>
             ))}
@@ -145,8 +145,8 @@ const UserRolesTab = () => (
     </section>
 
     <section>
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">User Assignment</h2>
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm text-center text-gray-400 text-sm">
+      <h2 className="text-lg font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">User Assignment</h2>
+      <div className="rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark p-6 shadow-sm text-center text-textSecondary dark:text-textSecondary-dark text-sm">
         <p>User-to-role assignment UI will be available here.</p>
         <p className="mt-1">Admins will be able to search users and assign or revoke roles.</p>
       </div>
@@ -162,12 +162,12 @@ const AdminDashboard = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage system settings, audit logs, database, and user roles.</p>
+        <h1 className="text-2xl font-bold text-textPrimary dark:text-textPrimary-dark">Admin Dashboard</h1>
+        <p className="text-sm text-textSecondary dark:text-textSecondary-dark mt-1">Manage system settings, audit logs, database, and user roles.</p>
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-border dark:border-border-dark mb-6">
         <nav className="-mb-px flex space-x-6">
           {TABS.map((tab) => (
             <button
@@ -175,8 +175,8 @@ const AdminDashboard = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 py-3 px-1 border-b-2 text-sm font-medium transition-colors ${
                 activeTab === tab.id
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-secondary text-secondary'
+                  : 'border-transparent text-textSecondary dark:text-textSecondary-dark hover:text-textPrimary dark:hover:text-textPrimary-dark hover:border-border dark:hover:border-border-dark'
               }`}
             >
               {tab.icon}
