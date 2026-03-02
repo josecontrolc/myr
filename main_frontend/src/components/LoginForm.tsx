@@ -9,9 +9,12 @@ interface LoginFormProps {
 const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [twoFactorMode, setTwoFactorMode] = useState(false);
+  const [code, setCode] = useState('');
+  const [trustDevice, setTrustDevice] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, verify2FALogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -20,29 +23,40 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
     setLoading(true);
 
     try {
-      const result = await login(email, password);
+      if (!twoFactorMode) {
+        const result = await login(email, password);
 
-      if (result.twoFactorRedirect) {
-        sessionStorage.setItem('pending_2fa_email', email);
-        navigate('/auth/2fa-challenge');
+        if (result.twoFactorRedirect) {
+          sessionStorage.setItem('pending_2fa_email', email);
+          setTwoFactorMode(true);
+          setError('');
+          return;
+        }
+
+        if (result.emailOtpRequired) {
+          navigate('/auth/email-otp');
+          return;
+        }
+
+        onSuccess?.();
         return;
       }
 
-      if (result.emailOtpRequired) {
-        navigate('/auth/email-otp');
+      if (code.trim().length !== 6) {
+        setError('Enter the six digit code from your authenticator.');
         return;
       }
 
-      // Login successful — user state is committed synchronously by login()
-      // via flushSync, so onSuccess/navigate runs with user already in state.
+      await verify2FALogin(code, trustDevice);
       onSuccess?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Login failed';
       if (message.match(/two-factor|2FA|TOTP/i)) {
         sessionStorage.setItem('pending_2fa_email', email);
-        navigate('/auth/2fa-challenge');
+        setTwoFactorMode(true);
       } else {
         setError(message);
+        setCode('');
       }
     } finally {
       setLoading(false);
@@ -50,40 +64,112 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="you@example.com"
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-purple-100 mb-1">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={twoFactorMode}
+            className="w-full px-3 py-2 border border-white/10 bg-white/5 text-purple-50 rounded-lg placeholder:text-purple-200/60 focus:outline-none focus:ring-2 focus:ring-pink-400 disabled:bg-purple-900/30 disabled:text-purple-300/70"
+            placeholder="you@example.com"
+          />
+        </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter your password"
-        />
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-purple-100">
+              Password
+            </label>
+            <button
+              type="button"
+              onClick={() => navigate('/auth/forgot-password')}
+              className="text-xs font-medium text-purple-600 hover:text-purple-700"
+            >
+              Forgot your password
+            </button>
+          </div>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            disabled={twoFactorMode}
+            className="w-full px-3 py-2 border border-white/10 bg-white/5 text-purple-50 rounded-lg placeholder:text-purple-200/60 focus:outline-none focus:ring-2 focus:ring-pink-400 disabled:bg-purple-900/30 disabled:text-purple-300/70"
+            placeholder="Enter your password"
+          />
+        </div>
+
+        {twoFactorMode && (
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center gap-3 text-[11px] font-semibold tracking-wider text-purple-100 uppercase">
+              <span className="flex-1 h-px bg-purple-400/40" />
+              <span>Two factor authentication</span>
+              <span className="flex-1 h-px bg-purple-400/40" />
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-white/15 bg-purple-900/40 px-3 py-3">
+              <div className="flex items-center justify-between gap-2">
+                <label htmlFor="code" className="text-sm font-medium text-purple-50">
+                  Authentication code
+                </label>
+                <span className="text-[11px] text-purple-300">
+                  Generated by your authenticator
+                </span>
+              </div>
+              <input
+                id="code"
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                autoFocus
+                className="w-full px-3 py-2 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 text-center text-2xl tracking-[0.5em] bg-purple-950/60 text-purple-50"
+                placeholder="000000"
+              />
+              <div className="space-y-2 text-xs text-purple-100/90">
+                <p>
+                  Open the authenticator application on your device to retrieve your access code.
+                </p>
+                <p>
+                  Prefer to receive a code by email?{' '}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/auth/2fa-challenge')}
+                    className="font-semibold text-pink-300 hover:text-pink-200"
+                  >
+                    Request it here
+                  </button>
+                  .
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <label className="inline-flex items-center gap-2 text-xs text-purple-100">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-purple-200 text-pink-400 focus:ring-pink-400 bg-purple-950/60"
+                    checked={trustDevice}
+                    onChange={(e) => setTrustDevice(e.target.checked)}
+                  />
+                  <span>Trust this device for thirty days</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-900/40 border border-red-500/60 text-red-100 px-4 py-3 rounded-lg text-sm">
           {error}
         </div>
       )}
@@ -91,9 +177,9 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white py-2.5 px-4 rounded-xl text-sm font-semibold shadow-[0_14px_40px_rgba(0,0,0,0.55)] hover:from-pink-400 hover:to-purple-400 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {loading ? 'Signing in...' : 'Sign In'}
+        {loading ? 'Signing in...' : twoFactorMode ? 'Verify and sign in' : 'Sign in'}
       </button>
     </form>
   );

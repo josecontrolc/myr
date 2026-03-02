@@ -454,4 +454,131 @@ router.post('/verify-otp', async (req: Request, res: Response): Promise<void> =>
   }
 });
 
+/**
+ * Request a password reset email.
+ *
+ * This endpoint never reveals whether the address exists. On success or failure
+ * it always returns 200 with a generic message and only logs details on the server.
+ */
+router.post('/request-password-reset', async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body as { email?: string };
+
+  if (!email) {
+    res.status(400).json({ error: 'email is required' });
+    return;
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: { id: true, email: true },
+    });
+
+    if (!user) {
+      // Same response as success to avoid user enumeration.
+      res.json({ ok: true });
+      return;
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const ttlMinutes = Number(process.env.PASSWORD_RESET_TTL_MINUTES || '60');
+    const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
+
+    await prisma.verification.deleteMany({
+      where: { identifier: `reset:${user.id}` },
+    });
+
+    await prisma.verification.create({
+      data: {
+        identifier: `reset:${user.id}`,
+        value: tokenHash,
+        expiresAt,
+      },
+    });
+
+    const baseUrl = process.env.PASSWORD_RESET_URL_BASE || process.env.PUBLIC_APP_URL;
+    if (!baseUrl) {
+      console.warn('PASSWORD_RESET_URL_BASE or PUBLIC_APP_URL is not set, cannot send reset email');
+      res.json({ ok: true });
+      return;
+    }
+
+    const resetLink = `${baseUrl.replace(/\/+$/, '')}/auth/reset-password?token=${encodeURIComponent(
+      rawToken,
+    )}`;
+
+    try {
+      await sendOtp(user.email, `Reset link: ${resetLink}`, ttlMinutes);
+    } catch (err) {
+      console.error('Failed to send password reset email:', err);
+      // Still respond success to avoid leaking state.
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error creating password reset token:', error);
+    res.json({ ok: true });
+  }
+});
+
+/**
+ * Consume a password reset token and set a new password.
+ */
+router.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
+  const { token, password } = req.body as { token?: string; password?: string };
+
+  if (!token || !password) {
+    res.status(400).json({ error: 'token and password are required' });
+    return;
+  }
+
+  if (password.length < 8) {
+    res.status(400).json({ error: 'Password must have at least eight characters' });
+    return;
+  }
+
+  try {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const verification = await prisma.verification.findFirst({
+      where: {
+        identifier: { startsWith: 'reset:' },
+        value: tokenHash,
+      },
+    });
+
+    if (!verification || verification.expiresAt < new Date()) {
+      if (verification) {
+        await prisma.verification.delete({ where: { id: verification.id } });
+      }
+      res.status(400).json({ error: 'Reset link is not valid or has expired' });
+      return;
+    }
+
+    const userId = verification.identifier.replace('reset:', '');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        accounts: {
+          updateMany: {
+            where: { providerId: 'credential' },
+            data: { password: hashedPassword },
+          },
+        },
+      },
+    });
+
+    await prisma.verification.delete({ where: { id: verification.id } });
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ error: 'Could not reset password' });
+  }
+});
+
 export default router;

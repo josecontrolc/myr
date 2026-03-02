@@ -99,7 +99,7 @@ const Navbar = () => {
 
             {/* Brand */}
             <div className="flex items-center space-x-8">
-              <Link to="/" className="flex items-center space-x-2">
+              <Link to="/dashboard" className="flex items-center space-x-2">
                 <span className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shadow-sm overflow-hidden">
                   <img
                     src={logoIcon}
