@@ -29,9 +29,152 @@
     "suggestions": { "title": "Vos suggestions" },
     "dataDeletion": { "title": "Suppression des données" }
   },
+  "home": {
+    "header": {
+      "titleSuffix": "Panel",
+      "subtitle": "Plateforme de gestion avec architecture réseau segmentée",
+      "statusChip": "L’état des services est indiqué ci-dessous"
+    },
+    "features": {
+      "title": "Fonctionnalités",
+      "items": {
+        "2fa": {
+          "title": "Authentification 2FA",
+          "description": "TOTP avec Google Authenticator et codes de secours."
+        },
+        "dmz": {
+          "title": "Réseau DMZ segmenté",
+          "description": "Backend et base de données jamais exposés directement à Internet."
+        },
+        "rbac": {
+          "title": "Contrôle d’accès par rôles",
+          "description": "Utilisateurs et administrateurs avec des permissions différenciées."
+        },
+        "audit": {
+          "title": "Journalisation d’audit",
+          "description": "Journal de chaque action avec horodatage, utilisateur et IP."
+        },
+        "sessions": {
+          "title": "Sessions sécurisées",
+          "description": "Cookies httpOnly gérés par Better Auth."
+        },
+        "docker": {
+          "title": "Docker Compose",
+          "description": "Tous les services dans des conteneurs isolés et reproductibles."
+        }
+      }
+    },
+    "architecture": {
+      "title": "Schéma d’architecture",
+      "internet": "Internet / Client",
+      "dmzZone": "Zone DMZ",
+      "dmz": {
+        "nginxTitle": "NGINX",
+        "nginxSubtitle": "Reverse Proxy",
+        "frontendTitle": "React + Vite",
+        "frontendSubtitle": "Frontend"
+      },
+      "internalZone": "Réseau interne",
+      "internal": {
+        "backendTitle": "Express.js",
+        "backendSubtitle": "API REST",
+        "authTitle": "Better Auth",
+        "authSubtitle": "Authentification"
+      },
+      "dataZone": "Couche données",
+      "data": {
+        "databaseTitle": "PostgreSQL",
+        "databaseSubtitle": "Base de données",
+        "ormTitle": "Prisma ORM",
+        "ormSubtitle": "Couche d’accès"
+      },
+      "legendLabel": "Légende :",
+      "legend": {
+        "dmz": "DMZ exposée",
+        "internal": "Réseau interne",
+        "data": "Données isolées"
+      }
+    },
+    "techStack": {
+      "title": "Stack technologique"
+    },
+    "footer": {
+      "text": "MyR Panel · Architecture sécurisée avec segmentation réseau · React + Express + PostgreSQL + NGINX"
+    }
+  },
   "placeholders": {
     "underConstruction": "Cette section est en cours de construction. Les fonctionnalités seront ajoutées prochainement.",
     "loading": "Chargement..."
+  },
+  "dashboard": {
+    "home": {
+      "title": "Bienvenue sur MyR",
+      "description": "Votre espace dédié vous permet de consulter et gérer vos tickets, vos données personnelles, vos factures et vos services en cours.",
+      "description2": "Effectuez facilement les actions essentielles comme la création de tickets, l’export de données et l’accès à vos formations Rsecure.",
+      "loading": "Chargement du tableau de bord...",
+      "links": {
+        "tickets": "Tickets",
+        "interventions": "Interventions à venir",
+        "facturation": "Factures",
+        "sepa": "Mandat SEPA",
+        "information-client": "Informations client",
+        "reservation-salles": "Réservations de salles BCP",
+        "offres": "Offres",
+        "commandes": "Commandes",
+        "contrats": "Contrats",
+        "kyc": "KYC",
+        "securite": "Sécurité",
+        "ressources": "Ressources",
+        "commande-rapide": "Commande rapide"
+      }
+    },
+    "info": {
+      "title": "Infos",
+      "subtitle": "Informations détaillées sur votre compte et votre architecture",
+      "loading": "Chargement...",
+      "greeting": "Bonjour, {{name}} !",
+      "greetingFallback": "Utilisateur",
+      "userCardTitle": "Informations utilisateur",
+      "userIdLabel": "ID utilisateur",
+      "emailLabel": "Email",
+      "nameLabel": "Nom",
+      "nameNotSet": "Non renseigné",
+      "architectureCardTitle": "État de l’architecture",
+      "architecture": {
+        "nginx": "NGINX Reverse Proxy (DMZ)",
+        "frontend": "Frontend React (DMZ)",
+        "backend": "Backend Express (Interne)",
+        "database": "Base de données PostgreSQL (Interne)",
+        "auth": "Authentification Better Auth"
+      }
+    },
+    "security": {
+      "sectionTitle": "Paramètres de sécurité",
+      "twoFactorLabel": "Authentification à deux facteurs",
+      "twoFactorEnabledDescription": "Votre compte est protégé par une authentification 2FA",
+      "twoFactorDisabledDescription": "Ajoutez une couche de sécurité supplémentaire à votre compte",
+      "status": {
+        "enabled": "Activée",
+        "disabled": "Désactivée"
+      },
+      "buttons": {
+        "disable": "Désactiver",
+        "enable2fa": "Activer la 2FA"
+      },
+      "disableModal": {
+        "title": "Désactiver l’authentification à deux facteurs",
+        "body": "Êtes-vous sûr de vouloir désactiver la 2FA ? Votre compte sera moins bien protégé.",
+        "passwordLabel": "Confirmez votre mot de passe",
+        "passwordPlaceholder": "Saisissez votre mot de passe",
+        "cancel": "Annuler",
+        "confirm": "Désactiver la 2FA",
+        "confirmLoading": "Désactivation..."
+      },
+      "note": {
+        "label": "Note de sécurité :",
+        "text": "Votre session est protégée par des cookies HTTP-only et tout le trafic passe par l’architecture segmentée en DMZ."
+      }
+    }
   }
 }
 

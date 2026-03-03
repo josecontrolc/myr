@@ -77,7 +77,7 @@ const Navbar = () => {
     }`;
 
   return (
-    <header className="bg-surface dark:bg-surface-dark border-b border-border/20 dark:border-border-dark sticky top-0 z-50 shadow-sm font-sans text-textPrimary dark:text-textPrimary-dark">
+    <header className="navbar shadow-sm font-sans text-textPrimary dark:text-textPrimary-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -112,7 +112,7 @@ const Navbar = () => {
                 </span>
               </Link>
 
-              {/* Desktop Nav */}
+              {/* Desktop nav */}
               <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
                 {primaryNavItems.map((item) => (
                   <div key={item.label} className="relative group">
@@ -137,7 +137,7 @@ const Navbar = () => {
                             />
                           </svg>
                         </button>
-                        {/* top-full + pt-3: el área entre el botón y el panel forma parte del grupo, así el hover no se pierde al bajar */}
+                        {/* top-full + pt-3: keep button and panel in the same hover area so the menu does not close while moving down */}
                         <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 hidden group-hover:block z-40">
                           <div className="relative">
                             <div className="absolute left-1/2 -top-1 w-3 h-3 bg-surface dark:bg-surface-dark border-l border-t border-border dark:border-border-dark rounded-tl-sm rotate-45 -translate-x-1/2" />

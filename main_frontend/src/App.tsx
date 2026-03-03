@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "@shared/auth";
 import Login from "./pages/Login";
@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar";
 import DashboardHome from "./pages/DashboardHome";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import TicketsPage from "./pages/TicketsPage";
+import InvoicesPage from "./pages/InvoicesPage";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
 const AppRoutes = () => {
@@ -45,14 +46,12 @@ const AppRoutes = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col flex-1">
       <Navbar />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/service-status" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/info" element={<InfoPage />} />
           <Route path="/tickets" element={<TicketsPage />} />
@@ -60,10 +59,7 @@ const AppRoutes = () => {
             path="/interventions"
             element={<PlaceholderPage titleKey="pages.interventions.title" />}
           />
-          <Route
-            path="/facturation"
-            element={<PlaceholderPage titleKey="pages.billing.title" />}
-          />
+          <Route path="/facturation" element={<InvoicesPage />} />
           <Route
             path="/payment-information"
             element={<PlaceholderPage titleKey="pages.paymentInfo.title" />}
@@ -118,9 +114,11 @@ const AppRoutes = () => {
           />
           <Route path="/auth/2fa-challenge" element={<TwoFactorChallenge />} />
           <Route path="/auth/email-otp" element={<EmailOtpChallenge />} />
+          {/* Redirect any unknown authenticated route back to the dashboard */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
-    </>
+    </div>
   );
 };
 
@@ -132,7 +130,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AuthProvider>
-            <div className="min-h-screen flex flex-col bg-background dark:bg-background-dark text-textPrimary dark:text-textPrimary-dark font-sans">
+            <div className="page-root flex flex-col font-sans">
               <AppRoutes />
             </div>
           </AuthProvider>

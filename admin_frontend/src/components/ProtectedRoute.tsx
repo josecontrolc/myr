@@ -7,8 +7,10 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Loading…</div>
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background-dark">
+        <div className="text-sm text-textSecondary dark:text-textSecondary-dark">
+          Checking admin session…
+        </div>
       </div>
     );
   }

@@ -34,16 +34,16 @@ const TicketsPage = () => {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-500 text-sm">{t("placeholders.loading")}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
+    <div className="min-h-screen py-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-6">
+        <div className="card rounded-xl p-6 sm:p-8 space-y-6">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
@@ -55,7 +55,7 @@ const TicketsPage = () => {
             </div>
             <button
               type="button"
-              className="inline-flex items-center px-3 py-2 rounded-lg bg-secondary text-secondary-on-light text-sm font-medium hover:opacity-90 transition"
+              className="btn-primary inline-flex items-center px-3 py-2 text-sm font-medium"
               onClick={() => refetch()}
             >
               {t("actions.refresh", "Refresh")}
@@ -125,7 +125,7 @@ const TicketsPage = () => {
                         {ticket.name}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-700">
+                        <span className="badge bg-gray-100 text-gray-700">
                           {ticket.status ?? "Unknown"}
                         </span>
                       </td>

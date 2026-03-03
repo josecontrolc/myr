@@ -50,12 +50,12 @@ const ServiceRow = ({ svc }: { svc: Service }) => (
       <div className="flex items-center gap-2 flex-wrap">
         <p className="text-sm font-semibold text-gray-800">{svc.name}</p>
         <span
-          className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+          className={`badge ${
             svc.status === 'ok'
-              ? 'bg-emerald-100 text-emerald-700'
+              ? 'badge-success'
               : svc.status === 'error'
-                ? 'bg-red-100 text-red-700'
-                : 'bg-yellow-100 text-yellow-700'
+                ? 'badge-error'
+                : 'badge-warning'
           }`}
         >
           {svc.status === 'ok'
@@ -224,7 +224,7 @@ const ServiceStatusPanel = () => {
   const anyError = services.some((s) => s.status === 'error');
 
   return (
-    <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
+    <div className="card rounded-2xl p-6">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">
           Services Status

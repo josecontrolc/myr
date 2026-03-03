@@ -45,7 +45,10 @@ const Login = () => {
       // #region agent log
       fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin_frontend/src/pages/Login.tsx:38',message:'Login error caught',data:{error:err instanceof Error ? err.message : 'Unknown error',errorType:err?.constructor?.name},timestamp:Date.now(),runId:'run1',hypothesisId:'H4'})}).catch(()=>{});
       // #endregion
-      setError(err instanceof Error ? err.message : 'Login failed');
+      // Use a generic error message to avoid leaking auth details.
+      // The concrete error is still available in the logs above.
+      console.error(err);
+      setError('Invalid email or password');
     } finally {
       setLoading(false);
     }

@@ -36,7 +36,10 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         onSuccess();
       }
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      // Log the exact error for operators but show a generic message to users.
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -54,7 +57,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
           placeholder="John Doe"
         />
       </div>
@@ -69,7 +72,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
           placeholder="you@example.com"
         />
       </div>
@@ -85,7 +88,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={8}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
           placeholder="Min 8 characters"
         />
       </div>
@@ -101,7 +104,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
           minLength={8}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
           placeholder="Confirm your password"
         />
       </div>
@@ -115,7 +118,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Creating account...' : 'Create Account'}
       </button>

@@ -13,21 +13,21 @@ const ThemeToggle: FC<ThemeToggleProps> = ({ className = "" }) => {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`relative inline-flex h-7 w-14 items-center rounded-full bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-transparent ${
-        isDark ? "bg-white/90" : "bg-white"
-      } ${className}`}
+      role="switch"
+      aria-checked={isDark}
+      className={`group relative inline-flex h-7 w-14 items-center rounded-full bg-slate-200/80 dark:bg-slate-800/80 shadow-inner transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${className}`}
       aria-label="Toggle dark mode"
-      aria-pressed={isDark}
     >
       <span className="sr-only">Turn dark mode on or off</span>
       <span
-        className={`inline-flex h-5 w-5 transform items-center justify-center rounded-full shadow-sm transition-transform duration-200 ${
-          isDark ? "translate-x-7 bg-slate-700" : "translate-x-1 bg-slate-200"
+        className={`inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 ${
+          isDark ? "translate-x-7" : "translate-x-1"
         }`}
+        aria-hidden="true"
       >
         {isDark ? (
           <svg
-            className="h-3 w-3 text-slate-100"
+            className="h-3 w-3 text-slate-700"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -35,7 +35,7 @@ const ThemeToggle: FC<ThemeToggleProps> = ({ className = "" }) => {
           </svg>
         ) : (
           <svg
-            className="h-3 w-3 text-slate-800"
+            className="h-3 w-3 text-amber-400"
             viewBox="0 0 24 24"
             fill="currentColor"
           >

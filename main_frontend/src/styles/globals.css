@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Backgrounds */
+    --bg:              #F2EFFF;
+    --surface:         #FFFFFF;
+    --border:          #D9C9FF;
+    --navbar-bg:       #FFFFFF;
+    --navbar-border:   #D9C9FF;
+
+    /* Text */
+    --text-primary:    #111827;
+    --text-secondary:  #4B5563;
+
+    /* Brand */
+    --secondary:       #BF60B5;
+    --primary:         #E9E8FF;
+    --pink:            #bf30b5;
+
+    /* Status */
+    --status-success:       #16a34a;
+    --status-success-bg:    #dcfce7;
+    --status-error:         #dc2626;
+    --status-error-bg:      #fee2e2;
+    --status-warning:       #d97706;
+    --status-warning-bg:    #fef3c7;
+
+    /* Shape */
+    --radius:          8px;
+    --radius-sm:       6px;
+    --radius-full:     9999px;
+
+    /* Shadow */
+    --shadow-card:     0 1px 3px rgba(70,38,113,0.08), 0 4px 16px rgba(70,38,113,0.06);
+    --shadow-focus:    0 0 0 3px rgba(191,96,181,0.18);
+  }
+
+  .dark {
+    --bg:              #462671;
+    --surface:         #603898;
+    --border:          #8560c0;
+    --navbar-bg:       #1a0a2e;
+    --navbar-border:   #2d1250;
+
+    --text-primary:    #FFFFFF;
+    --text-secondary:  #D4B8FF;
+
+    --secondary:       #BF60B5;
+    --pink:            #bf30b5;
+
+    --status-success:       #4ade80;
+    --status-success-bg:    rgba(74,222,128,0.15);
+    --status-error:         #f87171;
+    --status-error-bg:      rgba(248,113,113,0.15);
+    --status-warning:       #fbbf24;
+    --status-warning-bg:    rgba(251,191,36,0.15);
+
+    --shadow-card:     0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    transition: background-color 0.35s ease, color 0.25s ease;
+  }
+}
+
+@layer components {
+  /* Page */
+  .page-root {
+    @apply min-h-screen;
+    background: var(--bg);
+    color: var(--text-primary);
+  }
+
+  /* Navbar */
+  .navbar {
+    @apply sticky top-0 z-50 h-14 flex items-center px-6 gap-2;
+    background: var(--navbar-bg);
+    border-bottom: 1px solid var(--navbar-border);
+    transition: background 0.35s, border-color 0.35s;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    transition: background 0.35s, border-color 0.35s;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full px-3 py-2.5 text-sm outline-none transition-all duration-200;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+  }
+  .input::placeholder { color: var(--text-secondary); }
+  .input:focus {
+    border-color: var(--secondary);
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white
+           rounded-lg transition-all duration-200
+           hover:opacity-90 hover:-translate-y-px;
+    background: var(--secondary);
+    box-shadow: none;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 4px 16px rgba(191,48,181,0.4);
+  }
+
+  .btn-outlined {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold
+           rounded-lg bg-transparent transition-all duration-200;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .btn-outlined:hover {
+    border-color: var(--secondary);
+    color: var(--secondary);
+  }
+
+  /* Table header */
+  .table-header {
+    @apply text-xs font-semibold uppercase tracking-widest text-white px-4 py-2.5;
+    background: var(--secondary);
+  }
+  .dark .table-header { background: var(--pink); }
+
+  /* Text helpers */
+  .text-sec { color: var(--text-secondary); }
+
+  /* Status badges */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-success { background: var(--status-success-bg); color: var(--status-success); }
+  .badge-error   { background: var(--status-error-bg);   color: var(--status-error);   }
+  .badge-warning { background: var(--status-warning-bg); color: var(--status-warning); }
+}
+

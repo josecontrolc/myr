@@ -1,5 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  Outlet,
+} from "react-router-dom";
 import { AuthProvider, useAuth } from "@shared/auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
@@ -105,6 +112,17 @@ const Header = () => {
   );
 };
 
+const AdminLayout = () => {
+  return (
+    <>
+      <Header />
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+        <Outlet />
+      </main>
+    </>
+  );
+};
+
 const App = () => {
   return (
     <ThemeProvider>
@@ -116,22 +134,16 @@ const App = () => {
               <Route path="/auth/2fa-challenge" element={<TwoFactorChallenge />} />
               <Route path="/auth/email-otp" element={<EmailOtpChallenge />} />
               <Route
-                path="/*"
                 element={
                   <ProtectedRoute>
-                    <>
-                      <Header />
-                      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
-                        <Routes>
-                          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                          <Route path="/dashboard" element={<AdminDashboard />} />
-                          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                        </Routes>
-                      </main>
-                    </>
+                    <AdminLayout />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<AdminDashboard />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Route>
             </Routes>
           </div>
         </AuthProvider>

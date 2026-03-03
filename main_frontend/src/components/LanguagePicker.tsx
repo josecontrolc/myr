@@ -48,21 +48,18 @@ const LanguagePicker: FC<LanguagePickerProps> = ({ className = "", onChange }) =
     setLanguage(value);
   };
 
-  const baseButton =
-    "flex items-center justify-center h-8 w-8 rounded-full overflow-hidden text-[0.65rem] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-white";
-
   return (
     <div
-      className={`inline-flex items-center gap-1 rounded-full bg-white/10 px-1 py-1 h-9 text-white ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-surface/90 dark:bg-surface-dark/80 px-1 py-1 h-8 shadow-sm border border-border/60 dark:border-border-dark/60 ${className}`}
       aria-label="Language selection"
     >
       <button
         type="button"
         onClick={() => handleSelect("fr")}
-        className={`${baseButton} ${
+        className={`flex items-center justify-center h-6 w-8 rounded-full overflow-hidden transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${
           language === "fr"
-            ? "bg-white text-[#2b0a42]"
-            : "text-white/70 hover:text-white"
+            ? "bg-white shadow-sm"
+            : "bg-transparent opacity-60 hover:opacity-90"
         }`}
         aria-pressed={language === "fr"}
       >
@@ -75,10 +72,10 @@ const LanguagePicker: FC<LanguagePickerProps> = ({ className = "", onChange }) =
       <button
         type="button"
         onClick={() => handleSelect("en")}
-        className={`${baseButton} ${
+        className={`flex items-center justify-center h-6 w-8 rounded-full overflow-hidden transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${
           language === "en"
-            ? "bg-white text-[#2b0a42]"
-            : "text-white/70 hover:text-white"
+            ? "bg-white shadow-sm"
+            : "bg-transparent opacity-60 hover:opacity-90"
         }`}
         aria-pressed={language === "en"}
       >

@@ -10,10 +10,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#160932] flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <div className="max-w-5xl w-full grid gap-0 lg:grid-cols-[1.1fr,1.1fr] items-stretch rounded-3xl overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.55)] border border-white/10 bg-white/5">
         {/* Left column: brand and login form */}
-        <div className="bg-[#2a174f]/95 px-10 py-10 flex flex-col justify-between">
+        <div className="bg-black-purple px-10 py-10 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">

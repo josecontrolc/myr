@@ -109,7 +109,7 @@ const Counter = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+    <div className="card rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-semibold text-gray-800">Counter Test</h3>
@@ -117,8 +117,8 @@ const Counter = () => {
             Writes to the database via a JWT-protected endpoint
           </p>
         </div>
-        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
-          jwtToken ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+        <span className={`badge ${
+          jwtToken ? 'badge-success' : 'badge-error'
         }`}>
           {jwtToken ? 'JWT active' : 'No JWT'}
         </span>

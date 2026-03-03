@@ -55,7 +55,11 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
         sessionStorage.setItem('pending_2fa_email', email);
         setTwoFactorMode(true);
       } else {
-        setError(message);
+        // Always present a generic error to avoid leaking authentication details.
+        // The concrete error is still visible in logs for diagnostics.
+        // eslint-disable-next-line no-console
+        console.error(err);
+        setError('Invalid email or password');
         setCode('');
       }
     } finally {

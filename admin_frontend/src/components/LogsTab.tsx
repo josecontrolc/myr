@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import AdminCard from "./AdminCard";
 
 interface AuditLog {
   id: string;
@@ -70,101 +71,106 @@ const LogsTab = () => {
     }
   };
 
-  if (loading && logs.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-gray-600">Loading logs...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Audit Logs</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Recent system activity and changes (auto-refreshes every 10 seconds)
-            </p>
-          </div>
-          <button
-            onClick={fetchLogs}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-          >
-            {loading ? 'Refreshing...' : 'Refresh Now'}
-          </button>
+    <AdminCard
+      title="Audit Logs"
+      subtitle="Recent system activity and changes (auto-refreshes every 10 seconds)."
+      headerRight={
+        <button
+          onClick={fetchLogs}
+          disabled={loading}
+          className="px-4 py-2 bg-secondary text-secondary-on-light dark:text-secondary-on-dark rounded-lg hover:bg-pink disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+        >
+          {loading ? "Refreshing..." : "Refresh now"}
+        </button>
+      }
+    >
+      {error && (
+        <div className="mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {error}
         </div>
-        
-        {error && (
-          <div className="mx-6 mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800">{error}</p>
+      )}
+
+      {loading && logs.length === 0 ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-textSecondary dark:text-textSecondary-dark">
+            Loading logs...
           </div>
-        )}
-        
+        </div>
+      ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-background dark:bg-background-dark border-b border-border dark:border-border-dark">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">
                   Timestamp
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">
                   Action
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">
                   User ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">
                   Details
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-border dark:divide-border-dark">
               {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <tr
+                  key={log.id}
+                  className="hover:bg-background dark:hover:bg-background-dark transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-textPrimary dark:text-textPrimary-dark">
                     {formatTimestamp(log.timestamp)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                    <span className="inline-flex rounded px-2 py-1 text-xs font-medium bg-primary text-primary-on-light">
                       {log.action}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {log.userId || <span className="text-gray-400 italic">System</span>}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-textSecondary dark:text-textSecondary-dark">
+                    {log.userId || (
+                      <span className="italic text-textSecondary dark:text-textSecondary-dark">
+                        System
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    {log.details && (
+                    {log.details ? (
                       <details className="cursor-pointer">
-                        <summary className="text-blue-600 hover:text-blue-800 font-medium">
-                          View Details
+                        <summary className="text-secondary hover:text-pink font-medium">
+                          View details
                         </summary>
-                        <pre className="mt-2 p-3 bg-gray-50 rounded border border-gray-200 text-xs overflow-x-auto font-mono">
+                        <pre className="mt-2 p-3 bg-background dark:bg-background-dark rounded border border-border dark:border-border-dark text-xs overflow-x-auto font-mono text-textPrimary dark:text-textPrimary-dark">
                           {formatDetails(log.details)}
                         </pre>
                       </details>
-                    )}
-                    {!log.details && (
-                      <span className="text-gray-400 italic">No details</span>
+                    ) : (
+                      <span className="italic text-textSecondary dark:text-textSecondary-dark">
+                        No details
+                      </span>
                     )}
                   </td>
                 </tr>
               ))}
-              
+
               {logs.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                    No audit logs found
+                  <td
+                    colSpan={4}
+                    className="px-6 py-8 text-center text-sm text-textSecondary dark:text-textSecondary-dark"
+                  >
+                    No audit logs found.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      )}
+    </AdminCard>
   );
 };
 

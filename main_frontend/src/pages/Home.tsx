@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@shared/auth';
 import ServiceStatusPanel from '../components/ServiceStatusPanel';
 
 const Home = () => {
+  const { t } = useTranslation('common');
   const { user, loading } = useAuth();
 
   return (
@@ -13,15 +15,15 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-textPrimary dark:text-textPrimary-dark tracking-tight">
-              MyR<span className="text-secondary"> Panel</span>
+              MyR<span className="text-secondary"> {t('home.header.titleSuffix')}</span>
             </h1>
             <p className="text-sm text-textSecondary dark:text-textSecondary-dark mt-0.5">
-              Management platform with segmented network architecture
+              {t('home.header.subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium bg-gray-50 border-gray-200 text-gray-600">
             <span className="inline-flex h-3 w-3 rounded-full bg-gray-400" />
-            Status overview is below
+            {t('home.header.statusChip')}
           </div>
         </div>
 
@@ -49,22 +51,28 @@ const Home = () => {
         )}
 
         {/* ── Features ── */}
-        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-5">Features</h2>
+        <div className="card rounded-2xl p-6">
+          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-5">
+            {t('home.features.title')}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { icon: '🔐', title: '2FA Authentication', desc: 'TOTP with Google Authenticator and backup codes.' },
-              { icon: '🛡️', title: 'Segmented DMZ Network', desc: 'Backend and DB never directly exposed to the internet.' },
-              { icon: '👥', title: 'Role-Based Access Control', desc: 'Users and administrators with differentiated permissions.' },
-              { icon: '📋', title: 'Audit Logging', desc: 'Logging of every action with timestamp, user, and IP.' },
-              { icon: '🔒', title: 'Secure Sessions', desc: 'httpOnly cookies managed by Better Auth.' },
-              { icon: '🐳', title: 'Docker Compose', desc: 'All services in isolated and reproducible containers.' },
+              { icon: '🔐', key: '2fa' },
+              { icon: '🛡️', key: 'dmz' },
+              { icon: '👥', key: 'rbac' },
+              { icon: '📋', key: 'audit' },
+              { icon: '🔒', key: 'sessions' },
+              { icon: '🐳', key: 'docker' },
             ].map((f) => (
               <div key={f.title} className="flex items-start gap-3">
                 <span className="text-xl mt-0.5">{f.icon}</span>
                 <div>
-                  <p className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">{f.title}</p>
-                  <p className="text-xs text-textSecondary dark:text-textSecondary-dark leading-relaxed mt-0.5">{f.desc}</p>
+                  <p className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">
+                    {t(`home.features.items.${f.key}.title`)}
+                  </p>
+                  <p className="text-xs text-textSecondary dark:text-textSecondary-dark leading-relaxed mt-0.5">
+                    {t(`home.features.items.${f.key}.description`)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -72,8 +80,10 @@ const Home = () => {
         </div>
 
         {/* ── Architecture diagram ── */}
-        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-6">Architecture Diagram</h2>
+        <div className="card rounded-2xl p-6">
+          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-6">
+            {t('home.architecture.title')}
+          </h2>
 
           <div className="flex flex-col items-center gap-0 text-xs">
 
@@ -83,7 +93,7 @@ const Home = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                 </svg>
-                <span className="font-medium">Internet / Client</span>
+                <span className="font-medium">{t('home.architecture.internet')}</span>
               </div>
             </div>
 
@@ -97,15 +107,25 @@ const Home = () => {
 
             {/* DMZ zone */}
             <div className="w-full border border-blue-200 bg-blue-50 rounded-xl p-4">
-              <p className="text-blue-500 font-bold uppercase tracking-widest text-xs mb-3">DMZ Zone</p>
+              <p className="text-blue-500 font-bold uppercase tracking-widest text-xs mb-3">
+                {t('home.architecture.dmzZone')}
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-surface dark:bg-surface-dark border border-blue-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">NGINX</p>
-                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Reverse Proxy</p>
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
+                    {t('home.architecture.dmz.nginxTitle')}
+                  </p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">
+                    {t('home.architecture.dmz.nginxSubtitle')}
+                  </p>
                 </div>
                 <div className="bg-surface dark:bg-surface-dark border border-blue-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">React + Vite</p>
-                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Frontend</p>
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
+                    {t('home.architecture.dmz.frontendTitle')}
+                  </p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">
+                    {t('home.architecture.dmz.frontendSubtitle')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -120,15 +140,25 @@ const Home = () => {
 
             {/* Internal network */}
             <div className="w-full border border-indigo-200 bg-indigo-50 rounded-xl p-4">
-              <p className="text-indigo-500 font-bold uppercase tracking-widest text-xs mb-3">Internal Network</p>
+              <p className="text-indigo-500 font-bold uppercase tracking-widest text-xs mb-3">
+                {t('home.architecture.internalZone')}
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-surface dark:bg-surface-dark border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">Express.js</p>
-                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">REST API</p>
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
+                    {t('home.architecture.internal.backendTitle')}
+                  </p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">
+                    {t('home.architecture.internal.backendSubtitle')}
+                  </p>
                 </div>
                 <div className="bg-surface dark:bg-surface-dark border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">Better Auth</p>
-                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Authentication</p>
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
+                    {t('home.architecture.internal.authTitle')}
+                  </p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">
+                    {t('home.architecture.internal.authSubtitle')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -143,15 +173,25 @@ const Home = () => {
 
             {/* Data layer */}
             <div className="w-full border border-purple-200 bg-purple-50 rounded-xl p-4">
-              <p className="text-purple-500 font-bold uppercase tracking-widest text-xs mb-3">Data Layer</p>
+              <p className="text-purple-500 font-bold uppercase tracking-widest text-xs mb-3">
+                {t('home.architecture.dataZone')}
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-surface dark:bg-surface-dark border border-purple-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">PostgreSQL</p>
-                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Database</p>
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
+                    {t('home.architecture.data.databaseTitle')}
+                  </p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">
+                    {t('home.architecture.data.databaseSubtitle')}
+                  </p>
                 </div>
                 <div className="bg-surface dark:bg-surface-dark border border-purple-100 rounded-lg px-4 py-2.5 text-center">
-                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">Prisma ORM</p>
-                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">Access layer</p>
+                  <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
+                    {t('home.architecture.data.ormTitle')}
+                  </p>
+                  <p className="text-textSecondary dark:text-textSecondary-dark text-xs mt-0.5">
+                    {t('home.architecture.data.ormSubtitle')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -160,23 +200,27 @@ const Home = () => {
 
           {/* Legend */}
           <div className="mt-5 flex flex-wrap items-center gap-4 pt-4 border-t border-border dark:border-border-dark">
-            <span className="text-xs text-textSecondary dark:text-textSecondary-dark font-medium">Legend:</span>
+            <span className="text-xs text-textSecondary dark:text-textSecondary-dark font-medium">
+              {t('home.architecture.legendLabel')}
+            </span>
             {[
-              { color: 'bg-blue-200', label: 'Exposed DMZ' },
-              { color: 'bg-indigo-200', label: 'Internal network' },
-              { color: 'bg-purple-200', label: 'Isolated data' },
+              { color: 'bg-blue-200', labelKey: 'dmz' },
+              { color: 'bg-indigo-200', labelKey: 'internal' },
+              { color: 'bg-purple-200', labelKey: 'data' },
             ].map((l) => (
               <span key={l.label} className="flex items-center gap-1.5 text-xs text-textSecondary dark:text-textSecondary-dark">
                 <span className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
-                {l.label}
+                {t(`home.architecture.legend.${l.labelKey}`)}
               </span>
             ))}
           </div>
         </div>
 
         {/* ── Tech stack ── */}
-        <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-5">Technology Stack</h2>
+        <div className="card rounded-2xl p-6">
+          <h2 className="text-sm font-semibold text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider mb-5">
+            {t('home.techStack.title')}
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { name: 'React 18', role: 'UI / SPA', tag: 'Frontend', tagColor: 'bg-cyan-50 text-cyan-700' },
@@ -211,7 +255,7 @@ const Home = () => {
         {/* ── Footer info ── */}
         <div className="text-center pb-4">
           <p className="text-xs text-textSecondary dark:text-textSecondary-dark">
-            MyR Panel · Secure architecture with network segmentation · React + Express + PostgreSQL + NGINX
+            {t('home.footer.text')}
           </p>
         </div>
 

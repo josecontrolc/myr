@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import AdminCard from "./AdminCard";
 
 type TableName =
   | 'users'
@@ -31,7 +32,7 @@ const API_BASE = import.meta.env.VITE_API_URL || '';
 const ADMIN_SECRET = import.meta.env.VITE_ADMIN_SECRET || '';
 
 const adminHeaders = {
-  'X-Admin-Secret': ADMIN_SECRET,
+  'x-admin-secret': ADMIN_SECRET,
   'Content-Type': 'application/json'
 };
 
@@ -112,136 +113,142 @@ const DatabaseTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header card */}
-      <div className="bg-white rounded-lg shadow p-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Database Viewer</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Explore all database tables. Sensitive fields are redacted.
-          </p>
-        </div>
-        <button
-          onClick={handleRefresh}
-          disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
-        >
-          <svg
-            className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <AdminCard
+        title="Database Viewer"
+        subtitle="Explore all database tables. Sensitive fields are redacted."
+        headerRight={
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-secondary text-secondary-on-light dark:text-secondary-on-dark bg-primary border border-border dark:border-border-dark rounded-lg hover:bg-pink transition-colors disabled:opacity-50"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-          Refresh
-        </button>
-      </div>
-
-      {/* Error message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-          <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p className="text-sm text-red-800">{error}</p>
-        </div>
-      )}
+            <svg
+              className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Refresh
+          </button>
+        }
+      >
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            {error}
+          </div>
+        )}
+      </AdminCard>
 
       {/* Table selector grid */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-base font-medium text-gray-900">Select a Table</h3>
-        </div>
+      <AdminCard title="Select a table">
         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {TABLES.map(t => (
+          {TABLES.map((t) => (
             <button
               key={t.name}
               onClick={() => fetchTableData(t.name)}
               disabled={loading}
               className={`p-4 rounded-lg border-2 text-left transition-all ${
                 selectedTable === t.name
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  ? "border-secondary bg-primary"
+                  : "border-border dark:border-border-dark hover:border-secondary hover:bg-background dark:hover:bg-background-dark"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-medium text-gray-900">{t.label}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{t.description}</p>
+                  <p className="font-medium text-textPrimary dark:text-textPrimary-dark">
+                    {t.label}
+                  </p>
+                  <p className="text-xs text-textSecondary dark:text-textSecondary-dark mt-0.5">
+                    {t.description}
+                  </p>
                 </div>
-                <span className={`text-lg font-bold tabular-nums ${
-                  selectedTable === t.name ? 'text-blue-600' : 'text-gray-400'
-                }`}>
+                <span
+                  className={`text-lg font-bold tabular-nums ${
+                    selectedTable === t.name ? "text-secondary" : "text-textSecondary dark:text-textSecondary-dark"
+                  }`}
+                >
                   {getCount(t.name)}
                 </span>
               </div>
             </button>
           ))}
         </div>
-      </div>
+      </AdminCard>
 
       {/* Data table */}
       {selectedTable && !loading && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-medium text-gray-900">
-                {TABLES.find(t => t.name === selectedTable)?.label}
-              </h3>
-              <p className="text-sm text-gray-500 mt-0.5">
-                {tableData.length} record{tableData.length !== 1 ? 's' : ''}
-              </p>
-            </div>
-          </div>
-
+        <AdminCard
+          title={TABLES.find((t) => t.name === selectedTable)?.label}
+          subtitle={`${tableData.length} record${tableData.length !== 1 ? "s" : ""}`}
+        >
           {tableData.length === 0 ? (
             <div className="p-12 text-center">
-              <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              <svg
+                className="mx-auto mb-4 h-12 w-12 text-textSecondary dark:text-textSecondary-dark"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
               </svg>
-              <p className="text-gray-500 text-sm">No records found in this table.</p>
+              <p className="text-sm text-textSecondary dark:text-textSecondary-dark">
+                No records found in this table.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-border dark:divide-border-dark text-sm">
+                <thead className="bg-background dark:bg-background-dark">
                   <tr>
-                    {columnKeys.map(key => (
+                    {columnKeys.map((key) => (
                       <th
                         key={key}
-                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                        className="px-4 py-3 whitespace-nowrap text-left text-xs font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider"
                       >
                         {key}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
+                <tbody className="divide-y divide-border dark:divide-border-dark">
                   {tableData.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                      {columnKeys.map(key => {
+                    <tr
+                      key={idx}
+                      className="hover:bg-background dark:hover:bg-background-dark transition-colors"
+                    >
+                      {columnKeys.map((key) => {
                         const raw = row[key];
-                        const display = isDateField(key) && typeof raw === 'string'
-                          ? formatDate(raw)
-                          : formatCellValue(raw);
+                        const display =
+                          isDateField(key) && typeof raw === "string"
+                            ? formatDate(raw)
+                            : formatCellValue(raw);
                         return (
                           <td
                             key={key}
-                            className="px-4 py-3 text-gray-700 font-mono text-xs"
+                            className="px-4 py-3 font-mono text-xs text-textPrimary dark:text-textPrimary-dark"
                           >
                             <div
                               className="max-w-xs truncate"
                               title={formatCellValue(raw)}
                             >
-                              {display === 'null' ? (
-                                <span className="text-gray-400 italic">null</span>
-                              ) : display === '[REDACTED]' ? (
-                                <span className="text-yellow-600 bg-yellow-50 px-1 py-0.5 rounded text-xs">
+                              {display === "null" ? (
+                                <span className="italic text-textSecondary dark:text-textSecondary-dark">
+                                  null
+                                </span>
+                              ) : display === "[REDACTED]" ? (
+                                <span className="rounded bg-yellow-50 px-1 py-0.5 text-xs text-yellow-700">
                                   [REDACTED]
                                 </span>
                               ) : (
@@ -257,7 +264,7 @@ const DatabaseTab = () => {
               </table>
             </div>
           )}
-        </div>
+        </AdminCard>
       )}
 
       {/* Loading skeleton for data table */}

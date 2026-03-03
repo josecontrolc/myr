@@ -14,7 +14,11 @@
   "pages": {
     "tickets": { "title": "Ticket management" },
     "interventions": { "title": "Upcoming interventions" },
-    "billing": { "title": "Billing" },
+    "billing": {
+      "title": "Billing",
+      "subtitle": "Overview of your open invoices and account balance",
+      "empty": "You do not have any open invoices for this account"
+    },
     "paymentInfo": { "title": "Payment information" },
     "sepa": { "title": "SEPA Direct Debit" },
     "customerInfo": { "title": "Customer information" },
@@ -29,9 +33,178 @@
     "suggestions": { "title": "Your suggestions" },
     "dataDeletion": { "title": "Data deletion" }
   },
+  "home": {
+    "header": {
+      "titleSuffix": "Panel",
+      "subtitle": "Management platform with segmented network architecture",
+      "statusChip": "Status overview is below"
+    },
+    "features": {
+      "title": "Features",
+      "items": {
+        "2fa": {
+          "title": "2FA Authentication",
+          "description": "TOTP with Google Authenticator and backup codes."
+        },
+        "dmz": {
+          "title": "Segmented DMZ Network",
+          "description": "Backend and DB never directly exposed to the internet."
+        },
+        "rbac": {
+          "title": "Role-Based Access Control",
+          "description": "Users and administrators with differentiated permissions."
+        },
+        "audit": {
+          "title": "Audit Logging",
+          "description": "Logging of every action with timestamp, user, and IP."
+        },
+        "sessions": {
+          "title": "Secure Sessions",
+          "description": "httpOnly cookies managed by Better Auth."
+        },
+        "docker": {
+          "title": "Docker Compose",
+          "description": "All services in isolated and reproducible containers."
+        }
+      }
+    },
+    "architecture": {
+      "title": "Architecture Diagram",
+      "internet": "Internet / Client",
+      "dmzZone": "DMZ Zone",
+      "dmz": {
+        "nginxTitle": "NGINX",
+        "nginxSubtitle": "Reverse Proxy",
+        "frontendTitle": "React + Vite",
+        "frontendSubtitle": "Frontend"
+      },
+      "internalZone": "Internal Network",
+      "internal": {
+        "backendTitle": "Express.js",
+        "backendSubtitle": "REST API",
+        "authTitle": "Better Auth",
+        "authSubtitle": "Authentication"
+      },
+      "dataZone": "Data Layer",
+      "data": {
+        "databaseTitle": "PostgreSQL",
+        "databaseSubtitle": "Database",
+        "ormTitle": "Prisma ORM",
+        "ormSubtitle": "Access layer"
+      },
+      "legendLabel": "Legend:",
+      "legend": {
+        "dmz": "Exposed DMZ",
+        "internal": "Internal network",
+        "data": "Isolated data"
+      }
+    },
+    "techStack": {
+      "title": "Technology Stack"
+    },
+    "footer": {
+      "text": "MyR Panel · Secure architecture with network segmentation · React + Express + PostgreSQL + NGINX"
+    }
+  },
   "placeholders": {
     "underConstruction": "This section is under construction. Features will be added soon.",
     "loading": "Loading..."
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "retry": "Try again"
+  },
+  "errors": {
+    "generic": "There was a problem loading data",
+    "billingLoad": "There was a problem loading your invoices"
+  },
+  "billing": {
+    "summary": {
+      "totalOutstanding": "Total outstanding"
+    },
+    "columns": {
+      "invoice": "Invoice",
+      "label": "Label",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "amount": "Amount",
+      "balance": "Balance",
+      "flags": "Flags"
+    },
+    "flags": {
+      "blocked": "Blocked",
+      "complaint": "Complaint"
+    }
+  },
+  "dashboard": {
+    "home": {
+      "title": "Welcome to MyR",
+      "description": "Your dedicated space allows you to view and manage your tickets, personal data, invoices, and ongoing services.",
+      "description2": "Easily perform essential actions such as creating tickets, exporting data, and accessing your Rsecure training.",
+      "loading": "Loading dashboard...",
+      "links": {
+        "tickets": "Tickets",
+        "interventions": "Upcoming interventions",
+        "facturation": "Invoices",
+        "sepa": "SEPA mandate",
+        "information-client": "Customer information",
+        "reservation-salles": "BCP room reservations",
+        "offres": "Offers",
+        "commandes": "Orders",
+        "contrats": "Contracts",
+        "kyc": "KYC",
+        "securite": "Security",
+        "ressources": "Resources",
+        "commande-rapide": "Quick order"
+      }
+    },
+    "info": {
+      "title": "Info",
+      "subtitle": "Detailed information about your account and architecture",
+      "loading": "Loading...",
+      "greeting": "Hello, {{name}}!",
+      "greetingFallback": "User",
+      "userCardTitle": "User Information",
+      "userIdLabel": "User ID",
+      "emailLabel": "Email",
+      "nameLabel": "Name",
+      "nameNotSet": "Not set",
+      "architectureCardTitle": "Architecture Status",
+      "architecture": {
+        "nginx": "NGINX Reverse Proxy (DMZ)",
+        "frontend": "React Frontend (DMZ)",
+        "backend": "Express Backend (Internal)",
+        "database": "PostgreSQL Database (Internal)",
+        "auth": "Better Auth Authentication"
+      }
+    },
+    "security": {
+      "sectionTitle": "Security Settings",
+      "twoFactorLabel": "Two-Factor Authentication",
+      "twoFactorEnabledDescription": "Your account is protected with 2FA",
+      "twoFactorDisabledDescription": "Add an extra layer of security to your account",
+      "status": {
+        "enabled": "Enabled",
+        "disabled": "Disabled"
+      },
+      "buttons": {
+        "disable": "Disable",
+        "enable2fa": "Enable 2FA"
+      },
+      "disableModal": {
+        "title": "Disable Two-Factor Authentication",
+        "body": "Are you sure you want to disable 2FA? This will make your account less secure.",
+        "passwordLabel": "Confirm Your Password",
+        "passwordPlaceholder": "Enter your password",
+        "cancel": "Cancel",
+        "confirm": "Disable 2FA",
+        "confirmLoading": "Disabling..."
+      },
+      "note": {
+        "label": "Security Note:",
+        "text": "Your session is protected by HTTP-only cookies and all traffic flows through the secure DMZ architecture."
+      }
+    }
   }
 }
 

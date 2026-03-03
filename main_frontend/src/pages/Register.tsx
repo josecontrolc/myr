@@ -9,16 +9,16 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-lg shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
-          <p className="text-gray-600">Get started with DMZ Auth</p>
+          <h1 className="text-3xl font-bold text-textPrimary dark:text-textPrimary-dark mb-2">Create account</h1>
+          <p className="text-textSecondary dark:text-textSecondary-dark">Get started with DMZ Auth</p>
         </div>
 
         <RegisterForm onSuccess={handleSuccess} />
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-textSecondary dark:text-textSecondary-dark">
           Already have an account?{' '}
           <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
             Sign in

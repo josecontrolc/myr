@@ -16,6 +16,7 @@ import betterAuthProxyRouter from './routes/betterAuthProxy';
 import adminRouter from './routes/admin';
 import rolesRouter from './routes/roles';
 import counterRouter from './routes/counter';
+import accountingRouter from './routes/accounting';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -107,6 +108,9 @@ app.use(jwtAuth);
 
 // ─── Counter Routes (JWT protected) ──────────────────────────────────────────
 app.use('/api/counter', counterRouter);
+
+// ─── Accounting Routes (JWT protected, external decompte proxy) ─────────────
+app.use('/api/accounting', accountingRouter);
 
 // ─── Admin API Routes (x-admin-secret auth; jwtAuth skips /api/admin via PUBLIC_ROUTES) ─
 app.use('/api/admin', adminAuth);
