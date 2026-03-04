@@ -16,8 +16,48 @@ import prisma from '../lib/prisma';
 import { MemberRole } from '@prisma/client';
 import { checkOrganizationAccess } from '../middleware/auth';
 import { createAuditLog } from '../middleware/auditLog';
+import { proxyGraphQL } from '../services/proxyService';
 
 const router = express.Router();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/orgs/mine
+// Returns the organizations the authenticated user belongs to.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /api/orgs/mine:
+ *   get:
+ *     summary: Get organizations for the authenticated user
+ *     tags:
+ *       - Organizations
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of organizations
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.get('/mine', async (req: Request, res: Response) => {
+  try {
+    const members = await prisma.member.findMany({
+      where: { userId: req.user!.userId },
+      include: { organization: true },
+    });
+
+    res.json({
+      organizations: members.map((m) => ({
+        ...m.organization,
+        role: m.role,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching user organizations:', error);
+    res.status(500).json({ error: 'Failed to fetch organizations' });
+  }
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/orgs/:orgId/profile
@@ -163,6 +203,78 @@ router.get(
     } catch (error) {
       console.error('Error fetching org audit logs:', error);
       res.status(500).json({ error: 'Failed to fetch audit logs' });
+    }
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/orgs/:orgId/proxy/supplier
+// Proxies a GraphQL request for supplier information.
+// Minimum role: VIEWER
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /api/orgs/{orgId}/proxy/supplier:
+ *   post:
+ *     summary: Proxy GraphQL supplier request
+ *     tags:
+ *       - Proxy
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orgId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               query:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Proxied response
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+router.post(
+  '/:orgId/proxy/supplier',
+  checkOrganizationAccess(MemberRole.VIEWER),
+  async (req: Request, res: Response) => {
+    try {
+      const { orgId } = req.params;
+      const { query } = req.body;
+
+      if (!query) {
+        res.status(400).json({ error: 'GraphQL query is required' });
+        return;
+      }
+
+      const data = await proxyGraphQL(query);
+
+      // Log the proxy action
+      await createAuditLog(
+        'PROXY_API_CALL',
+        req.user!.userId,
+        { orgId, query },
+        orgId
+      );
+
+      res.json(data);
+    } catch (error: any) {
+      console.error('Proxy request failed:', error);
+      res.status(error.response?.status || 500).json({
+        error: 'Proxy request failed',
+        details: error.response?.data || error.message,
+      });
     }
   }
 );

@@ -14,6 +14,7 @@ import DashboardHome from "./pages/DashboardHome";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import TicketsPage from "./pages/TicketsPage";
 import InvoicesPage from "./pages/InvoicesPage";
+import InformationClient from "./pages/InformationClient";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
 const AppRoutes = () => {
@@ -70,7 +71,7 @@ const AppRoutes = () => {
           />
           <Route
             path="/information-client"
-            element={<PlaceholderPage titleKey="pages.customerInfo.title" />}
+            element={<InformationClient />}
           />
           <Route
             path="/reservation-salles-bcp"
