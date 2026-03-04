@@ -1,0 +1,486 @@
+{
+    "info": {
+      "name": "MYR Backend - Demo Tests",
+      "_postman_id": "c1c9e1b4-0000-0000-0000-myrcoll",
+      "description": "Colección de ejemplos para probar el backend con casos que fallan y otros que pasan.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:3000"
+      },
+      {
+        "key": "orgId",
+        "value": "REEMPLAZAR_ORG_ID_REAL"
+      },
+      {
+        "key": "viewerToken",
+        "value": "REEMPLAZAR_JWT_VIEWER"
+      },
+      {
+        "key": "managerToken",
+        "value": "REEMPLAZAR_JWT_MANAGER"
+      },
+      {
+        "key": "ownerToken",
+        "value": "REEMPLAZAR_JWT_OWNER"
+      },
+      {
+        "key": "adminToken",
+        "value": "REEMPLAZAR_JWT_ADMIN"
+      },
+      {
+        "key": "outsiderToken",
+        "value": "REEMPLAZAR_JWT_OUTSIDER"
+      },
+      {
+        "key": "adminSecret",
+        "value": "REEMPLAZAR_ADMIN_SECRET"
+      }
+    ],
+    "item": [
+      {
+        "name": "Status",
+        "item": [
+          {
+            "name": "GET /api (status)",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api",
+                "host": ["{{baseUrl}}"],
+                "path": ["api"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 200\", function () {",
+                    "  pm.response.to.have.status(200);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "GET /api/health",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/health",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "health"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 200 o 503\", function () {",
+                    "  pm.expect([200,503]).to.include(pm.response.code);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Org JWT - /api/orgs/:orgId/profile",
+        "item": [
+          {
+            "name": "profile - sin Authorization (debe fallar 401)",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/orgs/{{orgId}}/profile",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "orgs", "{{orgId}}", "profile"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 401\", function () {",
+                    "  pm.response.to.have.status(401);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "profile - outsider (403 not a member)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{outsiderToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/orgs/{{orgId}}/profile",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "orgs", "{{orgId}}", "profile"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 403\", function () {",
+                    "  pm.response.to.have.status(403);",
+                    "});",
+                    "",
+                    "pm.test(\"mensaje contiene 'not a member'\", function () {",
+                    "  var json = pm.response.json();",
+                    "  pm.expect(json.error || '').to.match(/not a member/i);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "profile - viewer (200 OK)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{viewerToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/orgs/{{orgId}}/profile",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "orgs", "{{orgId}}", "profile"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 200\", function () {",
+                    "  pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test(\"body tiene organization.id y member.role VIEWER\", function () {",
+                    "  var json = pm.response.json();",
+                    "  pm.expect(json.organization).to.have.property('id');",
+                    "  pm.expect(json.member).to.have.property('role', 'VIEWER');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Org JWT - /api/orgs/:orgId/audit-logs",
+        "item": [
+          {
+            "name": "audit-logs - sin Authorization (401)",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/orgs/{{orgId}}/audit-logs",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "orgs", "{{orgId}}", "audit-logs"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 401\", function () {",
+                    "  pm.response.to.have.status(401);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "audit-logs - viewer (403 insuficiente rol)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{viewerToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/orgs/{{orgId}}/audit-logs",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "orgs", "{{orgId}}", "audit-logs"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 403\", function () {",
+                    "  pm.response.to.have.status(403);",
+                    "});",
+                    "",
+                    "pm.test(\"indica rol insuficiente\", function () {",
+                    "  var json = pm.response.json();",
+                    "  pm.expect(json.yourRole).to.eql('VIEWER');",
+                    "  pm.expect(json.requiredRole).to.eql('ADMIN');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "audit-logs - admin (200 OK)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{adminToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/orgs/{{orgId}}/audit-logs",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "orgs", "{{orgId}}", "audit-logs"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 200\", function () {",
+                    "  pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test(\"body.data es array\", function () {",
+                    "  var json = pm.response.json();",
+                    "  pm.expect(json).to.have.property('data');",
+                    "  pm.expect(Array.isArray(json.data)).to.be.true;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Admin - /api/admin/organizations",
+        "item": [
+          {
+            "name": "GET organizations - sin x-admin-secret (403)",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/admin/organizations",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "admin", "organizations"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 403\", function () {",
+                    "  pm.response.to.have.status(403);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "GET organizations - x-admin-secret incorrecto (403)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "x-admin-secret",
+                  "value": "wrong-secret"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/admin/organizations",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "admin", "organizations"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 403\", function () {",
+                    "  pm.response.to.have.status(403);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "GET organizations - autenticado (200 paginado)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "x-admin-secret",
+                  "value": "{{adminSecret}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/admin/organizations?page=1&limit=5",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "admin", "organizations"],
+                "query": [
+                  { "key": "page", "value": "1" },
+                  { "key": "limit", "value": "5" }
+                ]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 200\", function () {",
+                    "  pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test(\"respuesta tiene campos de paginacion\", function () {",
+                    "  var json = pm.response.json();",
+                    "  pm.expect(json).to.have.property('data');",
+                    "  pm.expect(json).to.have.property('total');",
+                    "  pm.expect(json).to.have.property('page', 1);",
+                    "  pm.expect(json).to.have.property('limit', 5);",
+                    "  pm.expect(json).to.have.property('totalPages');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "POST organizations - falta name (400)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "x-admin-secret",
+                  "value": "{{adminSecret}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"slug\": \"test-admin-org-no-name\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/admin/organizations",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "admin", "organizations"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 400\", function () {",
+                    "  pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test(\"mensaje menciona name\", function () {",
+                    "  var json = pm.response.json();",
+                    "  pm.expect((json.error || '').toLowerCase()).to.include('name');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "POST organizations - OK (201)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "x-admin-secret",
+                  "value": "{{adminSecret}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"Test Org Create\",\n  \"slug\": \"test-admin-org-create-ok\",\n  \"externalReferenceId\": \"EXT-TEST\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/admin/organizations",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "admin", "organizations"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"status 201\", function () {",
+                    "  pm.response.to.have.status(201);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }

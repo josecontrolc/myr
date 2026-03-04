@@ -1,93 +1,44 @@
-# Admin RBAC UI – Evolution Plan
+# Admin RBAC UI – Multi-Tenant Evolution Plan
 
-This document explains how to evolve the placeholder `UserRolesTab` in `admin_frontend` into a full RBAC (roles and permissions) management UI, following `vercel-composition-patterns` and the backend capabilities.
+This document serves as the implementation guide for the `admin_frontend`. It defines how to manage Users, Organizations, and Roles according to the Multi-Tenant schema.
 
-## 1. Available endpoints (backend)
+## 1. Context & Scope
+The Admin UI must allow Super-Admins to manage the link between Users and Organizations. Unlike global roles, permissions here are context-aware based on the `Member` table.
 
-From the project `README`:
+## 2. Targeted API Endpoints (Internal Gateway)
+The `admin_frontend` will communicate with the backend using the following proxy-ready routes:
 
-- `GET /api/admin/roles` – list roles.
-- `POST /api/admin/roles` – create a role.
-- `DELETE /api/admin/roles/:id` – delete a role.
-- `GET /api/admin/roles/:id/endpoints` – list endpoints assigned to a role.
-- `POST /api/admin/roles/:id/endpoints` – add role → endpoint mappings.
-- `DELETE /api/admin/roles/:id/endpoints/:mappingId` – delete a mapping.
-- `POST /api/admin/users/:id/roles` – assign a role to a user.
-- `DELETE /api/admin/users/:id/roles/:roleId` – revoke a role from a user.
+### Organization Management
+* `GET /api/admin/organizations` – List all tenants with pagination.
+* `POST /api/admin/organizations` – Create a new tenant.
 
-All these requests use the `x-admin-secret` header and sit behind JWT + RBAC middleware.
+### Member & Role Management (Contextual)
+* `GET /api/admin/organizations/:orgId/members` – List users in a specific organization with their roles.
+* `POST /api/admin/organizations/:orgId/members` – Invite/Add a user to an organization with a specific role (`ADMIN`, `MANAGER`, `VIEWER`).
+* `PATCH /api/admin/organizations/:orgId/members/:userId` – Update a user's role within that specific organization.
+* `DELETE /api/admin/organizations/:orgId/members/:userId` – Remove a user from an organization.
 
-## 2. Recommended architecture (composition patterns)
+### System Audit & Settings
+* `GET /api/admin/logs` – Global audit log viewer (Kibana-style) with filtering by `organizationId`.
+* `PATCH /api/admin/settings/:key` – Toggle global auth providers (Google, Microsoft).
 
-### 2.1. RBAC context
+## 3. UI Structure (React Composition)
 
-Create a context with the following shape:
+### Tab 1: Organizations Dashboard
+* **View**: A data table showing all organizations.
+* **Actions**: Click on an organization to manage its specific members and settings.
 
-- `state`
-  - `roles: Role[]`
-  - `selectedRoleId: string | null`
-  - `roleEndpoints: RoleEndpointMapping[]`
-  - `searchUserQuery: string`
-  - `userAssignments: UserWithRoles[]`
-- `actions`
-  - `loadRoles`, `createRole`, `deleteRole`
-  - `loadRoleEndpoints`, `addEndpointMapping`, `removeEndpointMapping`
-  - `loadUserAssignments`, `assignRoleToUser`, `revokeRoleFromUser`
-  - `setSelectedRole`, `setSearchUserQuery`
-- `meta`
-  - flags for `loading`, `error`, editing ids, etc.
+### Tab 2: User Roles (Member Manager)
+* **View**: A split-screen layout.
+  * **Left**: List of Organizations.
+  * **Right**: Data table of Users belonging to the selected Organization.
+* **Role Selector**: A dropdown within the table to change roles (Owner, Admin, Manager, Viewer).
 
-Suggested provider: `RbacProvider` in `admin_frontend/src/features/rbac/RbacProvider.tsx`. It should encapsulate all `fetch` logic using `VITE_API_URL` and `VITE_ADMIN_SECRET` and expose only the typed context interface to the UI.
+### Tab 3: Security Logs
+* **View**: A high-density table showing `AuditLog` entries.
+* **Features**: Search by `userId` or `action` (e.g., `PROXY_API_CALL`).
 
-### 2.2. UI compound components
-
-Under `admin_frontend/src/features/rbac/`:
-
-- `RbacLayout` – main grid for the **User Roles** tab (roles sidebar + right panel).
-- `RolesList` – list of roles with:
-  - counts for users and endpoints per role (read from `state`),
-  - `Create` and `Delete` actions wired to `actions.createRole/deleteRole`.
-- `RoleEndpointsTable` – editable table of endpoints for the selected role.
-- `UserAssignmentsPanel` – user search plus list with checkboxes or chips to assign/revoke roles.
-
-All these components should consume only the RBAC context (`useRbac()`), never call the backend directly.
-
-## 3. Integration in `AdminDashboard`
-
-1. Keep `UserRolesTab` as a thin container that:
-   - wraps its content in `<RbacProvider>`.
-   - composes `<RolesList />`, `<RoleEndpointsTable />` and `<UserAssignmentsPanel />`.
-2. Replace the current placeholder data with real data from the context.
-3. Keep a clear “beta area” notice while the feature set is incomplete, using a top-level `AdminCard` with an explicit `subtitle`.
-
-## 4. State handling and UX
-
-- **Loading states** – provide clear indicators for:
-  - initial load of roles and endpoints,
-  - create/delete role actions,
-  - assigning/revoking roles.
-- **Errors** – surface them as toasts or inline banners per action (for example, “Could not create role”), without blocking the whole page for a single failure.
-- **Dangerous operations** – require confirmation before deleting roles or removing access to critical endpoints.
-
-## 5. Security and consistency
-
-- Reuse the same admin headers helper (`x-admin-secret`) and `API_BASE` as in `SettingsTab`, `LogsTab` and `DatabaseTab`.
-- Keep end-user error messages generic; log detailed errors to the console or a future audit log.
-- Align the RBAC UI with the existing design system:
-  - use `AdminCard` for roles, endpoints and assignments sections,
-  - use the theme tokens `primary/secondary`, `background/surface`, `textPrimary/textSecondary` for both light and dark mode.
-
-## 6. Suggested phases
-
-1. **Phase 1 – read-only**:
-   - list real roles and their assigned endpoints,
-   - show users and their roles without editing.
-2. **Phase 2 – controlled editing**:
-   - allow creating/deleting roles,
-   - add/remove endpoint mappings,
-   - assign/revoke roles for users.
-3. **Phase 3 – UX refinement**:
-   - add search/filtering by role and endpoint,
-   - provide compact views and risk labels (for example mark endpoints as “admin-only”),
-   - add RBAC-specific end-to-end tests (create role, assign, then verify access from the `main_frontend` app).
-
+## 4. Implementation Guidelines
+* **State Management**: Use a centralized `AdminProvider` to handle API calls using the `x-admin-secret` header.
+* **Pagination**: Every table must support `page` and `limit` parameters as per the backend spec.
+* **Security**: UI components must remain hidden or disabled if the authenticated user does not have the `OWNER` or `ADMIN` role in the selected context.

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, MemberRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -74,10 +74,90 @@ const seedRoles = async () => {
   console.log('Default roles seeded successfully!');
 };
 
+/**
+ * Upserts an organization and returns it.
+ */
+const upsertOrg = async (name: string, slug: string, externalReferenceId?: string) =>
+  prisma.organization.upsert({
+    where: { slug },
+    update: {},
+    create: { name, slug, externalReferenceId: externalReferenceId ?? null },
+  });
+
+/**
+ * Upserts a member (user → org with role).
+ */
+const upsertMember = async (userId: string, organizationId: string, role: MemberRole) =>
+  prisma.member.upsert({
+    where: { userId_organizationId: { userId, organizationId } },
+    update: { role },
+    create: { userId, organizationId, role },
+  });
+
+const seedOrganizationsAndMembers = async () => {
+  console.log('Seeding organizations and member matrix...');
+
+  // ── Organizations ──────────────────────────────────────────────────────────
+  const controlc  = await upsertOrg('ControlC',  'controlc',  'EXT-001');
+  const acme      = await upsertOrg('Acme Corp',  'acme',      'EXT-002');
+  const betacorp  = await upsertOrg('BetaCorp',   'betacorp');
+
+  console.log(`  + Organizations: ControlC (${controlc.id}), Acme (${acme.id}), BetaCorp (${betacorp.id})`);
+
+  // ── Test user (from .env) as OWNER of ControlC, ADMIN of Acme ─────────────
+  const testUserEmail = process.env.TEST_USER_EMAIL;
+  if (!testUserEmail) {
+    console.warn('  ! TEST_USER_EMAIL not set; skipping test-user memberships.');
+  } else {
+    const testUser = await prisma.user.findUnique({ where: { email: testUserEmail } });
+    if (!testUser) {
+      console.warn(`  ! No user with email "${testUserEmail}"; skipping.`);
+    } else {
+      await upsertMember(testUser.id, controlc.id, MemberRole.OWNER);
+      await upsertMember(testUser.id, acme.id, MemberRole.ADMIN);
+      console.log(`  + ${testUserEmail}: OWNER of ControlC, ADMIN of Acme`);
+    }
+  }
+
+  // ── Synthetic demo users with varied roles ─────────────────────────────────
+  // These are lightweight users created only if they don't already exist so the
+  // seed is safe to re-run.  Passwords are intentionally blank — they cannot log
+  // in via email/password without a real hash; they exist solely to populate the
+  // member table for UI/test purposes.
+  const demoUsers: Array<{ email: string; name: string }> = [
+    { email: 'manager.acme@demo.local',   name: 'Alice Manager' },
+    { email: 'viewer.acme@demo.local',    name: 'Bob Viewer' },
+    { email: 'manager.beta@demo.local',   name: 'Carol Beta' },
+    { email: 'viewer.beta@demo.local',    name: 'Dave Beta' },
+  ];
+
+  const createdUsers: Record<string, string> = {};
+  for (const { email, name } of demoUsers) {
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: {},
+      create: { email, name, emailVerified: false },
+    });
+    createdUsers[email] = user.id;
+    console.log(`  + Demo user: ${email} (${user.id})`);
+  }
+
+  // ── Assign demo roles ──────────────────────────────────────────────────────
+  await upsertMember(createdUsers['manager.acme@demo.local'],  acme.id,     MemberRole.MANAGER);
+  await upsertMember(createdUsers['viewer.acme@demo.local'],   acme.id,     MemberRole.VIEWER);
+  await upsertMember(createdUsers['manager.beta@demo.local'],  betacorp.id, MemberRole.MANAGER);
+  await upsertMember(createdUsers['viewer.beta@demo.local'],   betacorp.id, MemberRole.VIEWER);
+  // Cross-org: Carol is also a VIEWER in ControlC
+  await upsertMember(createdUsers['manager.beta@demo.local'],  controlc.id, MemberRole.VIEWER);
+
+  console.log('Organizations and member matrix seeded successfully!');
+};
+
 const main = async () => {
   try {
     await seedAuthSettings();
     await seedRoles();
+    await seedOrganizationsAndMembers();
   } catch (error) {
     console.error('Error seeding database:', error);
     process.exit(1);

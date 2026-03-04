@@ -29,21 +29,21 @@ The goal is to keep both frontends visually consistent and make future tweaks ea
 
 ### Palette (Purple / Pink)
 
-Colores de la paleta para fondos, acentos y variantes con opacidad:
+Palette colors for backgrounds, accents, and variants with opacity:
 
-| Token | Hex | Uso |
+| Token | Hex | Usage |
 |-------|-----|-----|
-| `dark_purple` | `#040225` | Fondo muy oscuro, gradientes |
-| `dark_purple_semitransparent` | `#040226` | Overlays, fondos con transparencia |
-| `dark_purple_transparent` | `#040225` | Mismo que dark_purple con opacidad vía utilidades |
-| `black_purple` | `#28164e` | Fondos oscuros, superficies |
-| `black_purple_semitransparent` | `#28164e` | Overlays (usar con opacidad si hace falta) |
-| `purple` | `#462671` | Púrpura principal |
-| `purple_70` / `purple_50` | `#462671` | Mismo hex; opacidad con Tailwind: `bg-purple/70`, `bg-purple/50` |
-| `light_purple` | `#73389d` | Púrpura claro, acentos |
-| `light_purple_70` / `light_purple_50` | `#73389d` | Mismo hex; usar `bg-light-purple/70`, `bg-light-purple/50` |
-| `pink` | `#bf30b5` | Rosa/magenta de acento |
-| `pink_70` / `pink_50` | `#bf30b5` | Mismo hex; usar `bg-pink/70`, `bg-pink/50` |
+| `dark_purple` | `#040225` | Very dark background, gradients |
+| `dark_purple_semitransparent` | `#040226` | Overlays, backgrounds with transparency |
+| `dark_purple_transparent` | `#040225` | Same as dark_purple with opacity via utilities |
+| `black_purple` | `#28164e` | Dark backgrounds, surfaces |
+| `black_purple_semitransparent` | `#28164e` | Overlays (use with opacity when needed) |
+| `purple` | `#462671` | Primary purple |
+| `purple_70` / `purple_50` | `#462671` | Same hex; opacity with Tailwind: `bg-purple/70`, `bg-purple/50` |
+| `light_purple` | `#73389d` | Light purple accents |
+| `light_purple_70` / `light_purple_50` | `#73389d` | Same hex; use `bg-light-purple/70`, `bg-light-purple/50` |
+| `pink` | `#bf30b5` | Pink/magenta accent |
+| `pink_70` / `pink_50` | `#bf30b5` | Same hex; use `bg-pink/70`, `bg-pink/50` |
 
 **Tailwind (main_frontend y admin_frontend):**
 

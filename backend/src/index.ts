@@ -18,6 +18,7 @@ import rolesRouter from './routes/roles';
 import counterRouter from './routes/counter';
 import accountingRouter from './routes/accounting';
 import ticketsRouter from './routes/tickets';
+import orgResourcesRouter from './routes/organizationResources';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -116,6 +117,9 @@ app.use('/api/accounting', accountingRouter);
 // ─── Tickets Routes (JWT protected, external GraphQL proxy) ─────────────────
 app.use('/api/tickets', ticketsRouter);
 
+// ─── Tenant-scoped Org Routes (JWT protected, org membership enforced per route) ─
+app.use('/api/orgs', orgResourcesRouter);
+
 // ─── Admin API Routes (x-admin-secret auth; jwtAuth skips /api/admin via PUBLIC_ROUTES) ─
 app.use('/api/admin', adminAuth);
 app.use('/api/admin', adminRouter);
@@ -144,6 +148,7 @@ const startServer = async () => {
       console.log(`Swagger docs available at http://localhost:${PORT}/api/docs`);
       console.log(`Auth endpoints available at /api/auth/*`);
       console.log(`Admin endpoints available at /api/admin/*`);
+      console.log(`Org endpoints available at /api/orgs/:orgId/*`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

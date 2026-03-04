@@ -2,8 +2,10 @@ import { useState } from 'react';
 import SettingsTab from '../components/SettingsTab';
 import LogsTab from '../components/LogsTab';
 import DatabaseTab from '../components/DatabaseTab';
+import OrganizationsTab from '../components/OrganizationsTab';
+import MembersTab from '../components/MembersTab';
 
-type Tab = 'settings' | 'logs' | 'database' | 'roles';
+type Tab = 'settings' | 'logs' | 'database' | 'organizations' | 'roles';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -38,8 +40,18 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
+    id: 'organizations',
+    label: 'Organizations',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+  },
+  {
     id: 'roles',
-    label: 'User Roles',
+    label: 'Members',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -48,111 +60,6 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     ),
   },
 ];
-
-// ── User Roles tab (inline, replaces the old standalone page) ─────────────────
-
-const PLACEHOLDER_ROLES = [
-  { id: '1', name: 'Admin User', description: 'Full system access', endpoints: 12, users: 2 },
-  { id: '2', name: 'Manager', description: 'Read and write access to core resources', endpoints: 7, users: 5 },
-];
-
-const PLACEHOLDER_ENDPOINTS = [
-  { method: 'GET',  path: '/api/counter',           roles: ['Admin User', 'Manager'] },
-  { method: 'POST', path: '/api/counter/increment',  roles: ['Admin User', 'Manager'] },
-  { method: 'GET',  path: '/api/admin/users',        roles: ['Admin User'] },
-  { method: 'POST', path: '/api/admin/users',        roles: ['Admin User'] },
-  { method: 'GET',  path: '/api/admin/roles',        roles: ['Admin User'] },
-];
-
-const METHOD_COLORS: Record<string, string> = {
-  GET:    'bg-blue-100 text-blue-700',
-  POST:   'bg-green-100 text-green-700',
-  PUT:    'bg-yellow-100 text-yellow-700',
-  PATCH:  'bg-orange-100 text-orange-700',
-  DELETE: 'bg-red-100 text-red-700',
-};
-
-const UserRolesTab = () => (
-  <div className="space-y-8">
-    <div className="rounded-lg border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-      <span className="font-semibold">Placeholder view —</span> Full RBAC management (create/edit roles,
-      map endpoints, assign users) will be implemented in the next iteration.
-    </div>
-
-    <section>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-textPrimary dark:text-textPrimary-dark">Roles</h2>
-        <button disabled
-          className="inline-flex items-center gap-1.5 rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-on-light dark:text-secondary-on-dark opacity-50 cursor-not-allowed">
-          + New Role
-        </button>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {PLACEHOLDER_ROLES.map((role) => (
-          <div key={role.id} className="rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark p-5 shadow-sm">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-textPrimary dark:text-textPrimary-dark">{role.name}</h3>
-                <p className="mt-0.5 text-sm text-textSecondary dark:text-textSecondary-dark">{role.description}</p>
-              </div>
-              <button disabled className="text-xs text-textSecondary dark:text-textSecondary-dark cursor-not-allowed">Edit</button>
-            </div>
-            <div className="mt-4 flex gap-4 text-sm text-textSecondary dark:text-textSecondary-dark">
-              <span><span className="font-medium text-textPrimary dark:text-textPrimary-dark">{role.endpoints}</span> endpoints</span>
-              <span><span className="font-medium text-textPrimary dark:text-textPrimary-dark">{role.users}</span> users</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <section>
-      <h2 className="text-lg font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">Endpoint Mappings</h2>
-      <div className="overflow-hidden rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark shadow-sm">
-        <table className="min-w-full divide-y divide-border dark:divide-border-dark text-sm">
-          <thead className="bg-background dark:bg-background-dark">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Method</th>
-              <th className="px-4 py-3 text-left font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Endpoint</th>
-              <th className="px-4 py-3 text-left font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Allowed Roles</th>
-              <th className="px-4 py-3 text-right font-medium text-textSecondary dark:text-textSecondary-dark uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border dark:divide-border-dark">
-            {PLACEHOLDER_ENDPOINTS.map((ep) => (
-              <tr key={`${ep.method}-${ep.path}`} className="hover:bg-background dark:hover:bg-background-dark">
-                <td className="px-4 py-3">
-                  <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${METHOD_COLORS[ep.method] ?? 'bg-gray-100 text-gray-600'}`}>
-                    {ep.method}
-                  </span>
-                </td>
-                <td className="px-4 py-3 font-mono text-textPrimary dark:text-textPrimary-dark">{ep.path}</td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {ep.roles.map((r) => (
-                      <span key={r} className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">{r}</span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button disabled className="text-xs text-textSecondary dark:text-textSecondary-dark cursor-not-allowed">Configure</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section>
-      <h2 className="text-lg font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">User Assignment</h2>
-      <div className="rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark p-6 shadow-sm text-center text-textSecondary dark:text-textSecondary-dark text-sm">
-        <p>User-to-role assignment UI will be available here.</p>
-        <p className="mt-1">Admins will be able to search users and assign or revoke roles.</p>
-      </div>
-    </section>
-  </div>
-);
 
 // ── Main dashboard component ──────────────────────────────────────────────────
 
@@ -187,10 +94,11 @@ const AdminDashboard = () => {
       </div>
 
       {/* Tab content */}
-      {activeTab === 'settings'  && <SettingsTab />}
-      {activeTab === 'logs'      && <LogsTab />}
-      {activeTab === 'database'  && <DatabaseTab />}
-      {activeTab === 'roles'     && <UserRolesTab />}
+      {activeTab === 'settings'      && <SettingsTab />}
+      {activeTab === 'logs'          && <LogsTab />}
+      {activeTab === 'database'      && <DatabaseTab />}
+      {activeTab === 'organizations' && <OrganizationsTab />}
+      {activeTab === 'roles'         && <MembersTab />}
     </div>
   );
 };

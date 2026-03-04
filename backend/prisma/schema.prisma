@@ -11,6 +11,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum MemberRole {
+  OWNER
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
 // User model compatible with Better Auth
 model User {
   id                String    @id @default(uuid())
@@ -28,8 +35,37 @@ model User {
   sessions          Session[]
   twoFactor         TwoFactor?
   userRoles         UserRole[]
+  members           Member[]
   
   @@map("users")
+}
+
+// Organization model for multi-tenant isolation
+model Organization {
+  id                  String   @id @default(uuid())
+  name                String
+  slug                String   @unique
+  externalReferenceId String?
+  createdAt           DateTime @default(now())
+
+  members   Member[]
+  auditLogs AuditLog[]
+
+  @@map("organizations")
+}
+
+// Member model: links a User to an Organization with a contextual role
+model Member {
+  id             String     @id @default(uuid())
+  userId         String
+  organizationId String
+  role           MemberRole @default(VIEWER)
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@map("members")
 }
 
 // Account model for OAuth providers
@@ -150,11 +186,14 @@ model RoleEndpointMapping {
 
 // Audit Log model for tracking sensitive actions
 model AuditLog {
-  id        String   @id @default(uuid())
-  action    String
-  userId    String?
-  details   Json?
-  timestamp DateTime @default(now())
-  
+  id             String   @id @default(uuid())
+  action         String
+  userId         String?
+  organizationId String?
+  details        Json?
+  timestamp      DateTime @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
   @@map("audit_logs")
 }
