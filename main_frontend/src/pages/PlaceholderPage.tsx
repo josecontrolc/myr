@@ -20,18 +20,20 @@ const PlaceholderPage = ({ titleKey }: PlaceholderPageProps) => {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">{t("placeholders.loading")}</p>
+      <div className="min-h-screen bg-background dark:bg-background-dark flex items-center justify-center">
+        <p className="text-sec text-sm">{t("placeholders.loading")}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
+    <div className="bg-background dark:bg-background-dark py-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-4">
-          <h1 className="text-2xl font-bold text-gray-900">{t(titleKey)}</h1>
-          <p className="text-sm text-gray-600">
+        <div className="card rounded-xl p-8 space-y-4">
+          <h1 className="text-2xl font-bold text-textPrimary dark:text-textPrimary-dark">
+            {t(titleKey)}
+          </h1>
+          <p className="text-sm text-sec">
             {t("placeholders.underConstruction")}
           </p>
         </div>

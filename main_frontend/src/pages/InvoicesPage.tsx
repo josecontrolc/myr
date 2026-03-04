@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@shared/auth";
@@ -33,9 +33,11 @@ const InvoicesPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation("common");
 
-  if (!loading && !user) {
-    navigate("/login");
-  }
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [loading, user, navigate]);
 
   const {
     data,
@@ -58,22 +60,22 @@ const InvoicesPage = () => {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500 text-sm">{t("placeholders.loading")}</p>
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background-dark">
+        <p className="text-sec text-sm">{t("placeholders.loading")}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-10">
+    <div className="py-10 bg-background dark:bg-background-dark">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="card rounded-xl p-6 sm:p-8 space-y-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-textPrimary dark:text-textPrimary-dark">
                 {t("pages.billing.title")}
               </h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-textSecondary dark:text-textSecondary-dark">
                 {t(
                   "pages.billing.subtitle",
                   "Overview of your open invoices and account balance",
@@ -88,9 +90,9 @@ const InvoicesPage = () => {
               >
                 {t("actions.refresh", "Refresh")}
               </button>
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-textSecondary dark:text-textSecondary-dark">
                 {t("billing.summary.totalOutstanding", "Total outstanding")}:{" "}
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                   {formatAmount(totalSolde.toFixed(2))}
                 </span>
               </div>
@@ -98,25 +100,25 @@ const InvoicesPage = () => {
           </div>
 
           {isLoading && (
-            <div className="py-10 text-center text-gray-500 text-sm">
+            <div className="py-10 text-center text-sec text-sm">
               {t("placeholders.loading")}
             </div>
           )}
 
           {isError && (
-            <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 space-y-2">
+            <div className="alert-error space-y-2">
               <p>
                 {t(
                   "errors.billingLoad",
                   "There was a problem loading your invoices",
                 )}
               </p>
-              <p className="text-xs opacity-80">
+              <p className="text-xs opacity-80 text-sec">
                 {error instanceof Error ? error.message : String(error)}
               </p>
               <button
                 type="button"
-                className="mt-1 inline-flex items-center px-2.5 py-1.5 rounded-md border border-red-200 text-xs font-medium text-red-700 hover:bg-red-100"
+                className="mt-1 pag-btn"
                 onClick={() => refetch()}
               >
                 {t("actions.retry", "Try again")}
@@ -125,7 +127,7 @@ const InvoicesPage = () => {
           )}
 
           {!isLoading && !isError && rows.length === 0 && (
-            <div className="py-10 text-center text-gray-500 text-sm">
+            <div className="py-10 text-center text-sec text-sm">
               {t(
                 "pages.billing.empty",
                 "You do not have any open invoices for this account",
@@ -134,55 +136,55 @@ const InvoicesPage = () => {
           )}
 
           {!isLoading && !isError && rows.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
+            <div className="overflow-x-auto rounded-xl border border-border dark:border-border-dark">
+              <table className="min-w-full text-sm">
+                <thead className="table-header">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <th>
                       {t("billing.columns.invoice", "Invoice")}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <th>
                       {t("billing.columns.label", "Label")}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <th>
                       {t("billing.columns.issueDate", "Issue date")}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <th>
                       {t("billing.columns.dueDate", "Due date")}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <th>
                       {t("billing.columns.amount", "Amount")}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <th>
                       {t("billing.columns.balance", "Balance")}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <th>
                       {t("billing.columns.flags", "Flags")}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
+                <tbody className="table-body bg-surface dark:bg-surface-dark">
                   {rows.map((item) => (
-                    <tr key={item.Facture}>
-                      <td className="px-3 py-2 whitespace-nowrap text-gray-900">
+                    <tr key={item.Facture} className="table-row">
+                      <td className="table-cell">
                         {item.Facture}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-gray-900">
+                      <td className="table-cell">
                         {item.Libelle?.trim() || "—"}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                      <td className="table-cell-secondary">
                         {formatDate(item.Emission)}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                      <td className="table-cell-secondary">
                         {formatDate(item.Echeance)}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                      <td className="table-cell-secondary">
                         {formatAmount(item.amount ?? item.Mnt_Init)}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                      <td className="table-cell-secondary">
                         {formatAmount(item.solde ?? item.Solde)}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                      <td className="table-cell-secondary">
                         <div className="flex flex-wrap gap-1">
                           {item.Blq !== 0 && (
                             <span className="badge badge-warning text-[11px]">

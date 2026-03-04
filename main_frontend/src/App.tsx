@@ -130,7 +130,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AuthProvider>
-            <div className="page-root flex flex-col font-sans">
+            <div className="min-h-screen bg-background dark:bg-background-dark flex flex-col font-sans transition-colors duration-300">
               <AppRoutes />
             </div>
           </AuthProvider>

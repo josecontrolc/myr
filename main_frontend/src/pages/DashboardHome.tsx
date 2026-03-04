@@ -26,22 +26,19 @@ const DashboardHome = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] text-textPrimary dark:text-textPrimary-dark flex dark:bg-gradient-to-b dark:from-dark-purple dark:via-black-purple dark:to-black-purple">
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 flex flex-col justify-center">
-        <div className="card rounded-lg px-6 sm:px-8 py-8 sm:py-10 space-y-8">
-          <header className="text-center space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-textPrimary dark:text-textPrimary-dark">
-              {t('dashboard.home.title')}{' '}
-              <span className="text-secondary">MyR</span>
-            </h1>
-            <p className="max-w-3xl mx-auto text-sm sm:text-base text-textSecondary dark:text-textSecondary-dark">
-              {t('dashboard.home.description')}
-            </p>
-            <p className="max-w-3xl mx-auto text-sm sm:text-base text-textSecondary dark:text-textSecondary-dark">
-              {t('dashboard.home.description2')}
-            </p>
-          </header>
+    <div className="py-10">
+      <div className="page-container">
+        <div className="text-center space-y-3 mb-10">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-textPrimary dark:text-textPrimary-dark">
+            {t('dashboard.home.title')}{' '}
+            <span className="text-secondary">MyR</span>
+          </h1>
+          <p className="max-w-3xl mx-auto text-sm sm:text-base text-textSecondary dark:text-textSecondary-dark">
+            {t('dashboard.home.description')}
+          </p>
+        </div>
 
+        <div className="card px-4 sm:px-6 py-6 sm:py-8">
           <DashboardQuickLinks />
         </div>
       </div>

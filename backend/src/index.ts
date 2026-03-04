@@ -17,6 +17,7 @@ import adminRouter from './routes/admin';
 import rolesRouter from './routes/roles';
 import counterRouter from './routes/counter';
 import accountingRouter from './routes/accounting';
+import ticketsRouter from './routes/tickets';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -111,6 +112,9 @@ app.use('/api/counter', counterRouter);
 
 // ─── Accounting Routes (JWT protected, external decompte proxy) ─────────────
 app.use('/api/accounting', accountingRouter);
+
+// ─── Tickets Routes (JWT protected, external GraphQL proxy) ─────────────────
+app.use('/api/tickets', ticketsRouter);
 
 // ─── Admin API Routes (x-admin-secret auth; jwtAuth skips /api/admin via PUBLIC_ROUTES) ─
 app.use('/api/admin', adminAuth);

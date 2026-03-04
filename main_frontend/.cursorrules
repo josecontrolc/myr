@@ -1,0 +1,181 @@
+# MyR Panel — Cursor Rules
+# Cursor reads this file automatically on every prompt.
+# Never deviate from these rules unless explicitly asked.
+
+## Stack
+- React + TypeScript + Vite
+- Tailwind CSS (darkMode: "class")
+- i18n via react-i18next — always use t() for user-facing strings
+- Routing via react-router-dom
+- Auth via useAuth() hook from @shared/auth
+
+## Dark mode
+- Dark class is applied to <html> by ThemeProvider
+- Always write BOTH light and dark variants: `bg-surface dark:bg-surface-dark`
+- Never use bare Tailwind color classes like bg-white, bg-gray-*, text-gray-*, border-gray-*
+- Never hardcode hex values in className strings
+
+## Forbidden classes (never use these)
+bg-white, bg-gray-50, bg-gray-100, bg-gray-200
+text-gray-400, text-gray-500, text-gray-600, text-gray-700, text-gray-900
+border-gray-100, border-gray-200, border-gray-300
+divide-gray-100, divide-gray-200
+hover:bg-gray-50, hover:bg-gray-100
+
+## Color tokens (from tailwind.config.js)
+### Backgrounds
+- Page background:  bg-background        dark:bg-background-dark       (#F2EFFF / #462671)
+- Card/surface:     bg-surface           dark:bg-surface-dark           (#FFFFFF / #603898)
+- Input:            bg-surface           dark:bg-white/[0.07]
+- Navbar:           bg-navbar            dark:bg-navbar-dark            (#FFFFFF / #1a0a2e)
+
+### Borders
+- Default:          border-border        dark:border-border-dark        (#D9C9FF / #8560c0)
+- Navbar:           border-navbar-border dark:border-navbar-border-dark (#D9C9FF / #2d1250)
+- Input:            border-border        dark:border-input-border-dark
+
+### Text
+- Primary:          text-textPrimary     dark:text-textPrimary-dark     (#111827 / #FFFFFF)
+- Secondary:        text-textSecondary   dark:text-textSecondary-dark   (#4B5563 / #D4B8FF)
+
+### Brand
+- Primary accent:   #E9E8FF  → bg-primary
+- Secondary/CTA:    #BF60B5  → bg-secondary   (light mode buttons)
+- Pink/CTA dark:    #bf30b5  → bg-pink         (dark mode buttons)
+- Table header:     bg-secondary dark:bg-pink  (always white text)
+
+### Status
+- Success:  text-status-success  bg-status-success-bg  dark:text-status-success-dark  dark:bg-status-success-dark/15
+- Error:    text-status-error    bg-status-error-bg    dark:text-status-error-dark    dark:bg-status-error-dark/15
+- Warning:  text-status-warning  bg-status-warning-bg  dark:text-status-warning-dark  dark:bg-status-warning-dark/15
+
+## Utility classes (defined in src/index.css — use these, never reinvent them)
+.card             — standard card/panel (surface bg + border + rounded-xl + shadow)
+.input            — all form inputs
+.btn-primary      — primary CTA button (pink/purple, white text)
+.btn-outlined     — secondary button (transparent + border)
+.btn-ghost        — tertiary button (no border)
+.pag-btn          — pagination buttons
+.badge            — base badge (always combine with a modifier)
+.badge-success / .badge-error / .badge-warning / .badge-neutral
+.alert-error / .alert-warning
+.modal-overlay    — fixed fullscreen modal backdrop
+.modal-card       — modal content box
+.form-label       — label above inputs
+.page-root        — outer page wrapper (min-h-screen + bg + transition)
+.page-container   — max-width centered content area
+.page-header      — flex row: title left, actions right
+.page-title       — h1 style
+.page-subtitle    — subtitle/description below title
+.section-label    — small uppercase section divider
+.text-sec         — shorthand for text-textSecondary dark:text-textSecondary-dark
+.text-pri         — shorthand for text-textPrimary dark:text-textPrimary-dark
+
+## Table pattern (use this exact structure for every table)
+<div className="overflow-x-auto rounded-xl border border-border dark:border-border-dark">
+  <table className="min-w-full text-sm">
+    <thead className="bg-secondary dark:bg-pink">
+      <tr>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-widest whitespace-nowrap">
+          Column
+        </th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-border dark:divide-border-dark">
+      {rows.map((row) => (
+        <tr key={row.id} className="hover:bg-secondary/5 dark:hover:bg-white/[0.04] transition-colors duration-150">
+          <td className="px-4 py-3 whitespace-nowrap font-medium text-textPrimary dark:text-textPrimary-dark">
+            {row.primaryField}
+          </td>
+          <td className="px-4 py-3 whitespace-nowrap text-textSecondary dark:text-textSecondary-dark">
+            {row.secondaryField}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+## Page pattern (use this exact structure for every new page)
+const MyPage = () => {
+  return (
+    <div className="page-root">
+      <div className="page-container">
+
+        {/* Header */}
+        <div className="page-header">
+          <div>
+            <h1 className="page-title">{t('page.title')}</h1>
+            <p className="page-subtitle">{t('page.subtitle')}</p>
+          </div>
+          <div className="flex gap-2">
+            <button className="btn-outlined">Secondary action</button>
+            <button className="btn-primary">Primary action</button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="card p-6">
+          ...
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+## Modal pattern
+{showModal && (
+  <div className="modal-overlay">
+    <div className="modal-card max-w-lg">
+      <h2 className="text-xl font-bold text-pri mb-4">{t('modal.title')}</h2>
+      <p className="text-sec mb-6">{t('modal.body')}</p>
+      <div className="flex gap-3">
+        <button className="btn-outlined flex-1" onClick={onClose}>Cancel</button>
+        <button className="btn-primary flex-1">Confirm</button>
+      </div>
+    </div>
+  </div>
+)}
+
+## Form pattern
+<div className="card p-6 space-y-4">
+  <div>
+    <label className="form-label">{t('field.label')}</label>
+    <input className="input" type="text" placeholder="..." />
+  </div>
+  <button className="btn-primary w-full">Submit</button>
+</div>
+
+## Spacing & shape
+- Border radius: rounded-lg (8px) for inputs/buttons, rounded-xl (12px) for cards/modals
+- Card padding: p-6 (standard), p-8 (large/hero sections)
+- Page vertical padding: py-10
+- Gap between stacked cards: space-y-6
+- Gap between sibling elements: gap-4 (default), gap-2 (tight), gap-6 (loose)
+
+## Shadows
+- Cards light:  shadow-card      (subtle purple-tinted)
+- Cards dark:   shadow-card-dark (deep black)
+- Focus rings:  box-shadow: 0 0 0 3px rgba(191,96,181,0.18)  — applied via .input:focus in CSS
+
+## Typography
+- Page titles:    text-2xl font-bold
+- Section titles: text-lg font-semibold
+- Body:           text-sm
+- Labels/meta:    text-xs font-medium uppercase tracking-wide
+- Monospace IDs:  font-mono text-sm
+
+## Transitions
+- Theme toggle:   transition-colors duration-300 (on page root)
+- Hover effects:  transition-all duration-200 (on interactive elements)
+- Buttons:        hover:-translate-y-px (subtle lift)
+
+## What NOT to do
+- Never wrap everything in one giant card — page header floats, table has its own card
+- Never use inline styles for colors — use tokens
+- Never use purple-*, indigo-* Tailwind palette classes
+- Never skip dark: variant on any color class
+- Never create a new component if a utility class already covers it
+- Never use <form> tags — use div + onClick handlers
+- Never add margins to .card itself — control spacing from the parent

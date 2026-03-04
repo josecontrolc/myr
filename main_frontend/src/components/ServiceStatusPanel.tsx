@@ -16,19 +16,21 @@ const StatusDot = ({ status }: { status: ServiceStatus }) => {
   if (status === 'checking') {
     return (
       <span className="relative flex h-3 w-3">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
-        <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-400" />
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-warning opacity-50 dark:bg-status-warning-dark/70" />
+        <span className="relative inline-flex rounded-full h-3 w-3 bg-status-warning dark:bg-status-warning-dark" />
       </span>
     );
   }
   return (
     <span className="relative flex h-3 w-3">
       {status === 'ok' && (
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50" />
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-success opacity-50 dark:bg-status-success-dark/70" />
       )}
       <span
         className={`relative inline-flex rounded-full h-3 w-3 ${
-          status === 'ok' ? 'bg-emerald-500' : 'bg-red-500'
+          status === 'ok'
+            ? 'bg-status-success dark:bg-status-success-dark'
+            : 'bg-status-error dark:bg-status-error-dark'
         }`}
       />
     </span>
@@ -39,16 +41,18 @@ const ServiceRow = ({ svc }: { svc: Service }) => (
   <div
     className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
       svc.status === 'ok'
-        ? 'bg-emerald-50 border-emerald-100'
+        ? 'bg-status-success-bg border-status-success-bg dark:bg-status-success-dark/10 dark:border-status-success-dark/40'
         : svc.status === 'error'
-          ? 'bg-red-50 border-red-100'
-          : 'bg-gray-50 border-gray-100'
+          ? 'bg-status-error-bg border-status-error-bg dark:bg-status-error-dark/10 dark:border-status-error-dark/40'
+          : 'bg-status-warning-bg border-status-warning-bg dark:bg-status-warning-dark/10 dark:border-status-warning-dark/40'
     }`}
   >
     <StatusDot status={svc.status} />
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 flex-wrap">
-        <p className="text-sm font-semibold text-gray-800">{svc.name}</p>
+        <p className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">
+          {svc.name}
+        </p>
         <span
           className={`badge ${
             svc.status === 'ok'
@@ -65,15 +69,15 @@ const ServiceRow = ({ svc }: { svc: Service }) => (
               : 'Checking...'}
         </span>
       </div>
-      <p className="text-xs text-gray-500 mt-0.5">{svc.description}</p>
+      <p className="text-xs text-sec mt-0.5">{svc.description}</p>
     </div>
     <p
       className={`text-xs font-mono text-right flex-shrink-0 hidden sm:block ${
         svc.status === 'ok'
-          ? 'text-emerald-600'
+          ? 'text-status-success dark:text-status-success-dark'
           : svc.status === 'error'
-            ? 'text-red-500'
-            : 'text-gray-400'
+            ? 'text-status-error dark:text-status-error-dark'
+            : 'text-status-warning dark:text-status-warning-dark'
       }`}
     >
       {svc.message}
@@ -232,7 +236,7 @@ const ServiceStatusPanel = () => {
         <button
           onClick={checkServices}
           disabled={checking}
-          className="flex items-center gap-1.5 text-xs text-secondary hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="btn-ghost text-xs px-2 py-1 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg
             className={`w-3.5 h-3.5 ${checking ? 'animate-spin' : ''}`}
@@ -258,7 +262,7 @@ const ServiceStatusPanel = () => {
       </div>
 
       {lastChecked && !checking && (
-        <p className="mt-4 text-xs text-textSecondary dark:text-textSecondary-dark text-right">
+        <p className="mt-4 text-xs text-sec text-right">
           Last checked: {lastChecked.toLocaleTimeString()} · Auto refreshes every 30 s
         </p>
       )}

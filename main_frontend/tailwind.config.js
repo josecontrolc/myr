@@ -8,49 +8,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand
-        primary: "#E9E8FF",
-        secondary: "#BF60B5",
-
-        // Contrast on brand
-        "primary-on-light": "#FFFFFF",
-        "primary-on-dark": "#000000",
-        "secondary-on-light": "#FFFFFF",
-        "secondary-on-dark": "#000000",
-
-        // Background & surfaces
-        background: {
-          DEFAULT: "#F2EFFF",
-          dark: "#040225",
-        },
-        surface: {
-          DEFAULT: "#FFFFFF",
-          dark: "#28164e",
-        },
-        border: {
-          DEFAULT: "#D9C9FF",
-          dark: "#3B2A6F",
-        },
-
-        // Text
-        textPrimary: {
-          DEFAULT: "#111827",
-          dark: "#F9FAFB",
-        },
-        textSecondary: {
-          DEFAULT: "#4B5563",
-          dark: "#9CA3AF",
-        },
-
-        // Palette (purple / pink)
-        "dark-purple": "#040225",
-        "dark-purple-semitransparent": "#040226",
-        "dark-purple-transparent": "#040225",
-        "black-purple": "#28164e",
-        "black-purple-semitransparent": "#28164e",
-        purple: "#462671",
-        "light-purple": "#73389d",
-        pink: "#bf30b5",
+        primary:   '#E9E8FF',
+        secondary: '#BF60B5',
+        'nav-purple':     '#1a0a2e',
+        'surface-purple': '#603898',
+        'icon-purple':    '#7B52B0',
+        'light-purple':   '#73389d',
+        pink:             '#bf30b5',
+        'dark-purple':    '#040225',
+        'black-purple':   '#28164e',
+        background: { DEFAULT: '#F2EFFF', dark: '#462671' },
+        surface:    { DEFAULT: '#FFFFFF', dark: '#603898' },
+        border:     { DEFAULT: '#D9C9FF', dark: '#8560c0' },
+        navbar:     { DEFAULT: '#FFFFFF', dark: '#1a0a2e' },
+        'navbar-border': { DEFAULT: '#D9C9FF', dark: '#2d1250' },
+        textPrimary:   { DEFAULT: '#111827', dark: '#FFFFFF' },
+        textSecondary: { DEFAULT: '#4B5563', dark: '#D4B8FF' },
+        'input-border': { DEFAULT: '#D9C9FF', dark: '#8560c0' },
+        'status-success':       '#16a34a',
+        'status-success-bg':    '#dcfce7',
+        'status-success-dark':  '#4ade80',
+        'status-error':         '#dc2626',
+        'status-error-bg':      '#fee2e2',
+        'status-error-dark':    '#f87171',
+        'status-warning':       '#d97706',
+        'status-warning-bg':    '#fef3c7',
+        'status-warning-dark':  '#fbbf24',
+      },
+      boxShadow: {
+        card:        '0 1px 3px rgba(70,38,113,0.08), 0 4px 16px rgba(70,38,113,0.06)',
+        'card-dark': '0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+        focus:       '0 0 0 3px rgba(191,96,181,0.18)',
       },
       borderRadius: {
         lg: "8px",

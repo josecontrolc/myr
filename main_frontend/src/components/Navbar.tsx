@@ -77,9 +77,9 @@ const Navbar = () => {
     }`;
 
   return (
-    <header className="navbar shadow-sm font-sans text-textPrimary dark:text-textPrimary-dark">
+    <header className="navbar font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
 
           <div className="flex items-center gap-3">
             {/* Mobile menu button */}
@@ -98,7 +98,7 @@ const Navbar = () => {
             </button>
 
             {/* Brand */}
-            <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-6">
               <Link to="/dashboard" className="flex items-center space-x-2">
                 <span className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shadow-sm overflow-hidden">
                   <img
@@ -107,20 +107,20 @@ const Navbar = () => {
                     className="w-7 h-7 object-contain"
                   />
                 </span>
-                <span className="text-lg font-bold tracking-tight text-textPrimary dark:text-textPrimary-dark">
+                <span className="text-base font-bold tracking-tight text-textPrimary dark:text-textPrimary-dark">
                   MyR<span className="text-secondary"> Panel</span>
                 </span>
               </Link>
 
               {/* Desktop nav */}
-              <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+              <nav className="hidden md:flex items-center space-x-1 text-sm font-medium">
                 {primaryNavItems.map((item) => (
                   <div key={item.label} className="relative group">
                     {item.submenu ? (
                       <>
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1 px-2 py-1 text-sm font-medium text-textSecondary dark:text-textSecondary-dark hover:text-textPrimary dark:hover:text-textPrimary-dark"
+                          className="inline-flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-textSecondary dark:text-textSecondary-dark hover:text-textPrimary dark:hover:text-textPrimary-dark hover:bg-secondary/10 dark:hover:bg-white/10 transition-colors"
                         >
                           <span>{item.label}</span>
                           <svg

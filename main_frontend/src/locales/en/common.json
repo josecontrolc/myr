@@ -118,6 +118,15 @@
     "generic": "There was a problem loading data",
     "billingLoad": "There was a problem loading your invoices"
   },
+  "tickets": {
+    "columns": {
+      "id": "ID",
+      "label": "Label",
+      "opened": "Opened",
+      "status": "Status",
+      "solved": "Solved"
+    }
+  },
   "billing": {
     "summary": {
       "totalOutstanding": "Total outstanding"

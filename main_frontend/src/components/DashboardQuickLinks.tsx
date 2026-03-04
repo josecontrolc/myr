@@ -292,7 +292,7 @@ export const DashboardQuickLinks = () => {
           className="group relative flex flex-col items-center justify-center rounded-xl px-3 py-5 text-textPrimary dark:text-textPrimary-dark hover:bg-background dark:hover:bg-background-dark transition-all focus:outline-none focus:ring-2 focus:ring-secondary/70 focus:ring-offset-0"
         >
           <div className="flex flex-col items-center space-y-2">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl card flex items-center justify-center text-textPrimary dark:text-textPrimary-dark group-hover:border-secondary group-hover:text-secondary transition-colors">
+            <div className="quick-link-card">
               {getIconForLink(link.id)}
             </div>
             <p className="text-xs sm:text-sm font-medium text-textPrimary dark:text-textPrimary-dark text-center leading-snug whitespace-nowrap mt-1">

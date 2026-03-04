@@ -2,16 +2,202 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body {
+    @apply bg-background dark:bg-background-dark;
+    @apply text-textPrimary dark:text-textPrimary-dark;
+    @apply font-sans;
+    transition: background-color 0.35s ease, color 0.25s ease;
+    min-height: 100vh;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer components {
+
+  .navbar {
+    @apply bg-navbar dark:bg-navbar-dark;
+    @apply border-b border-navbar-border dark:border-navbar-border-dark;
+    @apply sticky top-0 z-50;
+    @apply transition-colors duration-300;
+  }
+
+  /* ── Cards ── */
+  .card {
+    @apply bg-surface dark:bg-surface-dark;
+    @apply border border-border dark:border-border-dark;
+    @apply rounded-xl;
+    box-shadow: 0 1px 3px rgba(70,38,113,0.08), 0 4px 16px rgba(70,38,113,0.06);
+    transition: background 0.35s, border-color 0.35s, box-shadow 0.35s;
+  }
+  .dark .card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .quick-link-card {
+    @apply w-20 h-20 sm:w-24 sm:h-24 rounded-2xl;
+    @apply bg-surface dark:bg-surface-dark;
+    @apply border border-border dark:border-border-dark;
+    @apply flex items-center justify-center;
+    @apply text-textSecondary dark:text-textSecondary-dark;
+    @apply group-hover:border-secondary group-hover:text-secondary;
+    @apply transition-all duration-200;
+    box-shadow: 0 1px 3px rgba(70,38,113,0.08), 0 2px 8px rgba(70,38,113,0.04);
+  }
+  .dark .quick-link-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  /* ── Inputs ── */
+  .input {
+    @apply w-full px-3 py-2.5 text-sm rounded-lg outline-none;
+    @apply bg-surface dark:bg-white/[0.07];
+    @apply border border-border dark:border-input-border-dark;
+    @apply text-textPrimary dark:text-textPrimary-dark;
+    @apply placeholder:text-textSecondary dark:placeholder:text-textSecondary-dark;
+    @apply focus:border-secondary transition-all duration-200;
+  }
+  .input:focus { box-shadow: 0 0 0 3px rgba(191,96,181,0.18); }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2 text-sm font-semibold text-white rounded-lg;
+    @apply bg-secondary dark:bg-pink;
+    @apply hover:opacity-90 hover:-translate-y-px;
+    @apply transition-all duration-200 cursor-pointer;
+  }
+  .btn-primary:hover { box-shadow: 0 4px 16px rgba(191,48,181,0.4); }
+  .btn-primary:disabled { @apply opacity-50 cursor-not-allowed translate-y-0; box-shadow: none; }
+
+  .btn-outlined {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2 text-sm font-semibold rounded-lg bg-transparent;
+    @apply border border-border dark:border-border-dark;
+    @apply text-textSecondary dark:text-textSecondary-dark;
+    @apply hover:border-secondary hover:text-secondary;
+    @apply transition-all duration-200 cursor-pointer;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-3 py-1.5 text-sm font-medium rounded-lg bg-transparent;
+    @apply text-textSecondary dark:text-textSecondary-dark;
+    @apply hover:bg-secondary/10 hover:text-secondary;
+    @apply transition-all duration-200 cursor-pointer;
+  }
+
+  /* ── Tables ── */
+  .table-header th {
+    @apply bg-secondary dark:bg-pink text-white;
+    @apply text-xs font-semibold uppercase tracking-widest;
+    @apply px-4 py-3 text-left whitespace-nowrap;
+  }
+  .table-body {
+    @apply divide-y divide-border dark:divide-border-dark;
+  }
+  .table-row {
+    @apply hover:bg-secondary/5 dark:hover:bg-white/[0.04];
+    @apply transition-colors duration-150;
+  }
+  .table-cell {
+    @apply px-4 py-3 whitespace-nowrap text-sm;
+    @apply text-textPrimary dark:text-textPrimary-dark;
+  }
+  .table-cell-secondary {
+    @apply px-4 py-3 whitespace-nowrap text-sm;
+    @apply text-textSecondary dark:text-textSecondary-dark;
+  }
+
+  /* ── Pagination ── */
+  .pag-btn {
+    @apply px-3 py-1.5 rounded-lg text-xs font-semibold;
+    @apply border border-border dark:border-border-dark;
+    @apply text-textSecondary dark:text-textSecondary-dark bg-transparent;
+    @apply hover:border-secondary hover:text-secondary;
+    @apply disabled:opacity-30 disabled:cursor-not-allowed;
+    @apply transition-all duration-200;
+  }
+
+  /* ── Badges ── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-success {
+    @apply bg-status-success-bg text-status-success;
+    @apply dark:bg-status-success-dark/15 dark:text-status-success-dark;
+  }
+  .badge-error {
+    @apply bg-status-error-bg text-status-error;
+    @apply dark:bg-status-error-dark/15 dark:text-status-error-dark;
+  }
+  .badge-warning {
+    @apply bg-status-warning-bg text-status-warning;
+    @apply dark:bg-status-warning-dark/15 dark:text-status-warning-dark;
+  }
+  .badge-neutral {
+    @apply bg-border text-textSecondary;
+    @apply dark:bg-border-dark/40 dark:text-textSecondary-dark;
+  }
+
+  /* ── Page layout helpers ── */
+  .page-root {
+    @apply min-h-screen py-10;
+    @apply bg-background dark:bg-background-dark;
+    @apply transition-colors duration-300;
+  }
+  .page-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .page-header {
+    @apply flex items-start justify-between gap-4 mb-6;
+  }
+  .page-title {
+    @apply text-2xl font-bold text-textPrimary dark:text-textPrimary-dark;
+  }
+  .page-subtitle {
+    @apply mt-1 text-sm text-textSecondary dark:text-textSecondary-dark;
+  }
+
+  /* ── Section dividers ── */
+  .section-label {
+    @apply text-[11px] font-bold uppercase tracking-widest;
+    @apply text-textSecondary dark:text-textSecondary-dark;
+    @apply pb-2 mb-3 border-b border-border dark:border-border-dark;
+  }
+
+  /* ── Alerts / error boxes ── */
+  .alert-error {
+    @apply rounded-lg border px-4 py-3 text-sm space-y-1;
+    @apply border-status-error-bg bg-status-error-bg text-status-error;
+    @apply dark:border-status-error-dark/30 dark:bg-status-error-dark/10 dark:text-status-error-dark;
+  }
+  .alert-warning {
+    @apply rounded-lg border px-4 py-3 text-sm;
+    @apply border-status-warning-bg bg-status-warning-bg text-status-warning;
+    @apply dark:border-status-warning-dark/30 dark:bg-status-warning-dark/10 dark:text-status-warning-dark;
+  }
+
+  /* ── Modal overlay ── */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+  }
+  .modal-card {
+    @apply bg-surface dark:bg-surface-dark rounded-xl w-full;
+    @apply border border-border dark:border-border-dark;
+    @apply p-6 overflow-y-auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+
+  /* ── Form label ── */
+  .form-label {
+    @apply block text-sm font-semibold mb-1.5;
+    @apply text-textPrimary dark:text-textPrimary-dark;
+  }
+
+  /* ── Text helpers ── */
+  .text-sec { @apply text-textSecondary dark:text-textSecondary-dark; }
+  .text-pri { @apply text-textPrimary dark:text-textPrimary-dark; }
 }

@@ -8,7 +8,7 @@ const Home = () => {
   const { user, loading } = useAuth();
 
   return (
-    <div className="min-h-screen">
+    <div className="bg-background dark:bg-background-dark">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
         {/* ── Header info ── */}
@@ -21,8 +21,8 @@ const Home = () => {
               {t('home.header.subtitle')}
             </p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium bg-gray-50 border-gray-200 text-gray-600">
-            <span className="inline-flex h-3 w-3 rounded-full bg-gray-400" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border dark:border-border-dark text-xs font-medium bg-surface dark:bg-surface-dark text-sec">
+            <span className="inline-flex h-3 w-3 rounded-full bg-status-success dark:bg-status-success-dark" />
             {t('home.header.statusChip')}
           </div>
         </div>
@@ -35,7 +35,7 @@ const Home = () => {
           <div className="grid grid-cols-1 gap-3">
             <Link
               to="/dashboard"
-              className="flex items-center gap-3 p-4 bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-sm hover:border-secondary hover:shadow-md transition-all group"
+              className="flex items-center gap-3 p-4 bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-card dark:shadow-card-dark hover:border-secondary hover:shadow-card transition-all group"
             >
               <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-on-light dark:text-primary-on-dark group-hover:opacity-90 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@ const Home = () => {
             {t('home.architecture.title')}
           </h2>
 
-          <div className="flex flex-col items-center gap-0 text-xs">
+            <div className="flex flex-col items-center gap-0 text-xs">
 
             {/* Internet */}
             <div className="flex items-center justify-center w-full">
@@ -98,20 +98,20 @@ const Home = () => {
             </div>
 
             {/* Arrow down */}
-            <div className="flex flex-col items-center py-1 text-gray-300">
-              <div className="w-px h-5 bg-gray-200" />
+            <div className="flex flex-col items-center py-1 text-border dark:text-border-dark/70">
+              <div className="w-px h-5 bg-border dark:bg-border-dark/70" />
               <svg className="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                 <path d="M6 10L1 4h10L6 10z" />
               </svg>
             </div>
 
             {/* DMZ zone */}
-            <div className="w-full border border-blue-200 bg-blue-50 rounded-xl p-4">
-              <p className="text-blue-500 font-bold uppercase tracking-widest text-xs mb-3">
+            <div className="w-full border border-border dark:border-border-dark bg-surface dark:bg-surface-dark rounded-xl p-4">
+              <p className="text-xs font-bold uppercase tracking-widest mb-3 text-sec">
                 {t('home.architecture.dmzZone')}
               </p>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-surface dark:bg-surface-dark border border-blue-100 rounded-lg px-4 py-2.5 text-center">
+                <div className="bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-lg px-4 py-2.5 text-center">
                   <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                     {t('home.architecture.dmz.nginxTitle')}
                   </p>
@@ -119,7 +119,7 @@ const Home = () => {
                     {t('home.architecture.dmz.nginxSubtitle')}
                   </p>
                 </div>
-                <div className="bg-surface dark:bg-surface-dark border border-blue-100 rounded-lg px-4 py-2.5 text-center">
+                <div className="bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-lg px-4 py-2.5 text-center">
                   <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                     {t('home.architecture.dmz.frontendTitle')}
                   </p>
@@ -131,20 +131,20 @@ const Home = () => {
             </div>
 
             {/* Arrow down */}
-            <div className="flex flex-col items-center py-1 text-gray-300">
-              <div className="w-px h-5 bg-gray-200" />
+            <div className="flex flex-col items-center py-1 text-border dark:text-border-dark/70">
+              <div className="w-px h-5 bg-border dark:bg-border-dark/70" />
               <svg className="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                 <path d="M6 10L1 4h10L6 10z" />
               </svg>
             </div>
 
             {/* Internal network */}
-            <div className="w-full border border-indigo-200 bg-indigo-50 rounded-xl p-4">
-              <p className="text-indigo-500 font-bold uppercase tracking-widest text-xs mb-3">
+            <div className="w-full border border-border dark:border-border-dark bg-surface dark:bg-surface-dark rounded-xl p-4">
+              <p className="text-xs font-bold uppercase tracking-widest mb-3 text-sec">
                 {t('home.architecture.internalZone')}
               </p>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-surface dark:bg-surface-dark border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
+                <div className="bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-lg px-4 py-2.5 text-center">
                   <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                     {t('home.architecture.internal.backendTitle')}
                   </p>
@@ -152,7 +152,7 @@ const Home = () => {
                     {t('home.architecture.internal.backendSubtitle')}
                   </p>
                 </div>
-                <div className="bg-surface dark:bg-surface-dark border border-indigo-100 rounded-lg px-4 py-2.5 text-center">
+                <div className="bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-lg px-4 py-2.5 text-center">
                   <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                     {t('home.architecture.internal.authTitle')}
                   </p>
@@ -164,20 +164,20 @@ const Home = () => {
             </div>
 
             {/* Arrow down */}
-            <div className="flex flex-col items-center py-1 text-gray-300">
-              <div className="w-px h-5 bg-gray-200" />
+            <div className="flex flex-col items-center py-1 text-border dark:text-border-dark/70">
+              <div className="w-px h-5 bg-border dark:bg-border-dark/70" />
               <svg className="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                 <path d="M6 10L1 4h10L6 10z" />
               </svg>
             </div>
 
             {/* Data layer */}
-            <div className="w-full border border-purple-200 bg-purple-50 rounded-xl p-4">
-              <p className="text-purple-500 font-bold uppercase tracking-widest text-xs mb-3">
+            <div className="w-full border border-border dark:border-border-dark bg-surface dark:bg-surface-dark rounded-xl p-4">
+              <p className="text-xs font-bold uppercase tracking-widest mb-3 text-sec">
                 {t('home.architecture.dataZone')}
               </p>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-surface dark:bg-surface-dark border border-purple-100 rounded-lg px-4 py-2.5 text-center">
+                <div className="bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-lg px-4 py-2.5 text-center">
                   <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                     {t('home.architecture.data.databaseTitle')}
                   </p>
@@ -185,7 +185,7 @@ const Home = () => {
                     {t('home.architecture.data.databaseSubtitle')}
                   </p>
                 </div>
-                <div className="bg-surface dark:bg-surface-dark border border-purple-100 rounded-lg px-4 py-2.5 text-center">
+                <div className="bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-lg px-4 py-2.5 text-center">
                   <p className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                     {t('home.architecture.data.ormTitle')}
                   </p>
@@ -204,11 +204,11 @@ const Home = () => {
               {t('home.architecture.legendLabel')}
             </span>
             {[
-              { color: 'bg-blue-200', labelKey: 'dmz' },
-              { color: 'bg-indigo-200', labelKey: 'internal' },
-              { color: 'bg-purple-200', labelKey: 'data' },
+              { color: 'bg-primary', labelKey: 'dmz' },
+              { color: 'bg-secondary', labelKey: 'internal' },
+              { color: 'bg-pink', labelKey: 'data' },
             ].map((l) => (
-              <span key={l.label} className="flex items-center gap-1.5 text-xs text-textSecondary dark:text-textSecondary-dark">
+              <span key={l.labelKey} className="flex items-center gap-1.5 text-xs text-sec">
                 <span className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
                 {t(`home.architecture.legend.${l.labelKey}`)}
               </span>
@@ -238,7 +238,7 @@ const Home = () => {
             ].map((tech) => (
               <div
                 key={tech.name}
-                className="flex flex-col justify-between p-3 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all"
+                className="flex flex-col justify-between p-3 border border-border dark:border-border-dark rounded-xl hover:border-secondary hover:shadow-card transition-all bg-background dark:bg-background-dark"
               >
                 <div>
                   <p className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">{tech.name}</p>

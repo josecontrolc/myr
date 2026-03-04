@@ -106,6 +106,15 @@
     "underConstruction": "Cette section est en cours de construction. Les fonctionnalités seront ajoutées prochainement.",
     "loading": "Chargement..."
   },
+  "tickets": {
+    "columns": {
+      "id": "ID",
+      "label": "Libellé",
+      "opened": "Ouvert le",
+      "status": "Statut",
+      "solved": "Résolu le"
+    }
+  },
   "dashboard": {
     "home": {
       "title": "Bienvenue sur MyR",
