@@ -80,7 +80,7 @@ const seedRoles = async () => {
 const upsertOrg = async (name: string, slug: string, externalReferenceId?: string) =>
   prisma.organization.upsert({
     where: { slug },
-    update: {},
+    update: { externalReferenceId: externalReferenceId ?? null },
     create: { name, slug, externalReferenceId: externalReferenceId ?? null },
   });
 
@@ -98,8 +98,8 @@ const seedOrganizationsAndMembers = async () => {
   console.log('Seeding organizations and member matrix...');
 
   // ── Organizations ──────────────────────────────────────────────────────────
-  const controlc  = await upsertOrg('ControlC',  'controlc',  'EXT-001');
-  const acme      = await upsertOrg('Acme Corp',  'acme',      'EXT-002');
+  const controlc  = await upsertOrg('ControlC',  'controlc',  '400007212');
+  const acme      = await upsertOrg('Acme Corp',  'acme',      '400000037');
   const betacorp  = await upsertOrg('BetaCorp',   'betacorp');
 
   console.log(`  + Organizations: ControlC (${controlc.id}), Acme (${acme.id}), BetaCorp (${betacorp.id})`);

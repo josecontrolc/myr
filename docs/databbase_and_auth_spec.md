@@ -2,53 +2,126 @@
 
 This document serves as the primary reference for the Database Schema, Authentication Flow, and Security Middleware. It follows the **Secure Gateway Pattern** (Option 1 Architecture).
 
+> **Source of truth:** For the live API surface, always refer to Swagger at `/api/docs` (served by the backend at `http://localhost:<PORT>/api/docs` or via nginx at `http://localhost/api/docs`).  
+> This document is a higher‑level architectural guide and may describe both **current behavior** and **future/optional extensions**, which are explicitly labeled.
+
 ## 1. Database Schema (Prisma)
 
 The system uses a **Multi-tenant RBAC (Role-Based Access Control)** model. Roles are contextual and tied to the Organization, not the User.
 
-
+This section documents the current Prisma schema as implemented in `backend/prisma/schema.prisma`. Some tables are:
+- **Domain-level multi‑tenant/RBAC models** (User, Organization, Member, AuditLog, SystemSettings, MemberRole).
+- **Infrastructure models owned by Better Auth** (Account, Session, TwoFactor, Verification).
+- **Gateway‑level RBAC models** (Role, UserRole, RoleEndpointMapping) used by the JWT middleware.
 
 ### 1.1 User Table (Better Auth Default)
-Core identity managed by Better Auth.
-* `id`: String (Primary Key).
+Core identity managed by Better Auth, extended with RBAC and 2FA flags.
+* `id`: String (Primary Key, UUID).
 * `email`: String (Unique).
+* `emailVerified`: Boolean (default `false`).
 * `name`: String (Optional).
-* `emailVerified`: Boolean.
+* `password`: String (Optional, credential storage for Better Auth).
 * `image`: String (Optional).
-* `createdAt`: DateTime.
-* `updatedAt`: DateTime.
+* `twoFactorEnabled`: Boolean (default `false`).
+* `createdAt`: DateTime (default `now()`).
+* `updatedAt`: DateTime (`@updatedAt`).
+* Relations:
+  * `accounts`: `Account[]` (OAuth / credential accounts).
+  * `sessions`: `Session[]`.
+  * `twoFactor`: `TwoFactor?`.
+  * `userRoles`: `UserRole[]`.
+  * `members`: `Member[]`.
+
+> Mapped to DB table `users`.
 
 ### 1.2 Organization Table
 Represents isolated business entities (tenants).
-* `id`: UUID (Primary Key).
+* `id`: String (UUID Primary Key).
 * `name`: String (e.g., "Company A").
 * `slug`: String (Unique, URL friendly).
-* `externalReferenceId`: String (Optional, for internal API mapping).
-* `createdAt`: DateTime.
+* `externalReferenceId`: String (Optional, for internal API mapping / supplier id).
+* `createdAt`: DateTime (default `now()`).
+* Relations:
+  * `members`: `Member[]`.
+  * `auditLogs`: `AuditLog[]`.
 
-### 1.3 Member Table (The Link / RBAC)
+> Mapped to DB table `organizations`.
+
+### 1.3 Member Table (The Link / Tenant RBAC)
 Defines the relationship and specific role of a User within an Organization.
-* `id`: UUID (Primary Key).
-* `userId`: String (Foreign Key -> User.id).
-* `organizationId`: UUID (Foreign Key -> Organization.id).
-* `role`: String (Enum: `OWNER`, `ADMIN`, `MANAGER`, `VIEWER`).
-* `Unique Constraint`: `@@unique([userId, organizationId])`.
+* `id`: String (UUID Primary Key).
+* `userId`: String (Foreign Key -> `User.id`).
+* `organizationId`: String (Foreign Key -> `Organization.id`).
+* `role`: Enum `MemberRole` (`OWNER`, `ADMIN`, `MANAGER`, `VIEWER`) with default `VIEWER`.
+* Constraints:
+  * `@@unique([userId, organizationId])` – a user has at most one membership per organization.
 
-### 1.4 AuditLog Table (Security Monitoring)
+> Mapped to DB table `members`.
+
+### 1.4 MemberRole Enum
+Defines the tenant‑scoped hierarchy used by `checkOrganizationAccess`:
+* `OWNER` (highest privileges).
+* `ADMIN`.
+* `MANAGER`.
+* `VIEWER` (read‑only).
+
+### 1.5 AuditLog Table (Security Monitoring)
 Tracks sensitive actions and internal proxy calls.
-* `id`: UUID (Primary Key).
-* `action`: String (e.g., `PROXY_API_CALL`, `AUTH_TOGGLE`).
-* `userId`: String (Foreign Key).
-* `organizationId`: UUID (Foreign Key).
+* `id`: String (UUID Primary Key).
+* `action`: String (e.g., `PROXY_API_CALL`, `AUTH_TOGGLE`, `SIGN_IN`).
+* `userId`: String (Optional FK -> `User.id`).
+* `organizationId`: String (Optional FK -> `Organization.id`).
 * `details`: JSON (Metadata like IP, payload, or response status).
-* `timestamp`: DateTime.
+* `timestamp`: DateTime (default `now()`).
 
-### 1.5 SystemSettings Table (Admin Control)
+> Mapped to DB table `audit_logs`.
+
+### 1.6 SystemSettings Table (Admin Control)
 Global feature flags for the Super Admin.
-* `id`: UUID (Primary Key).
+* `id`: String (UUID Primary Key).
 * `settingKey`: String (Unique).
-* `isEnabled`: Boolean.
-* `configValue`: JSON (Optional, stores API keys/secrets).
+* `isEnabled`: Boolean (default `false`).
+* `providerConfig`: JSON (Optional, stores provider‑specific config; named `providerConfig` in Prisma).
+* Timestamps:
+  * `createdAt`: DateTime (default `now()`).
+  * `updatedAt`: DateTime (`@updatedAt`).
+
+> Mapped to DB table `system_settings`.
+
+### 1.7 Better Auth Infrastructure Tables
+These tables are managed by Better Auth and should rarely be touched directly from business logic:
+
+* `Account` (`accounts`):
+  * Links a user to an OAuth/credential provider.
+  * Fields: `providerId`, `accountId`, `accessToken`, `refreshToken`, `idToken`, etc.
+  * Relation: `user` (`User`).
+
+* `Session` (`sessions`):
+  * Represents Better Auth sessions; uses `token` (not `sessionToken`).
+  * Fields: `userId`, `token`, `expiresAt`, `ipAddress`, `userAgent`.
+
+* `TwoFactor` (`two_factor`):
+  * Stores TOTP secret and backup codes per user.
+  * Fields: `secret`, `backupCodes`, `userId`.
+
+* `Verification` (`verification`):
+  * Generic verification tokens used by Better Auth (email verification, OTP, etc.).
+  * Fields: `identifier`, `value`, `expiresAt`.
+
+### 1.8 Gateway RBAC Tables (Endpoint‑Level RBAC)
+These models power the centralized JWT middleware and are separate from tenant `MemberRole`:
+
+* `Role` (`roles`):
+  * `id`, `name` (unique), `description`, timestamps.
+  * Relations: `userRoles`, `endpointMappings`.
+
+* `UserRole` (`user_roles`):
+  * Junction User ↔ Role.
+  * Unique constraint on `(userId, roleId)`.
+
+* `RoleEndpointMapping` (`role_endpoint_mappings`):
+  * Maps a role to an API endpoint and HTTP method (e.g. `GET /api/admin/settings`).
+  * Unique constraint on `(roleId, endpoint, method)`.
 
 ---
 
@@ -71,6 +144,22 @@ Once authorized, the Backend performs the request to the internal private API:
 * **Backend Action**: Executes a secure call (fetch/axios) to the internal URL.
 * **Output**: Data is returned to the Frontend only after successful authorization and optional data sanitization.
 
+Concretely, the implementation today uses:
+
+- `jwtAuth` middleware (`backend/src/middleware/jwtAuth.ts`) to:
+  - Validate the Bearer JWT (`Authorization: Bearer <token>`).
+  - Attach the decoded payload (`userId`, `email`, `roles`) to `req.user`.
+  - Enforce endpoint‑level RBAC via `RoleEndpointMapping` and `hasRoleAccess`.
+- `checkOrganizationAccess` middleware (`backend/src/middleware/auth.ts`) to:
+  - Resolve `orgId` from `:orgId` route param or `x-organization-id` header.
+  - Validate membership in `Member` and role hierarchy based on `MemberRole`.
+  - Attach `req.orgMember` for downstream handlers.
+
+Example tenant‑aware route (implemented in `backend/src/routes/organizationResources.ts`):
+
+- `GET /api/orgs/{orgId}/profile` – requires at least `VIEWER`.
+- `GET /api/orgs/{orgId}/audit-logs` – requires at least `ADMIN` and is fully paginated.
+
 ---
 
 ## 3. Administrative Requirements
@@ -80,6 +169,13 @@ All listing endpoints (Logs, Users, Settings) must implement standard pagination
 * `GET /api/orgs/:orgId/resource?page=1&limit=20`
 
 ### 3.2 2FA (Two-Factor Authentication)
-* **Method**: Email based TOTP.
-* **Provider**: SendGrid (Dedicated microservice).
-* **Isolation**: All email secrets must remain in the Internal Network `.env`.
+
+**Current implementation (code today)**  
+* **Method**: TOTP (Time‑based One‑Time Password) via Better Auth `twoFactor` plugin configured in `backend/src/lib/auth.ts`.  
+* **Storage**: `TwoFactor` table holds the shared secret and backup codes per user.  
+* **Toggle**: `User.twoFactorEnabled` indicates whether 2FA is active for the account.  
+* **Audit logs**: sign‑in, sign‑up and sign‑out flows emit `SIGN_IN`, `SIGN_UP`, `SIGN_OUT` entries in `AuditLog` via Better Auth hooks.
+
+**Planned / optional extension (future)**  
+* **Email‑based OTP** using the `email_service` (SendGrid) can be added on top of the TOTP baseline for environments that prefer email codes instead of authenticator apps.  
+* All email secrets must remain in the internal network `.env` and be accessed only via internal services.

@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 /**
  * Proxies a GraphQL query to the internal API using credentials from environment variables.
  * 
@@ -16,20 +14,42 @@ export async function proxyGraphQL(query: string): Promise<any> {
   }
 
   try {
-    const { data } = await axios.post(
-      apiUrl,
-      { query },
-      {
-        headers: {
-          'x-api-key': apiKey,
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    return data;
+    // console.log('Proxying GraphQL request to:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'Authorization': `Bearer ${apiToken}`,
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      console.error('Internal API proxy call failed:', {
+        url: apiUrl,
+        status: response.status,
+        statusText: response.statusText,
+        body: text
+      });
+      
+      // Create a fake Axios-like error object so the route handler can extract status/data
+      const error: any = new Error('Proxy request failed');
+      error.response = {
+        status: response.status,
+        data: text.startsWith('{') ? JSON.parse(text) : { message: text }
+      };
+      throw error;
+    }
+
+    return JSON.parse(text);
   } catch (error: any) {
-    console.error('Error during internal API proxy call:', error.response?.data || error.message);
+    if (!error.response) {
+      console.error('Error during internal API proxy call:', error.message);
+    }
     throw error;
   }
 }

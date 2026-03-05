@@ -228,15 +228,6 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               query:
- *                 type: string
  *     responses:
  *       200:
  *         description: Proxied response
@@ -251,12 +242,25 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { orgId } = req.params;
-      const { query } = req.body;
 
-      if (!query) {
-        res.status(400).json({ error: 'GraphQL query is required' });
+      const org = await prisma.organization.findUnique({
+        where: { id: orgId },
+      });
+
+      if (!org) {
+        res.status(404).json({ error: 'Organization not found' });
         return;
       }
+
+      if (!org.externalReferenceId) {
+        res.status(403).json({ error: 'Organization has no linked supplier' });
+        return;
+      }
+
+      const supplierId = org.externalReferenceId;
+
+      // Construct the GraphQL query in the backend using the organization's externalReferenceId
+      const query = `{ supplier(id: ${supplierId}) { data { address address_comment country email fax id name num_tva phonenumber postcode raisonsociale town contacts { is_deleted contact { id firstname name email lang isRgroupPerson } roles { contactroles { name } } } } } }`;
 
       const data = await proxyGraphQL(query);
 
@@ -264,7 +268,7 @@ router.post(
       await createAuditLog(
         'PROXY_API_CALL',
         req.user!.userId,
-        { orgId, query },
+        { orgId, supplierId, query },
         orgId
       );
 

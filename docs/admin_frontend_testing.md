@@ -2,10 +2,18 @@
 
 This document describes how to smoke‑test the `admin_frontend` app using Playwright, following the `webapp-testing` skill.
 
+> **Source of truth:**  
+> - API contract: Swagger at `/api/docs`.  
+> - This guide focuses on end‑to‑end flows (login, tabs, admin actions) and may suggest extra test flows (like email‑OTP) that are optional or future enhancements.
+
 ## 1. Targets
 
-- Admin app running at `http://localhost:8080` (via Docker/nginx) or `http://localhost:5174` in dev.
-- Backend API running at `http://localhost:3000` (for local dev).
+- Admin app running at:
+  - `http://localhost:8080` via Docker/nginx (recommended for end‑to‑end tests), or
+  - `http://localhost:5174` in dev (`npm run dev` inside `admin_frontend`).
+- Backend API:
+  - `http://localhost:3000` when running `backend` directly with `npm run dev`, or
+  - `http://localhost/api` when going through nginx in Docker (Swagger at `/api/docs`).
 
 ## 2. Recommended flows
 
@@ -42,7 +50,7 @@ The helper starts both servers, waits for them to be ready, then runs the Playwr
 ```python
 from playwright.sync_api import sync_playwright
 
-BASE_URL = "http://localhost:5174"
+BASE_URL = "http://localhost:5174"  # or "http://localhost:8080" when testing via Docker/nginx
 
 def test_smoke_admin_frontend():
     with sync_playwright() as p:
@@ -73,5 +81,8 @@ def test_smoke_admin_frontend():
         browser.close()
 ```
 
-Extend this script with 2FA/email‑OTP flows if you have deterministic test users and test secrets configured.
+Extend this script with 2FA flows if you have deterministic test users and test secrets configured:
+
+- TOTP challenge flow (current implementation, `/auth/2fa-challenge`).
+- Optional email‑OTP flow if/when it is implemented on top of the current TOTP baseline.
 

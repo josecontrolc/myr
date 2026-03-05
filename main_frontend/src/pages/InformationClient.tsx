@@ -45,9 +45,6 @@ interface OrgsResponse {
   organizations: Org[];
 }
 
-const SUPPLIER_ID = 400007212;
-const GRAPHQL_QUERY = `{ supplier(id: ${SUPPLIER_ID}) { data { address address_comment country email fax id name num_tva phonenumber postcode raisonsociale town contacts { is_deleted contact { id firstname name email lang isRgroupPerson } roles { contactroles { name } } } } } }`;
-
 export default function InformationClient() {
   const { t } = useTranslation("common");
   const { jwtToken } = useAuth();
@@ -76,10 +73,10 @@ export default function InformationClient() {
 
         const orgId = organizations[0].id;
 
-        // 2. Fetch data from the proxy
-        const response = await postJson<{ query: string }, ProxyResponse>(
+        // 2. Fetch data from the proxy - empty body because backend constructs the query based on the organization
+        const response = await postJson<{}, ProxyResponse>(
           `/orgs/${orgId}/proxy/supplier`,
-          { query: GRAPHQL_QUERY },
+          {},
           {
             Authorization: `Bearer ${jwtToken}`,
           }
@@ -93,7 +90,16 @@ export default function InformationClient() {
         }
       } catch (err: any) {
         console.error("Failed to fetch information client:", err);
-        setError(err.message || "An error occurred while fetching data.");
+
+        const status = typeof err === "object" && err && "statusCode" in err ? (err as { statusCode?: number }).statusCode : undefined;
+
+        if (status === 401) {
+          setError("Your session is not authorized. Please sign in again.");
+        } else if (status === 403) {
+          setError("Organization access denied for this account.");
+        } else {
+          setError(err.message || "An error occurred while fetching data.");
+        }
       } finally {
         setLoading(false);
       }
@@ -135,6 +141,31 @@ export default function InformationClient() {
           {t("pages.customerInfo.title")}
         </h1>
       </header>
+
+      {/* JWT Debug Section */}
+      {jwtToken && (
+        <section className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-sm">
+          <div className="p-4 space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-sm font-semibold text-textPrimary dark:text-textPrimary-dark">
+                JWT (current session)
+              </h2>
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(jwtToken)}
+                className="inline-flex items-center rounded-md border border-border dark:border-border-dark px-3 py-1.5 text-xs font-medium text-textSecondary dark:text-textSecondary-dark hover:bg-backgroundSecondary dark:hover:bg-backgroundSecondary-dark transition-colors"
+              >
+                Copy
+              </button>
+            </div>
+            <div className="max-h-40 overflow-auto rounded-md bg-backgroundSecondary dark:bg-backgroundSecondary-dark border border-border dark:border-border-dark">
+              <pre className="text-xs p-3 font-mono break-all text-textSecondary dark:text-textSecondary-dark">
+                {jwtToken}
+              </pre>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Company Info Card */}
       <section className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-sm overflow-hidden">

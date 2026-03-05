@@ -7,7 +7,7 @@ import Counter from '../components/Counter';
 
 const Dashboard = () => {
   const { t } = useTranslation('common');
-  const { user, logout, loading, disable2FA, checkSession } = useAuth();
+  const { user, logout, loading, disable2FA, checkSession, jwtToken } = useAuth();
   const navigate = useNavigate();
   const [show2FASetup, setShow2FASetup] = useState(false);
   const [showDisable2FA, setShowDisable2FA] = useState(false);
@@ -164,6 +164,34 @@ const Dashboard = () => {
           <div className="mt-8">
             <Counter />
           </div>
+
+          {jwtToken && (
+            <div className="mt-8 card rounded-lg p-6">
+              <h3 className="font-semibold text-textPrimary dark:text-textPrimary-dark mb-3">
+                JWT (current session)
+              </h3>
+              <p className="text-xs text-textSecondary dark:text-textSecondary-dark mb-3">
+                This token is used to authenticate your requests. Do not share it.
+              </p>
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-xs font-medium text-textSecondary dark:text-textSecondary-dark">
+                  Length: {jwtToken.length} characters
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard.writeText(jwtToken)}
+                  className="px-3 py-1.5 rounded-md border border-border dark:border-border-dark text-xs font-medium text-textSecondary dark:text-textSecondary-dark hover:bg-background dark:hover:bg-background-dark transition-colors"
+                >
+                  Copy JWT
+                </button>
+              </div>
+              <div className="max-h-40 overflow-auto rounded-md bg-background dark:bg-background-dark border border-border dark:border-border-dark">
+                <pre className="text-[11px] leading-snug p-3 font-mono break-all text-textSecondary dark:text-textSecondary-dark">
+                  {jwtToken}
+                </pre>
+              </div>
+            </div>
+          )}
 
           <div className="mt-8 card rounded-lg p-6">
             <h3 className="font-semibold text-textPrimary dark:text-textPrimary-dark mb-4">
