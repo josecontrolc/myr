@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import TwoFactorChallenge from "./pages/TwoFactorChallenge";
 import EmailOtpChallenge from "./pages/EmailOtpChallenge";
 import Navbar from "./components/Navbar";
+import Breadcrumb from "./components/Breadcrumb";
 import DashboardHome from "./pages/DashboardHome";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import TicketsPage from "./pages/TicketsPage";
@@ -48,6 +49,7 @@ const AppRoutes = () => {
   return (
     <div className="flex flex-col flex-1">
       <Navbar />
+      <Breadcrumb />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
