@@ -44,35 +44,6 @@ router.post('/graphql', async (req: Request, res: Response): Promise<void> => {
       orderByDesc?: string;
     };
 
-    // #region agent log
-    try {
-      fetch('http://127.0.0.1:7903/ingest/4fc0a345-d35c-4a05-a57f-ee4586fed261', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Debug-Session-Id': '6e4103',
-        },
-        body: JSON.stringify({
-          sessionId: '6e4103',
-          runId: 'tickets-proxy',
-          hypothesisId: 'H-params',
-          location: 'backend/src/routes/tickets.ts:34',
-          message: 'Incoming tickets graphql params',
-          data: {
-            suppliersIdAssign,
-            suppliersIdAssignType: typeof suppliersIdAssign,
-            paginLimit,
-            paginPage,
-            orderByDesc,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-    } catch {
-      // ignore logging failures
-    }
-    // #endregion agent log
-
     if (!suppliersIdAssign) {
       res.status(400).json({ error: 'suppliersIdAssign is required' });
       return;

@@ -22,51 +22,9 @@ const TwoFactorChallenge = () => {
     setLoading(true);
 
     try {
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'admin_frontend/src/pages/TwoFactorChallenge.tsx:24',
-          message: 'TwoFactorChallenge handleVerifyCode start',
-          data: { trustDevice },
-          timestamp: Date.now(),
-          runId: 'postfix1',
-          hypothesisId: 'F1'
-        })
-      }).catch(() => {});
-      // #endregion
       await verify2FALogin(code, trustDevice);
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'admin_frontend/src/pages/TwoFactorChallenge.tsx:31',
-          message: 'TwoFactorChallenge verify2FALogin resolved, navigating',
-          data: {},
-          timestamp: Date.now(),
-          runId: 'postfix1',
-          hypothesisId: 'F1,F2'
-        })
-      }).catch(() => {});
-      // #endregion
       navigate('/dashboard');
     } catch (err: any) {
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'admin_frontend/src/pages/TwoFactorChallenge.tsx:38',
-          message: 'TwoFactorChallenge verify2FALogin error',
-          data: { error: err?.message },
-          timestamp: Date.now(),
-          runId: 'postfix1',
-          hypothesisId: 'F1'
-        })
-      }).catch(() => {});
-      // #endregion
       setError(err.message || 'Invalid verification code');
       setCode('');
     } finally {

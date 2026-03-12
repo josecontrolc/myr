@@ -9,14 +9,12 @@ export const ticketsQueryKeys = {
   detail: (id: number) => ["tickets", "detail", id] as const,
 };
 
-export function useTickets(
-  params: TicketListParams,
-) {
-  const { jwtToken } = useAuth();
+export function useTickets(params: TicketListParams) {
+  const { jwtToken, jwtLoading } = useAuth();
 
   return useQuery<TicketListApiResponse>({
     queryKey: ticketsQueryKeys.list(params),
-    enabled: !!jwtToken,
+    enabled: !!jwtToken && !jwtLoading && !!params.orgId,
     queryFn: () => {
       if (!jwtToken) {
         return Promise.reject(

@@ -1,23 +1,66 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@shared/auth";
+import { getJson } from "../api/client";
 import { useTickets } from "../features/tickets/hooks";
 import type { Ticket } from "../features/tickets/types";
 
 const PAGE_SIZE = 10;
 
+interface OrgsResponse {
+  organizations: { id: string }[];
+}
+
 const TicketsPage = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { jwtToken, loading: authLoading, jwtLoading } = useAuth();
   const { t } = useTranslation("common");
   const [page, setPage] = useState(1);
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [orgError, setOrgError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/login");
+    async function fetchOrg() {
+      if (authLoading || jwtLoading) {
+        return;
+      }
+
+      if (!jwtToken) {
+        setOrgError("No JWT token available. Please log out and log in again.");
+        return;
+      }
+
+      try {
+        setOrgError(null);
+        const { organizations } = await getJson<OrgsResponse>("/orgs/mine", undefined, {
+          Authorization: `Bearer ${jwtToken}`,
+        });
+
+        if (organizations.length === 0) {
+          setOrgError("No organization found for the current user.");
+          return;
+        }
+
+        setOrgId(organizations[0].id);
+      } catch (err: any) {
+        const status =
+          typeof err === "object" && err && "statusCode" in err
+            ? (err as { statusCode?: number }).statusCode
+            : undefined;
+
+        if (status === 401) {
+          setOrgError("Your session is not authorized. Please sign in again.");
+        } else if (status === 403) {
+          setOrgError("Organization access denied for this account.");
+        } else if (status === 502) {
+          setOrgError("Unable to reach the external data service. Please contact your administrator.");
+        } else {
+          setOrgError(err.message || "An error occurred while fetching your organization.");
+        }
+      }
     }
-  }, [loading, user, navigate]);
+
+    fetchOrg();
+  }, [jwtToken, authLoading, jwtLoading]);
 
   const {
     data,
@@ -26,8 +69,7 @@ const TicketsPage = () => {
     error,
     refetch,
   } = useTickets({
-    // For now, use the fixed supplier id used in the external API calls.
-    suppliersIdAssign: 400007212,
+    orgId: orgId ?? "",
     paginLimit: PAGE_SIZE,
     paginPage: page,
     orderByDesc: "date",
@@ -35,10 +77,10 @@ const TicketsPage = () => {
 
   const tickets: Ticket[] = data?.data ?? [];
 
-  if (loading || !user) {
+  if (authLoading || jwtLoading || (orgId === null && !orgError)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background-dark">
-        <p className="text-sec text-sm">{t("placeholders.loading")}</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:border-primary-dark"></div>
       </div>
     );
   }
@@ -65,6 +107,12 @@ const TicketsPage = () => {
             </button>
           </div>
 
+          {orgError && (
+            <div className="alert-error">
+              <p>{orgError}</p>
+            </div>
+          )}
+
           {isLoading && (
             <div className="py-10 text-center text-sec text-sm">
               {t("placeholders.loading")}
@@ -87,7 +135,7 @@ const TicketsPage = () => {
             </div>
           )}
 
-          {!isLoading && !isError && tickets.length === 0 && (
+          {!isLoading && !isError && !orgError && tickets.length === 0 && (
             <div className="py-10 text-center text-sec text-sm">
               {t("pages.tickets.empty", "You do not have any tickets yet")}
             </div>
@@ -174,4 +222,3 @@ const TicketsPage = () => {
 };
 
 export default TicketsPage;
-

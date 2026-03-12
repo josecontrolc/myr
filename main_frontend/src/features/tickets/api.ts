@@ -7,15 +7,16 @@ import type {
 } from "./types";
 
 const TICKETS_PATH = "/tickets";
-const TICKETS_GRAPHQL_PATH = "/tickets/graphql";
+const TICKETS_PROXY_PATH = (orgId: string) => `/orgs/${orgId}/proxy/tickets`;
 
 export async function fetchTickets(
   params: TicketListParams,
   jwtToken: string,
 ): Promise<TicketListApiResponse> {
-  const payload = await postJson<TicketListParams, TicketListPayload>(
-    TICKETS_GRAPHQL_PATH,
-    params,
+  const { orgId, ...pagination } = params;
+  const payload = await postJson<typeof pagination, TicketListPayload>(
+    TICKETS_PROXY_PATH(orgId),
+    pagination,
     {
       Authorization: `Bearer ${jwtToken}`,
     },

@@ -27,53 +27,11 @@ const EmailOtpChallenge = () => {
     setLoading(true);
 
     try {
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'admin_frontend/src/pages/EmailOtpChallenge.tsx:30',
-          message: 'EmailOtpChallenge handleSubmit start',
-          data: {},
-          timestamp: Date.now(),
-          runId: 'postfix1',
-          hypothesisId: 'F3'
-        })
-      }).catch(() => {});
-      // #endregion
       await verifyEmailOtp(userId, code);
       sessionStorage.removeItem('pending_2fa_email');
       await checkSession(true);
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'admin_frontend/src/pages/EmailOtpChallenge.tsx:39',
-          message: 'EmailOtpChallenge verification done, navigating',
-          data: {},
-          timestamp: Date.now(),
-          runId: 'postfix1',
-          hypothesisId: 'F3,F2'
-        })
-      }).catch(() => {});
-      // #endregion
       navigate('/dashboard');
     } catch (err: unknown) {
-      // #region agent log
-      fetch('http://127.0.0.1:7713/ingest/4d1c7866-0c93-4eea-be66-7eaca1b46d80', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'admin_frontend/src/pages/EmailOtpChallenge.tsx:47',
-          message: 'EmailOtpChallenge verification error',
-          data: { error: err instanceof Error ? err.message : 'Unknown error' },
-          timestamp: Date.now(),
-          runId: 'postfix1',
-          hypothesisId: 'F3'
-        })
-      }).catch(() => {});
-      // #endregion
       setError(err instanceof Error ? err.message : 'Invalid verification code');
       setCode('');
     } finally {

@@ -49,7 +49,7 @@ export interface Ticket {
 }
 
 export interface TicketListParams {
-  suppliersIdAssign: number;
+  orgId: string;
   paginLimit?: number;
   paginPage?: number;
   orderByDesc?: string;

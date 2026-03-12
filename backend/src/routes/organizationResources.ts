@@ -288,4 +288,116 @@ router.post(
   }
 );
 
+/**
+ * @openapi
+ * /orgs/{orgId}/proxy/tickets:
+ *   post:
+ *     summary: Proxy GraphQL tickets request
+ *     tags:
+ *       - Proxy
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orgId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Proxied response
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+router.post(
+  '/:orgId/proxy/tickets',
+  checkOrganizationAccess(MemberRole.VIEWER),
+  async (req: Request, res: Response) => {
+    try {
+      const { orgId } = req.params;
+
+      const org = await prisma.organization.findUnique({
+        where: { id: orgId },
+      });
+
+      if (!org) {
+        res.status(404).json({ error: 'Organization not found' });
+        return;
+      }
+
+      if (!org.externalReferenceId) {
+        res.status(403).json({ error: 'Organization has no linked supplier' });
+        return;
+      }
+
+      const supplierId = org.externalReferenceId;
+
+      const {
+        paginLimit = 10,
+        paginPage = 1,
+        orderByDesc = 'date',
+      } = req.body as {
+        paginLimit?: number;
+        paginPage?: number;
+        orderByDesc?: string;
+      };
+
+      const query = `{
+      ticket(
+        suppliers_id_assign: ${supplierId},
+        paginLimit: ${paginLimit},
+        paginPage: ${paginPage},
+        orderByDesc: "${orderByDesc}"
+      ) {
+        data {
+          solvedate
+          content
+          date
+          id
+          name
+          status
+          intervention_date
+          is_cyber_incident
+          priority_v2
+          tical_numero_prj
+          ticketcategories { name }
+          user_assign { realname firstname }
+          group_assign { name }
+          interventions {
+            non_facturable
+            desc_facturation
+            preste
+            date_begin
+          }
+          supplier { id }
+        }
+      }
+    }`;
+
+      const externalJson = await proxyGraphQL(query) as { data?: { ticket?: unknown } };
+
+      await createAuditLog(
+        'PROXY_API_CALL',
+        req.user!.userId,
+        { orgId, supplierId, query },
+        orgId
+      );
+
+      const ticket = externalJson.data?.ticket ?? null;
+      res.json({ ticket });
+    } catch (error: any) {
+      console.error('Proxy request failed:', error);
+      const remoteStatus = error.response?.status;
+      const httpStatus = remoteStatus ? 502 : 500;
+      res.status(httpStatus).json({
+        error: 'Proxy request failed',
+        details: error.response?.data || error.message,
+        remoteStatus,
+      });
+    }
+  }
+);
+
 export default router;
