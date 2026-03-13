@@ -4,7 +4,7 @@ import { useAuth } from "@shared/auth";
 import { getJson } from "../api/client";
 import { useDecompte, type DocItem } from "../features/billing/useDecompte";
 import Pagination from "../components/Pagination";
-import TableFilters from "../components/TableFilters";
+import PageHeader from "../components/PageHeader";
 
 interface OrgsResponse {
   organizations: { id: string }[];
@@ -88,7 +88,7 @@ const InvoicesPage = () => {
     fetchOrg();
   }, [jwtToken, authLoading, jwtLoading]);
 
-  const { data, isLoading, isError, error, refetch } = useDecompte(orgId);
+  const { data, isLoading, isRefetching, isError, error, refetch } = useDecompte(orgId);
 
   const rows: DocItem[] = Array.isArray(data) ? data : [];
 
@@ -157,50 +157,40 @@ const InvoicesPage = () => {
   return (
     <div className="flex-1 bg-background dark:bg-background-dark min-h-screen">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-textPrimary dark:text-textPrimary-dark">
-              {t("pages.billing.title")}
-            </h1>
-            <p className="mt-1 text-sm text-textSecondary dark:text-textSecondary-dark">
-              {t("pages.billing.subtitle", "Overview of your open invoices and account balance")}
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <button
-              type="button"
-              className="btn-primary inline-flex items-center px-3 py-2 text-sm font-medium"
-              onClick={() => refetch()}
-            >
-              {t("actions.refresh", "Refresh")}
-            </button>
+        <PageHeader
+          icon={
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          }
+          title={t("pages.billing.title")}
+          count={!isLoading ? filteredRows.length : undefined}
+          search={search}
+          onSearchChange={setSearch}
+          status={status}
+          onStatusChange={setStatus}
+          statusOptions={statusOptions}
+          dateFrom={dateFrom}
+          onDateFromChange={setDateFrom}
+          dateTo={dateTo}
+          onDateToChange={setDateTo}
+          isRefetching={isRefetching}
+          onRefetch={refetch}
+          disabled={!!orgError}
+          extraRight={
             <div className="text-xs text-textSecondary dark:text-textSecondary-dark">
               {t("billing.summary.totalOutstanding", "Total outstanding")}:{" "}
               <span className="font-semibold text-textPrimary dark:text-textPrimary-dark">
                 {formatAmount(totalAmount.toFixed(2))}
               </span>
             </div>
-          </div>
-        </div>
+          }
+        />
 
         {orgError && (
           <div className="alert-error">
             <p>{orgError}</p>
           </div>
-        )}
-
-        {!orgError && (
-          <TableFilters
-            search={search}
-            onSearchChange={setSearch}
-            status={status}
-            onStatusChange={setStatus}
-            statusOptions={statusOptions}
-            dateFrom={dateFrom}
-            onDateFromChange={setDateFrom}
-            dateTo={dateTo}
-            onDateToChange={setDateTo}
-          />
         )}
 
         {!orgError && isLoading && (

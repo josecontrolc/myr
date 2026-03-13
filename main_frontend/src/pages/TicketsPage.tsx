@@ -5,7 +5,7 @@ import { getJson } from "../api/client";
 import { useTickets } from "../features/tickets/hooks";
 import type { Ticket } from "../features/tickets/types";
 import Pagination from "../components/Pagination";
-import TableFilters from "../components/TableFilters";
+import PageHeader from "../components/PageHeader";
 
 const PAGE_SIZE = 10;
 
@@ -14,10 +14,10 @@ interface OrgsResponse {
 }
 
 const statusColors: Record<string, string> = {
-  open: "bg-blue-500/10 text-blue-600 border border-blue-500/20",
-  in_progress: "bg-secondary/10 text-secondary border border-secondary/20",
-  resolved: "bg-green-500/10 text-green-600 border border-green-500/20",
-  closed: "bg-primary/10 text-textSecondary border border-primary/20",
+  open:        "bg-blue-500/10  text-blue-600  dark:bg-blue-500/20  dark:text-blue-300  border border-blue-500/20  dark:border-blue-400/30",
+  in_progress: "bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-secondary border border-secondary/20 dark:border-secondary/30",
+  resolved:    "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400 border border-green-500/20 dark:border-green-400/30",
+  closed:      "bg-primary/10   text-textSecondary dark:bg-white/10 dark:text-white/60   border border-primary/20   dark:border-white/15",
 };
 
 const TicketsPage = () => {
@@ -74,7 +74,7 @@ const TicketsPage = () => {
     fetchOrg();
   }, [jwtToken, authLoading, jwtLoading]);
 
-  const { data, isLoading, isError, error, refetch } = useTickets({
+  const { data, isLoading, isRefetching, isError, error, refetch } = useTickets({
     orgId: orgId ?? "",
     paginLimit: PAGE_SIZE,
     paginPage: page,
@@ -143,56 +143,31 @@ const TicketsPage = () => {
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
         {/* Header */}
-        <header className="space-y-6">
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="text-2xl font-bold text-textPrimary dark:text-textPrimary-dark">
-              {t("pages.tickets.title")}
-            </h1>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded bg-pink text-white hover:bg-pink/90 transition-colors shrink-0"
-              onClick={() => refetch()}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              {t("actions.refresh", "Refresh")}
-            </button>
-          </div>
-        </header>
-
-        {/* Filters */}
-        {!orgError && (
-          <TableFilters
-            search={search}
-            onSearchChange={setSearch}
-            status={status}
-            onStatusChange={setStatus}
-            statusOptions={statusOptions}
-            dateFrom={dateFrom}
-            onDateFromChange={setDateFrom}
-            dateTo={dateTo}
-            onDateToChange={setDateTo}
-          />
-        )}
+        <PageHeader
+          icon={
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          }
+          title={t("pages.tickets.title")}
+          count={!isLoading ? filteredTickets.length : undefined}
+          search={search}
+          onSearchChange={setSearch}
+          status={status}
+          onStatusChange={setStatus}
+          statusOptions={statusOptions}
+          dateFrom={dateFrom}
+          onDateFromChange={setDateFrom}
+          dateTo={dateTo}
+          onDateToChange={setDateTo}
+          isRefetching={isRefetching}
+          onRefetch={refetch}
+          disabled={!!orgError}
+        />
 
         {/* Tickets table section */}
         <section className="space-y-4">
-          <div className="flex items-center gap-3">
-            <span className="p-1 rounded bg-pink/20 text-pink">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </span>
-            <h2 className="text-lg font-bold text-textPrimary dark:text-textPrimary-dark">
-              {t("pages.tickets.title")}
-            </h2>
-            {!isLoading && filteredTickets.length > 0 && (
-              <span className="h-5 w-5 rounded-full bg-pink text-white text-[10px] font-bold flex items-center justify-center">
-                {filteredTickets.length}
-              </span>
-            )}
-          </div>
+          <div className="hidden">{/* section header removed - merged into page header above */}</div>
 
           <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark card--square-tl shadow-sm overflow-hidden">
             {isLoading && (
