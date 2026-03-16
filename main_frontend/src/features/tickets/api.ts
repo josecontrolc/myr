@@ -1,4 +1,4 @@
-import { getJson, postJson } from "../../api/client";
+import { postJson } from "../../api/client";
 import type {
   Ticket,
   TicketListApiResponse,
@@ -6,7 +6,6 @@ import type {
   TicketListPayload,
 } from "./types";
 
-const TICKETS_PATH = "/tickets";
 const TICKETS_PROXY_PATH = (orgId: string) => `/orgs/${orgId}/proxy/tickets`;
 
 export async function fetchTickets(
@@ -27,16 +26,5 @@ export async function fetchTickets(
   return {
     data: list,
   };
-}
-
-export async function fetchTicketById(id: number, jwtToken: string): Promise<Ticket> {
-  const ticket = await getJson<Ticket>(
-    `${TICKETS_PATH}/${id}`,
-    undefined,
-    {
-      Authorization: `Bearer ${jwtToken}`,
-    },
-  );
-  return ticket;
 }
 
