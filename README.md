@@ -1,13 +1,12 @@
 # MyR - Secure DMZ Architecture
 
-A secure multi tier application implementing network segmentation with separate DMZ and internal networks using Docker Compose. Requirements and auth design: see [new_requisites.md](new_requisites.md) and [auth_spec.md](auth_spec.md).
+A secure multi tier application implementing network segmentation with separate DMZ and internal networks using Docker Compose. Architecture details: see [architecture.md](architecture.md). Security review: see [SECURITY_REVIEW.md](SECURITY_REVIEW.md). Additional docs in [docs/](docs/).
 
-## Using this template
+## Setup
 
 1. Clone the repository.
 2. Copy `.env.example` to `.env` and fill in values (no real secrets in the repo).
-3. Optionally replace the project name "MyR" and database name `myrtest` with your own.
-4. Follow **Quick Start** below to run with Docker.
+3. Follow **Quick Start** below to run with Docker.
 
 ## Architecture Overview
 
@@ -37,9 +36,7 @@ This project implements a secure DMZ (Demilitarized Zone) architecture with two 
 * **Modern Stack**: React + Vite, Express, Prisma ORM, Docker, NGINX
 * **Feature Flags**: `SystemSettings` model for runtime configuration
 
-## Compliance with new_requisites.md
-
-This section maps each requirement from [new_requisites.md](new_requisites.md) to the current implementation.
+## Implementation Status
 
 ### 1. Backend and Security — Implemented
 
@@ -196,13 +193,14 @@ Use this flow when you want to run the backend and frontends on your host (e.g. 
 ## Project Structure
 
 ```text
-myrtest/
+myr/
 ├── backend/
 │   ├── src/
-│   │   ├── index.ts              # Express server entry point (health, auth, JWT, admin, counter)
+│   │   ├── index.ts              # Express server entry point
 │   │   ├── lib/
 │   │   │   ├── auth.ts           # Better Auth configuration + dynamic config loader
 │   │   │   ├── emailService.ts   # HTTP client to the email_service (2FA OTP)
+│   │   │   ├── rbac.ts           # RBAC helpers and role constants
 │   │   │   └── swagger.ts        # Swagger/OpenAPI spec builder
 │   │   ├── middleware/
 │   │   │   ├── jwtAuth.ts        # Centralized JWT + RBAC middleware
@@ -210,58 +208,52 @@ myrtest/
 │   │   │   └── auditLog.ts       # Helper to write AuditLog entries
 │   │   ├── routes/
 │   │   │   ├── auth.ts           # JWT issuance + email OTP 2FA endpoints
+│   │   │   ├── betterAuthProxy.ts # Better Auth session proxy
 │   │   │   ├── counter.ts        # Counter feature (protected by JWT/RBAC)
 │   │   │   ├── admin.ts          # Admin settings, database overview, audit logs
-│   │   │   └── roles.ts          # RBAC: roles, endpoint mappings, user-role assignment
+│   │   │   ├── roles.ts          # RBAC: roles, endpoint mappings, user-role assignment
+│   │   │   └── organizationResources.ts # Org-scoped proxy routes (tickets, suppliers, SEPA, etc.)
+│   │   ├── services/
+│   │   │   ├── proxyService.ts   # GraphQL proxy helpers for Decompte API
+│   │   │   ├── decompteQueries.ts # Decompte GraphQL query builders
+│   │   │   ├── rbacService.ts    # RBAC logic: user roles → allowed endpoints
+│   │   │   └── organizationAccessService.ts # Org membership validation
 │   │   └── scripts/
-│   │       ├── seed.ts           # Seed auth and system settings
-│   │       └── test-auth.ts      # Test users and sessions
+│   │       └── seed.ts           # Seed auth and system settings
 │   ├── prisma/
 │   │   └── schema.prisma         # Database schema (users, roles, audit_logs, etc.)
+│   ├── tests/                    # Jest integration tests
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── Dockerfile
 ├── main_frontend/
 │   ├── src/
 │   │   ├── main.tsx              # React entry point
-│   │   ├── App.tsx               # Routes: Home, Login, Register, Dashboard, 2FA flows
-│   │   ├── contexts/
-│   │   │   └── AuthContext.tsx   # Auth state, Better Auth client, JWT handling
-│   │   ├── components/
-│   │   │   ├── Navbar.tsx        # Main navigation (with link to Admin panel)
-│   │   │   ├── LoginForm.tsx     # Login form with 2FA hooks
-│   │   │   ├── RegisterForm.tsx  # Register form
-│   │   │   └── Counter.tsx       # Counter UI hitting /api/counter endpoints
-│   │   ├── pages/
-│   │   │   ├── Home.tsx
-│   │   │   ├── Login.tsx
-│   │   │   ├── Register.tsx
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── TwoFactorChallenge.tsx   # TOTP 2FA flow
-│   │   │   └── EmailOtpChallenge.tsx    # Email OTP 2FA flow
-│   │   └── index.css             # Tailwind styles
+│   │   ├── App.tsx               # Routes and layout
+│   │   ├── components/           # Shared UI components (Navbar, PageHeader, Breadcrumb, etc.)
+│   │   ├── pages/                # Route-level pages (Dashboard, Tickets, SEPA, BCP rooms, etc.)
+│   │   ├── features/             # Feature-scoped modules
+│   │   ├── api/                  # API hooks and clients
+│   │   ├── i18n/                 # i18n setup
+│   │   ├── locales/              # Translation files
+│   │   ├── lib/                  # Utility functions
+│   │   ├── styles/               # Global styles
+│   │   └── theme/                # Theme tokens and ThemeProvider
 │   ├── package.json
 │   ├── vite.config.ts
 │   ├── tsconfig.json
 │   └── Dockerfile
 ├── admin_frontend/
 │   ├── src/
-│   │   ├── main.tsx              # React entry point
+│   │   ├── main.tsx
 │   │   ├── App.tsx               # Routing + ProtectedRoute wrapper
-│   │   ├── contexts/
-│   │   │   └── AuthContext.tsx   # Admin-side auth using Better Auth
-│   │   ├── components/
-│   │   │   ├── ProtectedRoute.tsx
-│   │   │   ├── SettingsTab.tsx   # SystemSettings editor (feature flags, auth config)
-│   │   │   ├── LogsTab.tsx       # Audit logs table
-│   │   │   └── DatabaseTab.tsx   # Database table counts and redacted views
-│   │   ├── pages/
-│   │   │   └── AdminDashboard.tsx # Tabs: Settings, Audit Logs, Database, User Roles (placeholder)
-│   │   └── index.css
+│   │   └── pages/                # AdminDashboard, Login, TwoFactorChallenge, etc.
 │   ├── package.json
 │   ├── vite.config.ts
 │   ├── tsconfig.json
 │   └── Dockerfile
+├── shared/
+│   └── auth/                     # Shared auth context and Better Auth client
 ├── email_service/
 │   ├── src/
 │   │   └── index.ts              # Express microservice, /send-otp via SendGrid
@@ -269,9 +261,13 @@ myrtest/
 │   ├── tsconfig.json
 │   └── Dockerfile
 ├── nginx/
-│   └── nginx.conf                # Reverse proxy configuration (port 80 + 8080)
-├── docker-compose.yml            # Multi-container orchestration (backend, DB, frontends, email, nginx)
-├── .env                          # Environment variables (not committed; see .env.example)
+│   ├── nginx.conf                # Reverse proxy configuration
+│   └── generate-dev-certs.sh     # One-time self-signed cert generation for local TLS
+├── docs/                         # Architecture diagrams and spec documents
+├── architecture.md               # Network topology and service communication rules
+├── SECURITY_REVIEW.md            # Security audit findings and resolutions
+├── THEME.md                      # Design system: colors, typography, component defaults
+├── docker-compose.yml            # Multi-container orchestration
 ├── .env.example                  # Example configuration without real secrets
 └── README.md                     # This file
 ```
