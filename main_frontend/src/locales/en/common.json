@@ -99,7 +99,22 @@
       "empty": "You do not have any invoices matching your criteria"
     },
     "paymentInfo": { "title": "Payment information" },
-    "sepa": { "title": "SEPA Direct Debit" },
+    "sepa": {
+      "title": "SEPA Mandate",
+      "description": "Thanks to SEPA direct debit, you will no longer have to worry about paying your invoices on time. In addition, this payment method is completely free. Simply complete the information below, generate your mandate, and return it signed by mail or email: compta@rcube.lu or compta@rcarre.com. The original document must be sent by you to your bank so that the latter can register the mandate.",
+      "chooseCompany": "Choose the company:",
+      "iban": "Debtor's IBAN account number",
+      "bic": "The BIC code of the debtor's bank",
+      "paymentType": "Payment Type",
+      "paymentTypeRecurring": "Recurring/repetitive payment",
+      "paymentTypePunctual": "Punctual payment",
+      "typeOfDebit": "Type of debit",
+      "typeDebitAll": "All invoices",
+      "typeDebitRecurring": "Only recurring invoices (1)",
+      "placeOfSignature": "Place of signature",
+      "footnote": "(1) By recurring we mean invoices linked to all types of contracts and subscriptions",
+      "generate": "GENERATE THE SEPA DIRECT DEBIT MANDATE"
+    },
     "customerInfo": {
       "title": "Customer information",
       "tabs": {
@@ -198,9 +213,45 @@
     "contracts": { "title": "Contracts" },
     "kyc": { "title": "KYC" },
     "security": { "title": "Security" },
-    "resources": { "title": "Resources" },
+    "resources": {
+      "title": "Resources",
+      "subtitle": "Welcome to our external resources page. Below you will find a list of available resources.",
+      "services": {
+        "dueDiligence": {
+          "title": "Due Diligence",
+          "description": "Please note that access to this service is subject to prior activation. Once the Due Diligence service is activated, you will be able to benefit from all its features and advantages."
+        },
+        "terms": {
+          "title": "Terms and conditions",
+          "description": ""
+        },
+        "newsletter": {
+          "title": "Newsletters",
+          "description": ""
+        }
+      }
+    },
     "quickOrder": { "title": "Quick order" },
-    "suggestions": { "title": "Your suggestions" },
+    "suggestions": {
+      "title": "Share your feedback and suggestions with us",
+      "subtitle": "Your satisfaction is our priority. Share your feedback and suggestions with us so that we can improve your experience.",
+      "typePlaceholder": "Type of request",
+      "subjectPlaceholder": "Subject",
+      "messagePlaceholder": "Please describe your suggestion or problem in detail and share examples, if you have any, to help us understand better.",
+      "send": "Send",
+      "sending": "Sending...",
+      "successTitle": "Thank you!",
+      "successMessage": "Your feedback has been received. We will take it into account to improve your experience.",
+      "sendAnother": "Send another message",
+      "errorMessage": "An error occurred while sending your message. Please try again.",
+      "types": {
+        "improvement": "Improvement suggestion",
+        "featureRequest": "New feature request",
+        "technicalIssue": "Technical issue",
+        "generalQuestion": "General question",
+        "other": "Other"
+      }
+    },
     "dataDeletion": { "title": "Data deletion" }
   },
   "home": {

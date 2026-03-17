@@ -31,7 +31,7 @@ const primaryNavItems: PrimaryNavItem[] = [
       { label: "Invoices", to: "/facturation" },
       { label: "Payment information", to: "/payment-information" },
       { label: "Customer information", to: "/information-client" },
-      { label: "SEPA Mandate", to: "/domiciliation-sepa" },
+      { label: "SEPA Mandate", to: "/sepa" },
       { label: "BCP room reservations", to: "/reservation-salles-bcp" },
       { label: "Your suggestions", to: "/suggestions" },
       { label: "Data Deletion", to: "/data-deletion" },
@@ -46,7 +46,12 @@ const primaryNavItems: PrimaryNavItem[] = [
   },
   { label: "Contracts", to: "/contrats" },
   { label: "Security", to: "/securite" },
-  { label: "Resources", to: "/ressources" },
+  {
+    label: "Resources",
+    submenu: [
+      { label: "External services", to: "/ressources/external-services" },
+    ],
+  },
 ];
 
 const Navbar = () => {

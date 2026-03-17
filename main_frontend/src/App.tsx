@@ -12,12 +12,15 @@ import Navbar from "./components/Navbar";
 import Breadcrumb from "./components/Breadcrumb";
 import DashboardHome from "./pages/DashboardHome";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import SepaPage from "./pages/SepaPage";
 import TicketsPage from "./pages/TicketsPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import InformationClient from "./pages/InformationClient";
 import OrdersPage from "./pages/OrdersPage";
 import InterventionsPage from "./pages/InterventionsPage";
 import BcpRoomsPage from "./pages/BcpRoomsPage";
+import ResourcesPage from "./pages/ResourcesPage";
+import SuggestionsPage from "./pages/SuggestionsPage";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
 const AppRoutes = () => {
@@ -66,19 +69,13 @@ const AppRoutes = () => {
             path="/payment-information"
             element={<PlaceholderPage titleKey="pages.paymentInfo.title" />}
           />
-          <Route
-            path="/domiciliation-sepa"
-            element={<PlaceholderPage titleKey="pages.sepa.title" />}
-          />
+          <Route path="/sepa" element={<SepaPage />} />
           <Route
             path="/information-client"
             element={<InformationClient />}
           />
           <Route path="/reservation-salles-bcp" element={<BcpRoomsPage />} />
-          <Route
-            path="/suggestions"
-            element={<PlaceholderPage titleKey="pages.suggestions.title" />}
-          />
+          <Route path="/suggestions" element={<SuggestionsPage />} />
           <Route
             path="/offres"
             element={<PlaceholderPage titleKey="pages.offers.title" />}
@@ -96,10 +93,8 @@ const AppRoutes = () => {
             path="/securite"
             element={<PlaceholderPage titleKey="pages.security.title" />}
           />
-          <Route
-            path="/ressources"
-            element={<PlaceholderPage titleKey="pages.resources.title" />}
-          />
+          <Route path="/ressources" element={<ResourcesPage />} />
+          <Route path="/ressources/external-services" element={<ResourcesPage />} />
           <Route
             path="/data-deletion"
             element={<PlaceholderPage titleKey="pages.dataDeletion.title" />}

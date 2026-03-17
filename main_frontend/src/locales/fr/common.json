@@ -99,7 +99,22 @@
       "empty": "Vous n'avez aucune facture correspondant à vos critères"
     },
     "paymentInfo": { "title": "Informations de paiement" },
-    "sepa": { "title": "Prélèvement SEPA" },
+    "sepa": {
+      "title": "Mandat SEPA",
+      "description": "Grâce au prélèvement SEPA, vous n'aurez plus à vous soucier du paiement de vos factures à temps. De plus, ce moyen de paiement est entièrement gratuit. Complétez simplement les informations ci-dessous, générez votre mandat et retournez-le signé par courrier ou e-mail : compta@rcube.lu ou compta@rcarre.com. Le document original doit être envoyé par vos soins à votre banque afin que celle-ci puisse enregistrer le mandat.",
+      "chooseCompany": "Choisissez la société :",
+      "iban": "Numéro de compte IBAN du débiteur",
+      "bic": "Le code BIC de la banque du débiteur",
+      "paymentType": "Type de paiement",
+      "paymentTypeRecurring": "Paiement récurrent/répétitif",
+      "paymentTypePunctual": "Paiement ponctuel",
+      "typeOfDebit": "Type de débit",
+      "typeDebitAll": "Toutes les factures",
+      "typeDebitRecurring": "Uniquement les factures récurrentes (1)",
+      "placeOfSignature": "Lieu de signature",
+      "footnote": "(1) Par récurrentes, nous entendons les factures liées à tous types de contrats et abonnements",
+      "generate": "GÉNÉRER LE MANDAT DE PRÉLÈVEMENT SEPA"
+    },
     "customerInfo": {
       "title": "Informations client",
       "tabs": {
@@ -198,9 +213,45 @@
     "contracts": { "title": "Contrats" },
     "kyc": { "title": "KYC" },
     "security": { "title": "Sécurité" },
-    "resources": { "title": "Ressources" },
+    "resources": {
+      "title": "Ressources",
+      "subtitle": "Bienvenue sur notre page de ressources externes. Vous trouverez ci-dessous une liste des ressources disponibles.",
+      "services": {
+        "dueDiligence": {
+          "title": "Due Diligence",
+          "description": "Veuillez noter que l'accès à ce service est soumis à une activation préalable. Une fois le service Due Diligence activé, vous pourrez bénéficier de toutes ses fonctionnalités et avantages."
+        },
+        "terms": {
+          "title": "Conditions générales",
+          "description": ""
+        },
+        "newsletter": {
+          "title": "Newsletters",
+          "description": ""
+        }
+      }
+    },
     "quickOrder": { "title": "Commande rapide" },
-    "suggestions": { "title": "Vos suggestions" },
+    "suggestions": {
+      "title": "Partagez vos retours et suggestions avec nous",
+      "subtitle": "Votre satisfaction est notre priorité. Partagez vos retours et suggestions afin que nous puissions améliorer votre expérience.",
+      "typePlaceholder": "Type de demande",
+      "subjectPlaceholder": "Sujet",
+      "messagePlaceholder": "Veuillez décrire votre suggestion ou problème en détail et partagez des exemples si vous en avez, pour nous aider à mieux comprendre.",
+      "send": "Envoyer",
+      "sending": "Envoi...",
+      "successTitle": "Merci !",
+      "successMessage": "Votre message a bien été reçu. Nous en tiendrons compte pour améliorer votre expérience.",
+      "sendAnother": "Envoyer un autre message",
+      "errorMessage": "Une erreur est survenue lors de l'envoi. Veuillez réessayer.",
+      "types": {
+        "improvement": "Suggestion d'amélioration",
+        "featureRequest": "Demande de nouvelle fonctionnalité",
+        "technicalIssue": "Problème technique",
+        "generalQuestion": "Question générale",
+        "other": "Autre"
+      }
+    },
     "dataDeletion": { "title": "Suppression des données" }
   },
   "home": {

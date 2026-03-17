@@ -145,7 +145,7 @@ const sections: Section[] = [
     labelKey: "dashboard.home.sections.administrative",
     links: [
       { id: "facturation", type: "internal", to: "/facturation" },
-      { id: "sepa", type: "internal", to: "/domiciliation-sepa" },
+      { id: "sepa", type: "internal", to: "/sepa" },
       { id: "information-client", type: "internal", to: "/information-client" },
       { id: "kyc", type: "internal", to: "/kyc" },
       { id: "reservation-salles", type: "internal", to: "/reservation-salles-bcp" },

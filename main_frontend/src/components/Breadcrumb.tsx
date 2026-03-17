@@ -12,7 +12,7 @@ const BREADCRUMB_MAP: Record<string, BreadcrumbItem[]> = {
   '/facturation':            [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'Invoices' }],
   '/payment-information':    [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'Payment Information' }],
   '/information-client':     [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'Customer Information' }],
-  '/domiciliation-sepa':     [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'SEPA Mandate' }],
+  '/sepa':     [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'SEPA Mandate' }],
   '/reservation-salles-bcp': [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'BCP Room Reservations' }],
   '/suggestions':            [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'Suggestions' }],
   '/data-deletion':          [{ label: 'Dashboard', href: '/dashboard' }, { label: 'Administrative' }, { label: 'Data Deletion' }],
