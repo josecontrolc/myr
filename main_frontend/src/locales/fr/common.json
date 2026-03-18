@@ -205,7 +205,7 @@
         "5": "Fermé"
       }
     },
-    "offers": { "title": "Offres" },
+    "offers": { "title": "Offres", "empty": "Vous n'avez aucune offre correspondant à vos critères" },
     "orders": {
       "title": "Commandes",
       "empty": "Vous n'avez aucune commande correspondant à vos critères"
@@ -345,6 +345,21 @@
     "billingLoad": "Un problème est survenu lors du chargement de vos factures"
   },
   "tickets": {
+    "newTicket": {
+      "button": "Nouveau ticket",
+      "title": "Nouveau ticket",
+      "subjectPlaceholder": "Sujet",
+      "descriptionPlaceholder": "Description",
+      "dropZone": "Glissez-déposez des fichiers ici ou cliquez pour télécharger",
+      "personsConcerned": "Personnes concernées",
+      "personsConcernedPlaceholder": "Noms des personnes concernées",
+      "personToContact": "Personne à contacter",
+      "emailPlaceholder": "Email",
+      "phonePlaceholder": "Numéro de téléphone",
+      "create": "Créer",
+      "creating": "Création...",
+      "errorNoContact": "Impossible d'identifier votre identifiant contact. Veuillez contacter le support."
+    },
     "columns": {
       "id": "ID",
       "label": "Libellé",
@@ -379,7 +394,77 @@
       "date": "Date de commande",
       "deliveryDate": "Date de livraison",
       "amount": "Montant",
+      "status": "Statut",
+      "articleDescription": "Article",
+      "qty": "Qté",
+      "unitPrice": "Prix unitaire"
+    },
+    "detail": {
+      "title": "Détail de la commande",
+      "back": "Retour aux commandes",
+      "notFound": "Commande introuvable. Veuillez retourner à la liste.",
+      "id": "ID",
+      "number": "Numéro",
+      "orderTitle": "Titre",
+      "issueDate": "Date d'émission",
+      "status": "Statut",
+      "financialSummary": "Résumé financier",
+      "singleTotal": "Total unique",
+      "monthlyTotal": "Total mensuel",
+      "annualTotal": "Total annuel",
+      "articlesList": "Liste des articles",
+      "articleId": "id",
+      "articleCode": "Code",
+      "articlePricingTerms": "Tarification",
+      "articleQty": "Quantité",
+      "articlePrice": "Prix",
+      "articleDescription": "Description"
+    },
+    "status": {
+      "RECU_EN_INTERNE": "Reçu en interne",
+      "EN_COURS": "En cours",
+      "LIVRE": "Livré",
+      "ANNULE": "Annulé",
+      "EN_ATTENTE": "En attente"
+    }
+  },
+  "offers": {
+    "columns": {
+      "reference": "Référence",
+      "description": "Description",
+      "date": "Date",
+      "amount": "Montant",
       "status": "Statut"
+    },
+    "detail": {
+      "title": "Détail de l'offre",
+      "back": "Retour aux offres",
+      "notFound": "Offre introuvable. Veuillez retourner à la liste.",
+      "id": "ID",
+      "number": "Numéro",
+      "offerTitle": "Titre",
+      "issueDate": "Date d'émission",
+      "status": "Statut",
+      "financialSummary": "Résumé financier",
+      "singleTotal": "Total unique",
+      "monthlyTotal": "Total mensuel",
+      "annualTotal": "Total annuel",
+      "articlesList": "Liste des articles",
+      "articleId": "ID",
+      "articleCode": "Code",
+      "articlePricingTerms": "Tarification",
+      "articleQty": "Quantité",
+      "articlePrice": "Prix",
+      "articleDescription": "Description"
+    },
+    "status": {
+      "RECU_EN_INTERNE": "Reçu en interne",
+      "EN_COURS": "En cours",
+      "ENVOYE": "Envoyée",
+      "ACCEPTE": "Acceptée",
+      "REFUSE": "Refusée",
+      "EN_ATTENTE": "En attente",
+      "COMMANDEE": "Commandée"
     }
   },
   "billing": {

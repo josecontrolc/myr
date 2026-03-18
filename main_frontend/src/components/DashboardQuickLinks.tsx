@@ -155,7 +155,7 @@ const sections: Section[] = [
   {
     labelKey: "dashboard.home.sections.sales",
     links: [
-      { id: "offres", type: "internal", to: "/offres", badge: "New", badgeVariant: "new" },
+      { id: "offres", type: "internal", to: "/offer", badge: "New", badgeVariant: "new" },
       { id: "commandes", type: "internal", to: "/commandes" },
       { id: "contrats", type: "internal", to: "/contrats" },
     ],

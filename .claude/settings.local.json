@@ -11,7 +11,10 @@
       "Bash(ls C:/Dev/myr/*.md C:/Dev/myr/README* C:/Dev/myr/.env.example)",
       "Bash(ls C:/Dev/myr/backend/*.md)",
       "Bash(ls C:/Dev/myr/main_frontend/*.md)",
-      "Bash(ls C:/Dev/myr/admin_frontend/*.md)"
+      "Bash(ls C:/Dev/myr/admin_frontend/*.md)",
+      "Bash(docker ps:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker exec:*)"
     ]
   }
 }

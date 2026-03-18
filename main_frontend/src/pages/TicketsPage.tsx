@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { useAuth } from "@shared/auth";
-import { getJson } from "../api/client";
+import { getJson, postJson } from "../api/client";
 import { useTickets } from "../features/tickets/hooks";
+import { createTicket } from "../features/tickets/api";
 import type { Ticket } from "../features/tickets/types";
 import Pagination from "../components/Pagination";
 import PageHeader from "../components/PageHeader";
@@ -22,13 +23,187 @@ const statusColors: Record<string, string> = {
   closed:      "bg-primary/10   text-textSecondary dark:bg-white/10 dark:text-white/60   border border-primary/20   dark:border-white/15",
 };
 
+// ─── New Ticket Modal ──────────────────────────────────────────────────────────
+
+interface NewTicketModalProps {
+  orgId: string;
+  jwtToken: string;
+  userEmail: string;
+  ticalContactId: number | null;
+  onClose: () => void;
+  onCreated: () => void;
+}
+
+const NewTicketModal = ({ orgId, jwtToken, userEmail, ticalContactId, onClose, onCreated }: NewTicketModalProps) => {
+  const { t } = useTranslation("common");
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const [title, setTitle]                       = useState("");
+  const [description, setDescription]           = useState("");
+  const [followupContacts, setFollowupContacts] = useState("");
+  const [dragOver, setDragOver]                 = useState(false);
+  const [submitting, setSubmitting]             = useState(false);
+  const [error, setError]                       = useState<string | null>(null);
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === overlayRef.current) onClose();
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    if (!ticalContactId) {
+      setError(t("tickets.newTicket.errorNoContact"));
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await createTicket(orgId, { ticalContactId, userEmail, title, description, followupContacts }, jwtToken);
+      onCreated();
+      onClose();
+    } catch (err: any) {
+      setError(err.message ?? t("errors.generic"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+      onClick={handleOverlayClick}
+    >
+      <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-border dark:border-border-dark">
+          <h2 className="text-lg font-bold text-textPrimary dark:text-textPrimary-dark">
+            {t("tickets.newTicket.title")}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-full text-textSecondary dark:text-textSecondary-dark hover:bg-border/50 dark:hover:bg-border-dark/50 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+
+          {/* Subject */}
+          <input
+            type="text"
+            className="input"
+            placeholder={t("tickets.newTicket.subjectPlaceholder")}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            autoFocus
+          />
+
+          {/* Description */}
+          <textarea
+            className="input resize-none"
+            rows={6}
+            placeholder={t("tickets.newTicket.descriptionPlaceholder")}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+
+          {/* File drop zone */}
+          <div
+            className={`rounded-lg border-2 border-dashed transition-colors py-6 flex flex-col items-center justify-center gap-1 cursor-pointer select-none ${
+              dragOver
+                ? "border-secondary bg-secondary/5"
+                : "border-border dark:border-border-dark hover:border-secondary/50 hover:bg-secondary/[0.03]"
+            }`}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); }}
+          >
+            <svg className="w-6 h-6 text-textSecondary dark:text-textSecondary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="text-xs text-textSecondary dark:text-textSecondary-dark">
+              {t("tickets.newTicket.dropZone")}
+            </span>
+          </div>
+
+          {/* Followup contacts */}
+          <div>
+            <label className="form-label text-xs">
+              {t("tickets.newTicket.personsConcerned")}
+            </label>
+            <input
+              type="text"
+              className="input"
+              placeholder={t("tickets.newTicket.personsConcernedPlaceholder")}
+              value={followupContacts}
+              onChange={(e) => setFollowupContacts(e.target.value)}
+            />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <p className="text-xs text-status-error dark:text-status-error-dark">{error}</p>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-outlined text-xs px-5 py-2"
+              disabled={submitting}
+            >
+              {t("actions.cancel")}
+            </button>
+            <button
+              type="submit"
+              className="btn-primary text-xs px-5 py-2 uppercase tracking-wider"
+              disabled={submitting || !title.trim()}
+            >
+              {submitting ? t("tickets.newTicket.creating") : t("tickets.newTicket.create")}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+interface SupplierContact {
+  contact: { id: string; email: string };
+}
+interface SupplierProxyResponse {
+  data: { supplier: { data: Array<{ contacts: SupplierContact[] }> } };
+}
+
 const TicketsPage = () => {
-  const { jwtToken, loading: authLoading, jwtLoading } = useAuth();
+  const { jwtToken, user, loading: authLoading, jwtLoading } = useAuth();
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [orgId, setOrgId] = useState<string | null>(null);
   const [orgError, setOrgError] = useState<string | null>(null);
+  const [showNewTicket, setShowNewTicket] = useState(false);
+  const [ticalContactId, setTicalContactId] = useState<number | null>(null);
 
   const todayISO = new Date().toISOString().split("T")[0];
 
@@ -57,7 +232,24 @@ const TicketsPage = () => {
           return;
         }
 
-        setOrgId(organizations[0].id);
+        const resolvedOrgId = organizations[0].id;
+        setOrgId(resolvedOrgId);
+
+        // Resolve the tical contact ID by matching user email against supplier contacts
+        try {
+          const supplierResp = await postJson<Record<string, never>, SupplierProxyResponse>(
+            `/orgs/${resolvedOrgId}/proxy/supplier`,
+            {},
+            { Authorization: `Bearer ${jwtToken}` },
+          );
+          const contacts = supplierResp.data?.supplier?.data?.[0]?.contacts ?? [];
+          const match = contacts.find(
+            (c) => c.contact.email?.toLowerCase() === user?.email?.toLowerCase()
+          );
+          if (match) setTicalContactId(Number(match.contact.id));
+        } catch {
+          // Non-critical — modal will show error if ticalContactId is null when submitting
+        }
       } catch (err: any) {
         const status =
           typeof err === "object" && err && "statusCode" in err
@@ -94,11 +286,11 @@ const TicketsPage = () => {
         search === "" ||
         (ticket.name || "").toLowerCase().includes(search.toLowerCase()) ||
         String(ticket.id).includes(search);
-      
+
       const matchesStatus =
         status === "" ||
         (ticket.status || "").toLowerCase() === status.toLowerCase();
-      
+
       const ticketDate = ticket.date ? new Date(ticket.date) : null;
       let matchesDateFrom = true;
       if (dateFrom && ticketDate) {
@@ -106,7 +298,7 @@ const TicketsPage = () => {
         fromDate.setHours(0, 0, 0, 0);
         matchesDateFrom = ticketDate >= fromDate;
       }
-      
+
       let matchesDateTo = true;
       if (dateTo && ticketDate) {
         const toDate = new Date(dateTo);
@@ -145,8 +337,6 @@ const TicketsPage = () => {
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Column widths
     worksheet["!cols"] = [
       { wch: 10 },
       { wch: 60 },
@@ -200,30 +390,52 @@ const TicketsPage = () => {
           onDateFromChange={setDateFrom}
           dateTo={dateTo}
           onDateToChange={setDateTo}
-          isRefetching={isRefetching}
-          onRefetch={refetch}
           disabled={!!orgError}
           extraRight={
-            !isLoading && !isError && filteredTickets.length > 0 ? (
+            <div className="flex items-center gap-1.5">
+              {/* Export */}
               <button
                 type="button"
                 onClick={exportToXlsx}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded border border-border dark:border-border-dark text-textSecondary dark:text-textSecondary-dark hover:border-green-500/60 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-500/5 transition-colors shrink-0"
-                title="Export to Excel"
+                disabled={isLoading || isError || filteredTickets.length === 0}
+                title={t("actions.export")}
+                className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark text-textSecondary dark:text-textSecondary-dark hover:border-secondary/50 hover:text-secondary hover:bg-secondary/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                {t("actions.export", "Export")}
               </button>
-            ) : undefined
+
+              {/* New ticket */}
+              <button
+                type="button"
+                onClick={() => setShowNewTicket(true)}
+                title={t("tickets.newTicket.button")}
+                className="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-secondary dark:bg-pink text-white hover:opacity-90 transition-opacity"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+
+              {/* Refresh */}
+              <button
+                type="button"
+                disabled={isRefetching}
+                title={t("actions.refresh")}
+                onClick={refetch}
+                className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-border dark:border-border-dark bg-surface dark:bg-surface-dark text-textSecondary dark:text-textSecondary-dark hover:border-secondary/50 hover:text-secondary hover:bg-secondary/5 disabled:opacity-50 transition-colors"
+              >
+                <svg className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
           }
         />
 
         {/* Tickets table section */}
         <section className="space-y-4">
-          <div className="hidden">{/* section header removed - merged into page header above */}</div>
-
           <div className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark card--square-tl shadow-sm overflow-hidden">
             {isLoading && (
               <div className="py-16 text-center text-textSecondary dark:text-textSecondary-dark text-sm">
@@ -295,14 +507,7 @@ const TicketsPage = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-textSecondary dark:text-textSecondary-dark whitespace-nowrap">
-                          {ticket.date ? (() => {
-                            const d = new Date(ticket.date);
-                            if (Number.isNaN(d.getTime())) return ticket.date;
-                            const day = String(d.getDate()).padStart(2, "0");
-                            const month = String(d.getMonth() + 1).padStart(2, "0");
-                            const year = d.getFullYear();
-                            return `${day}/${month}/${year}`;
-                          })() : "—"}
+                          {formatDateCell(ticket.date) || "—"}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-tight ${statusColors[ticket.status ?? ""] ?? "bg-primary/10 text-textSecondary border border-primary/20"}`}>
@@ -310,14 +515,7 @@ const TicketsPage = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-textSecondary dark:text-textSecondary-dark whitespace-nowrap">
-                          {ticket.solvedate ? (() => {
-                            const d = new Date(ticket.solvedate);
-                            if (Number.isNaN(d.getTime())) return ticket.solvedate;
-                            const day = String(d.getDate()).padStart(2, "0");
-                            const month = String(d.getMonth() + 1).padStart(2, "0");
-                            const year = d.getFullYear();
-                            return `${day}/${month}/${year}`;
-                          })() : "—"}
+                          {formatDateCell(ticket.solvedate) || "—"}
                         </td>
                       </tr>
                     ))}
@@ -340,6 +538,18 @@ const TicketsPage = () => {
         )}
 
       </div>
+
+      {/* New Ticket Modal */}
+      {showNewTicket && orgId && jwtToken && (
+        <NewTicketModal
+          orgId={orgId}
+          jwtToken={jwtToken}
+          userEmail={user?.email ?? ""}
+          ticalContactId={ticalContactId}
+          onClose={() => setShowNewTicket(false)}
+          onCreated={() => { refetch(); }}
+        />
+      )}
     </div>
   );
 };

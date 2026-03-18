@@ -205,7 +205,7 @@
         "5": "Closed"
       }
     },
-    "offers": { "title": "Offers" },
+    "offers": { "title": "Offers", "empty": "You do not have any offers matching your criteria" },
     "orders": {
       "title": "Orders",
       "empty": "You do not have any orders matching your criteria"
@@ -345,6 +345,21 @@
     "billingLoad": "There was a problem loading your invoices"
   },
   "tickets": {
+    "newTicket": {
+      "button": "New ticket",
+      "title": "New ticket",
+      "subjectPlaceholder": "Subject",
+      "descriptionPlaceholder": "Description",
+      "dropZone": "Drag and drop files here or click to upload",
+      "personsConcerned": "Persons concerned",
+      "personsConcernedPlaceholder": "Names of persons concerned",
+      "personToContact": "Person to contact",
+      "emailPlaceholder": "Email",
+      "phonePlaceholder": "Phone number",
+      "create": "Create",
+      "creating": "Creating...",
+      "errorNoContact": "Could not identify your contact ID. Please contact support."
+    },
     "columns": {
       "id": "ID",
       "label": "Label",
@@ -379,7 +394,77 @@
       "date": "Order Date",
       "deliveryDate": "Delivery Date",
       "amount": "Amount",
+      "status": "Status",
+      "articleDescription": "Article",
+      "qty": "Qty",
+      "unitPrice": "Unit price"
+    },
+    "detail": {
+      "title": "Order details",
+      "back": "Back to orders",
+      "notFound": "Order not found. Please go back to the list.",
+      "id": "ID",
+      "number": "Number",
+      "orderTitle": "Title",
+      "issueDate": "Issue Date",
+      "status": "Status",
+      "financialSummary": "Financial summary",
+      "singleTotal": "Single total",
+      "monthlyTotal": "Monthly Total",
+      "annualTotal": "Annual Total",
+      "articlesList": "Lists of articles",
+      "articleId": "id",
+      "articleCode": "Code",
+      "articlePricingTerms": "Pricing terms",
+      "articleQty": "Quantity",
+      "articlePrice": "Price",
+      "articleDescription": "Description"
+    },
+    "status": {
+      "RECU_EN_INTERNE": "Received internally",
+      "EN_COURS": "In progress",
+      "LIVRE": "Delivered",
+      "ANNULE": "Cancelled",
+      "EN_ATTENTE": "Pending"
+    }
+  },
+  "offers": {
+    "columns": {
+      "reference": "Reference",
+      "description": "Description",
+      "date": "Date",
+      "amount": "Amount",
       "status": "Status"
+    },
+    "detail": {
+      "title": "Offer details",
+      "back": "Back to offers",
+      "notFound": "Offer not found. Please go back to the list.",
+      "id": "ID",
+      "number": "Number",
+      "offerTitle": "Title",
+      "issueDate": "Issue Date",
+      "status": "Status",
+      "financialSummary": "Financial summary",
+      "singleTotal": "Single total",
+      "monthlyTotal": "Monthly Total",
+      "annualTotal": "Annual Total",
+      "articlesList": "Lists of articles",
+      "articleId": "ID",
+      "articleCode": "Code",
+      "articlePricingTerms": "Pricing terms",
+      "articleQty": "Quantity",
+      "articlePrice": "Price",
+      "articleDescription": "Description"
+    },
+    "status": {
+      "RECU_EN_INTERNE": "Received internally",
+      "EN_COURS": "In progress",
+      "ENVOYE": "Sent",
+      "ACCEPTE": "Accepted",
+      "REFUSE": "Refused",
+      "EN_ATTENTE": "Pending",
+      "COMMANDEE": "Ordered"
     }
   },
   "billing": {

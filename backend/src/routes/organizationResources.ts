@@ -383,6 +383,83 @@ router.post(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
+// POST /api/orgs/:orgId/proxy/tickets/create
+// Proxies a REST request to open a new ticket on the external system.
+// Minimum role: VIEWER
+// ─────────────────────────────────────────────────────────────────────────────
+router.post(
+  '/:orgId/proxy/tickets/create',
+  checkOrganizationAccess(MemberRole.VIEWER),
+  async (req: Request, res: Response) => {
+    try {
+      const { orgId } = req.params;
+      const {
+        ticalContactId,
+        userEmail,
+        title,
+        description,
+        followupContacts,
+      } = req.body as {
+        ticalContactId: number;
+        userEmail: string;
+        title?: string;
+        description?: string;
+        followupContacts?: string;
+      };
+
+      if (!title || !title.trim()) {
+        res.status(400).json({ error: 'Ticket title is required' });
+        return;
+      }
+      if (!ticalContactId) {
+        res.status(400).json({ error: 'ticalContactId is required' });
+        return;
+      }
+
+      const org = await prisma.organization.findUnique({ where: { id: orgId } });
+      if (!org) { res.status(404).json({ error: 'Organization not found' }); return; }
+      if (!org.externalReferenceId) { res.status(403).json({ error: 'Organization has no linked supplier' }); return; }
+
+      const payload = {
+        app: 'myr',
+        requester_type: 'Tical\\Contact',
+        requester_id: ticalContactId,
+        customer_id: parseInt(org.externalReferenceId, 10),
+        content: {
+          op: 'create',
+          entity_type: 'Tical\\Ticket',
+          attributes: {
+            user_email: userEmail,
+            title: title.trim(),
+            description: description?.trim() ?? '',
+            followup_contacts: followupContacts ?? '',
+          },
+        },
+      };
+
+      const data = await proxyRestPostJson('/api/ticket/add', payload);
+
+      await createAuditLog(
+        'TICKET_CREATED',
+        req.user!.userId,
+        { orgId, externalReferenceId: org.externalReferenceId, ticketTitle: title.trim(), ticalContactId },
+        orgId,
+      );
+
+      res.status(201).json(data);
+    } catch (error: any) {
+      console.error('Proxy ticket create failed:', error);
+      const remoteStatus = error.response?.status;
+      res.status(remoteStatus ? 502 : 500).json({
+        error: 'Failed to create ticket',
+        details: error.response?.data || error.message,
+        remoteStatus,
+      });
+    }
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // POST /api/orgs/:orgId/proxy/interventions
 // Proxies a GraphQL request for upcoming interventions scoped to this org's client.
 // Minimum role: VIEWER
@@ -472,7 +549,7 @@ router.get(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/orgs/:orgId/proxy/orders
-// Proxies a REST POST request for the order list.
+// Proxies to /api/command/list?clientId=X with the ticket GraphQL query in the body.
 // Minimum role: VIEWER
 // ─────────────────────────────────────────────────────────────────────────────
 router.post(
@@ -509,12 +586,12 @@ router.post(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/orgs/:orgId/proxy/offers
+// POST /api/orgs/:orgId/proxy/offer
 // Proxies a REST POST request for the offer list scoped to this org's client.
 // Minimum role: VIEWER
 // ─────────────────────────────────────────────────────────────────────────────
 router.post(
-  '/:orgId/proxy/offers',
+  '/:orgId/proxy/offer',
   checkOrganizationAccess(MemberRole.VIEWER),
   async (req: Request, res: Response) => {
     try {
@@ -525,6 +602,7 @@ router.post(
       if (!org.externalReferenceId) { res.status(403).json({ error: 'Organization has no linked supplier' }); return; }
 
       const data = await proxyRestPost('/api/offer/list', { clientId: org.externalReferenceId });
+      console.log('[offer] clientId:', org.externalReferenceId, '| response:', JSON.stringify(data).slice(0, 300));
 
       await createAuditLog(
         'PROXY_API_CALL',

@@ -2,39 +2,37 @@ import { useQuery } from "@tanstack/react-query";
 import { postJson } from "../../api/client";
 import { useAuth } from "@shared/auth";
 
-export type OrderItem = {
+export interface OrderArticle {
+  article_id: number;
+  code_article: string;
+  mode_tarif: string;
+  quantity: number;
+  hide_price: number;
+  prix_vente: number;
+  description_courte: string;
+}
+
+export interface OrderItem {
   id: number | string;
-  reference: string | null;
-  date: string | null;
-  delivery_date: string | null;
-  description: string | null;
+  command_num: string | null;
+  title: string | null;
   status: string | null;
-  amount: string | null;
-};
+  date_emission: string | null;
+  amount: Array<{ fixedPrice?: number; monthlyPrice?: number; annualPrice?: number }>;
+  articles: OrderArticle[];
+}
 
 export const orderQueryKeys = {
   all: ["orders"] as const,
-  client: (orgId: string | number) => ["orders", "client", orgId] as const,
+  client: (orgId: string) => ["orders", "client", orgId] as const,
 };
 
-function extractRows(raw: unknown): OrderItem[] {
-  if (Array.isArray(raw)) return raw as OrderItem[];
-  if (raw && typeof raw === "object") {
-    const obj = raw as Record<string, unknown>;
-    console.log("[useOrders] raw response wrapper keys:", Object.keys(obj));
-    for (const key of ["data", "commands", "orders", "items", "list", "documents"]) {
-      if (Array.isArray(obj[key])) {
-        const rows = obj[key] as OrderItem[];
-        if (rows.length > 0) {
-          console.log("[useOrders] first row fields:", Object.keys(rows[0] as object));
-          console.log("[useOrders] first row data:", rows[0]);
-        }
-        return rows;
-      }
-    }
-    console.log("[useOrders] no array found under known keys, full response:", raw);
-  }
-  return [];
+function extractOrders(raw: unknown): OrderItem[] {
+  if (!raw || typeof raw !== "object") return [];
+  const obj = raw as Record<string, unknown>;
+  const data = obj["data"];
+  if (!data || typeof data !== "object" || Array.isArray(data)) return [];
+  return Object.values(data as Record<string, unknown>) as OrderItem[];
 }
 
 export function useOrders(orgId: string | null) {
@@ -52,7 +50,7 @@ export function useOrders(orgId: string | null) {
         {},
         { Authorization: `Bearer ${jwtToken}` },
       );
-      return extractRows(raw);
+      return extractOrders(raw);
     },
   });
 }

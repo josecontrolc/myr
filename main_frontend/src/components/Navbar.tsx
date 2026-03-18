@@ -40,7 +40,7 @@ const primaryNavItems: PrimaryNavItem[] = [
   {
     label: "Sales",
     submenu: [
-      { label: "Offers", to: "/offres" },
+      { label: "Offers", to: "/offer" },
       { label: "Orders", to: "/commandes" },
     ],
   },

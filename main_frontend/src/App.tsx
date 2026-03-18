@@ -23,6 +23,8 @@ import ResourcesPage from "./pages/ResourcesPage";
 import SuggestionsPage from "./pages/SuggestionsPage";
 import OffresPage from "./pages/OffresPage";
 import TicketDetailPage from "./pages/TicketDetailPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
+import OfferDetailPage from "./pages/OfferDetailPage";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
 const AppRoutes = () => {
@@ -79,8 +81,10 @@ const AppRoutes = () => {
           />
           <Route path="/reservation-salles-bcp" element={<BcpRoomsPage />} />
           <Route path="/suggestions" element={<SuggestionsPage />} />
-          <Route path="/offres" element={<OffresPage />} />
+          <Route path="/offer" element={<OffresPage />} />
+          <Route path="/offer/:offerId" element={<OfferDetailPage />} />
           <Route path="/commandes" element={<OrdersPage />} />
+          <Route path="/commandes/:orderId" element={<OrderDetailPage />} />
           <Route
             path="/contrats"
             element={<PlaceholderPage titleKey="pages.contracts.title" />}
