@@ -57,10 +57,12 @@ const adminRateLimit = rateLimit({
 });
 
 // ─── Swagger UI (gated in production) ─────────────────────────────────────────
+const swaggerHandlers = [swaggerUi.serve, swaggerUi.setup(swaggerSpec)] as const;
 if (process.env.NODE_ENV === 'production') {
-  app.use('/api/docs', adminAuth);
+  app.use('/api/docs', adminAuth, ...swaggerHandlers);
+} else {
+  app.use('/api/docs', ...swaggerHandlers);
 }
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 /**
  * @swagger

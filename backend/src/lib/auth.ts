@@ -5,6 +5,11 @@ import { twoFactor } from 'better-auth/plugins';
 import prisma from './prisma';
 import { createAuditLog } from '../middleware/auditLog';
 
+const requiredEnvVars = ['BETTER_AUTH_SECRET', 'JWT_SECRET', 'DATABASE_URL'];
+for (const v of requiredEnvVars) {
+  if (!process.env[v]) throw new Error(`Missing required env var: ${v}`);
+}
+
 const trustedOriginsEnv = process.env.TRUSTED_ORIGINS;
 const trustedOrigins = [
   process.env.BETTER_AUTH_URL || 'http://localhost:3000',
@@ -27,7 +32,7 @@ export const auth = betterAuth({
     autoSignIn: true
   },
   appName: 'DMZ Secure App',
-  secret: process.env.BETTER_AUTH_SECRET || 'default_secret_change_in_production',
+  secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   trustedOrigins,
   advanced: {

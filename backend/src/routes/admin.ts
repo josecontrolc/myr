@@ -166,22 +166,24 @@ router.patch('/settings/:key', async (req: Request, res: Response) => {
 router.get('/database', async (req: Request, res: Response) => {
   try {
     const { table } = req.query;
+    const limit = Math.min(500, Math.max(1, parseInt(req.query.limit as string) || 100));
+    const skip = Math.max(0, parseInt(req.query.skip as string) || 0);
 
     const SENSITIVE_FIELDS = new Set([
       'password', 'secret', 'backupCodes', 'accessToken',
       'refreshToken', 'idToken', 'token'
     ]);
 
-    const redactSensitive = (record: Record<string, any>): Record<string, any> => {
-      const result: Record<string, any> = {};
+    const redactSensitive = (record: Record<string, unknown>): Record<string, unknown> => {
+      const result: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(record)) {
         if (SENSITIVE_FIELDS.has(key)) {
           result[key] = value !== null ? '[REDACTED]' : null;
         } else if (value !== null && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
-          result[key] = redactSensitive(value as Record<string, any>);
+          result[key] = redactSensitive(value as Record<string, unknown>);
         } else if (Array.isArray(value)) {
-          result[key] = value.map((item: any) =>
-            typeof item === 'object' && item !== null ? redactSensitive(item) : item
+          result[key] = value.map((item: unknown) =>
+            typeof item === 'object' && item !== null ? redactSensitive(item as Record<string, unknown>) : item
           );
         } else {
           result[key] = value;
@@ -191,7 +193,7 @@ router.get('/database', async (req: Request, res: Response) => {
     };
 
     if (table && typeof table === 'string') {
-      let data: any[] = [];
+      let data: Record<string, unknown>[] = [];
 
       switch (table) {
         case 'users':
@@ -218,17 +220,22 @@ router.get('/database', async (req: Request, res: Response) => {
           break;
         case 'system_settings':
           data = await prisma.systemSettings.findMany({
-            orderBy: { settingKey: 'asc' }
+            orderBy: { settingKey: 'asc' },
+            take: limit,
+            skip,
           });
           break;
         case 'two_factor':
           data = await prisma.twoFactor.findMany({
-            include: { user: { select: { id: true, email: true, name: true } } }
+            include: { user: { select: { id: true, email: true, name: true } } },
+            take: limit,
+            skip,
           });
           break;
         case 'audit_logs':
           data = await prisma.auditLog.findMany({
-            take: 1000,
+            take: limit,
+            skip,
             orderBy: { timestamp: 'desc' }
           });
           break;

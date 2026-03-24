@@ -248,6 +248,60 @@ function incrementEmailOtpRateLimit(email: string): void {
   }
 }
 
+// In-memory rate limit for password reset requests (by email): max 3 per 15 minutes
+const passwordResetRequestCount = new Map<string, { count: number; resetAt: number }>();
+const PASSWORD_RESET_REQUEST_WINDOW_MS = 15 * 60 * 1000;
+const PASSWORD_RESET_REQUEST_MAX = 3;
+
+function checkPasswordResetRequestRateLimit(email: string): boolean {
+  const now = Date.now();
+  const key = email.toLowerCase();
+  const entry = passwordResetRequestCount.get(key);
+  if (!entry) return true;
+  if (now >= entry.resetAt) {
+    passwordResetRequestCount.delete(key);
+    return true;
+  }
+  return entry.count < PASSWORD_RESET_REQUEST_MAX;
+}
+
+function incrementPasswordResetRequestRateLimit(email: string): void {
+  const key = email.toLowerCase();
+  const now = Date.now();
+  const entry = passwordResetRequestCount.get(key);
+  if (!entry || now >= entry.resetAt) {
+    passwordResetRequestCount.set(key, { count: 1, resetAt: now + PASSWORD_RESET_REQUEST_WINDOW_MS });
+  } else {
+    entry.count += 1;
+  }
+}
+
+// In-memory rate limit for password reset consumption (by token): max 5 per 15 minutes
+const passwordResetTokenCount = new Map<string, { count: number; resetAt: number }>();
+const PASSWORD_RESET_TOKEN_WINDOW_MS = 15 * 60 * 1000;
+const PASSWORD_RESET_TOKEN_MAX = 5;
+
+function checkPasswordResetTokenRateLimit(token: string): boolean {
+  const now = Date.now();
+  const entry = passwordResetTokenCount.get(token);
+  if (!entry) return true;
+  if (now >= entry.resetAt) {
+    passwordResetTokenCount.delete(token);
+    return true;
+  }
+  return entry.count < PASSWORD_RESET_TOKEN_MAX;
+}
+
+function incrementPasswordResetTokenRateLimit(token: string): void {
+  const now = Date.now();
+  const entry = passwordResetTokenCount.get(token);
+  if (!entry || now >= entry.resetAt) {
+    passwordResetTokenCount.set(token, { count: 1, resetAt: now + PASSWORD_RESET_TOKEN_WINDOW_MS });
+  } else {
+    entry.count += 1;
+  }
+}
+
 /**
  * @swagger
  * /api/auth/request-email-otp:
@@ -471,6 +525,12 @@ router.post('/request-password-reset', async (req: Request, res: Response): Prom
     return;
   }
 
+  if (!checkPasswordResetRequestRateLimit(email)) {
+    res.status(429).json({ error: 'Too many password reset requests, please try again later' });
+    return;
+  }
+  incrementPasswordResetRequestRateLimit(email);
+
   try {
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -536,6 +596,12 @@ router.post('/reset-password', async (req: Request, res: Response): Promise<void
     return;
   }
 
+  if (!checkPasswordResetTokenRateLimit(token)) {
+    res.status(429).json({ error: 'Too many attempts, please try again later' });
+    return;
+  }
+  incrementPasswordResetTokenRateLimit(token);
+
   if (password.length < 8) {
     res.status(400).json({ error: 'Password must have at least eight characters' });
     return;
@@ -576,6 +642,9 @@ router.post('/reset-password', async (req: Request, res: Response): Promise<void
     });
 
     await prisma.verification.delete({ where: { id: verification.id } });
+
+    // Invalidate all existing sessions so tokens derived from old sessions stop working.
+    await prisma.session.deleteMany({ where: { userId } });
 
     res.json({ ok: true });
   } catch (error) {

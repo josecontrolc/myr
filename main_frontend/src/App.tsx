@@ -28,6 +28,7 @@ import OrderDetailPage from "./pages/OrderDetailPage";
 import OfferDetailPage from "./pages/OfferDetailPage";
 import ServicesPage from "./pages/ServicesPage";
 import KycPage from "./pages/KycPage";
+import MessagesPage from "./pages/MessagesPage";
 import DataDeletionPage from "./pages/DataDeletionPage";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
@@ -91,6 +92,7 @@ const AppRoutes = () => {
           <Route path="/commandes/:orderId" element={<OrderDetailPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/kyc" element={<KycPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
           <Route
             path="/securite"
             element={<PlaceholderPage titleKey="pages.security.title" />}

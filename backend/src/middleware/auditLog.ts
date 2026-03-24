@@ -16,6 +16,7 @@ export const createAuditLog = async (
         action,
         userId,
         organizationId: organizationId ?? null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         details: details as any,
         timestamp: new Date(),
       },

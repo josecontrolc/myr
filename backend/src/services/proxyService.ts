@@ -1,3 +1,16 @@
+export interface ProxyError extends Error {
+  response?: {
+    status: number;
+    data: unknown;
+  };
+}
+
+function makeProxyError(message: string, status: number, data: unknown): ProxyError {
+  const error: ProxyError = new Error(message);
+  error.response = { status, data };
+  return error;
+}
+
 export async function proxyRestPost(path: string, queryParams?: Record<string, string>): Promise<unknown> {
   const apiUrl = process.env.DECOMPTE_API_BASE;
   const apiKey = process.env.DECOMPTE_API_KEY;
@@ -18,12 +31,11 @@ export async function proxyRestPost(path: string, queryParams?: Record<string, s
 
   const text = await response.text();
   if (!response.ok) {
-    const error: any = new Error('Proxy REST request failed');
-    error.response = {
-      status: response.status,
-      data: text.startsWith('{') || text.startsWith('[') ? JSON.parse(text) : { message: text },
-    };
-    throw error;
+    throw makeProxyError(
+      'Proxy REST request failed',
+      response.status,
+      text.startsWith('{') || text.startsWith('[') ? JSON.parse(text) : { message: text },
+    );
   }
   return JSON.parse(text);
 }
@@ -52,12 +64,11 @@ export async function proxyRestPostJson(path: string, body: unknown): Promise<un
 
   const text = await response.text();
   if (!response.ok) {
-    const error: any = new Error('Proxy REST JSON request failed');
-    error.response = {
-      status: response.status,
-      data: text.startsWith('{') || text.startsWith('[') ? JSON.parse(text) : { message: text },
-    };
-    throw error;
+    throw makeProxyError(
+      'Proxy REST JSON request failed',
+      response.status,
+      text.startsWith('{') || text.startsWith('[') ? JSON.parse(text) : { message: text },
+    );
   }
   return JSON.parse(text);
 }
@@ -81,23 +92,16 @@ export async function proxyRestGet(path: string): Promise<unknown> {
 
   const text = await response.text();
   if (!response.ok) {
-    const error: any = new Error('Proxy REST request failed');
-    error.response = {
-      status: response.status,
-      data: text.startsWith('{') || text.startsWith('[') ? JSON.parse(text) : { message: text },
-    };
-    throw error;
+    throw makeProxyError(
+      'Proxy REST request failed',
+      response.status,
+      text.startsWith('{') || text.startsWith('[') ? JSON.parse(text) : { message: text },
+    );
   }
   return JSON.parse(text);
 }
 
-/**
- * Proxies a GraphQL query to the internal API using credentials from environment variables.
- *
- * @param query The GraphQL query string to execute.
- * @returns The response data from the internal API.
- */
-export async function proxyGraphQL(query: string): Promise<any> {
+export async function proxyGraphQL(query: string): Promise<unknown> {
   const apiUrl = process.env.DECOMPTE_API_BASE;
   const apiKey = process.env.DECOMPTE_API_KEY;
   const apiToken = process.env.DECOMPTE_API_BEARER;
@@ -128,20 +132,20 @@ export async function proxyGraphQL(query: string): Promise<any> {
         statusText: response.statusText,
         body: text
       });
-      
-      // Create a fake Axios-like error object so the route handler can extract status/data
-      const error: any = new Error('Proxy request failed');
-      error.response = {
-        status: response.status,
-        data: text.startsWith('{') ? JSON.parse(text) : { message: text }
-      };
-      throw error;
+
+      // Create a typed error so route handlers can extract status/data
+      throw makeProxyError(
+        'Proxy request failed',
+        response.status,
+        text.startsWith('{') ? JSON.parse(text) : { message: text },
+      );
     }
 
     return JSON.parse(text);
-  } catch (error: any) {
-    if (!error.response) {
-      console.error('Error during internal API proxy call:', error.message);
+  } catch (error: unknown) {
+    const e = error as ProxyError;
+    if (!e.response) {
+      console.error('Error during internal API proxy call:', e.message);
     }
     throw error;
   }

@@ -12,14 +12,31 @@
  */
 
 import express, { Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import prisma from '../lib/prisma';
 import { MemberRole } from '@prisma/client';
 import { checkOrganizationAccess } from '../middleware/auth';
 import { createAuditLog } from '../middleware/auditLog';
-import { proxyGraphQL, proxyRestGet, proxyRestPost, proxyRestPostJson } from '../services/proxyService';
+import { proxyGraphQL, proxyRestGet, proxyRestPost, proxyRestPostJson, ProxyError } from '../services/proxyService';
 import { buildSupplierQuery, buildTicketsQuery, buildInterventionsQuery, validateSupplierId } from '../services/decompteQueries';
 
 const router = express.Router();
+
+function asProxyError(error: unknown): ProxyError {
+  return error as ProxyError;
+}
+
+// Per-org rate limiter for external proxy calls: max 60 requests per minute per org.
+const orgProxyLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.params.orgId ?? req.ip ?? 'unknown',
+  message: { error: 'Too many proxy requests for this organization, please try again later' },
+});
+
+router.use('/:orgId/proxy', orgProxyLimiter);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/orgs/mine
@@ -172,8 +189,14 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const { orgId } = req.params;
-      const page  = Math.max(1, parseInt(req.query.page  as string) || 1);
-      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+      const rawPage  = parseInt(req.query.page  as string) || 1;
+      const rawLimit = parseInt(req.query.limit as string) || 20;
+      if (rawPage < 1 || rawLimit < 1 || rawLimit > 100) {
+        res.status(400).json({ error: 'Invalid pagination params: page >= 1, limit 1-100' });
+        return;
+      }
+      const page  = rawPage;
+      const limit = rawLimit;
       const skip  = (page - 1) * limit;
 
       const [data, total] = await Promise.all([
@@ -279,15 +302,16 @@ router.post(
       );
 
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy request failed:', error);
       // Use 502 for remote API failures so the frontend does not mistake them
       // for the user's own auth errors (401/403).
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       const httpStatus = remoteStatus ? 502 : 500;
       res.status(httpStatus).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -369,13 +393,14 @@ router.post(
 
       const ticket = externalJson.data?.ticket ?? null;
       res.json({ ticket });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       const httpStatus = remoteStatus ? 502 : 500;
       res.status(httpStatus).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -447,12 +472,13 @@ router.post(
       );
 
       res.status(201).json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy ticket create failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Failed to create ticket',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -497,12 +523,13 @@ router.post(
 
       const intervention = externalJson.data?.ticalIntervention ?? null;
       res.json({ intervention });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy interventions request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -535,12 +562,13 @@ router.get(
       );
 
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy factures request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -573,12 +601,13 @@ router.post(
       );
 
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy orders request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -611,12 +640,13 @@ router.post(
       );
 
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy offers request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -649,12 +679,13 @@ router.post(
       );
 
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy services request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -688,12 +719,13 @@ router.post(
       );
 
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy KYC request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -714,8 +746,10 @@ router.get(
 
       const org = await prisma.organization.findUnique({ where: { id: orgId } });
       if (!org) { res.status(404).json({ error: 'Organization not found' }); return; }
+      if (!org.externalReferenceId) { res.status(403).json({ error: 'Organization has no linked supplier' }); return; }
 
-      const bookings = await proxyRestPost('/api/bcp/roombooking/list');
+      const supplierId = validateSupplierId(org.externalReferenceId);
+      const bookings = await proxyRestPostJson('/api/bcp/roombooking/list', { customerId: supplierId });
 
       await createAuditLog(
         'PROXY_API_CALL',
@@ -725,12 +759,13 @@ router.get(
       );
 
       res.json(bookings);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy BCP bookings request failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Proxy request failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }
@@ -827,12 +862,58 @@ router.put(
       );
 
       res.json({ success: true, requestCount, results });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Supplier update proxy failed:', error);
-      const remoteStatus = error.response?.status;
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
       res.status(remoteStatus ? 502 : 500).json({
         error: 'Supplier update proxy failed',
-        details: error.response?.data || error.message,
+        details: proxyErr.response?.data ?? proxyErr.message,
+        remoteStatus,
+      });
+    }
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/orgs/:orgId/proxy/messages
+// Proxies a REST request for portal messages scoped to this org's customer.
+// Minimum role: VIEWER
+// ─────────────────────────────────────────────────────────────────────────────
+router.post(
+  '/:orgId/proxy/messages',
+  checkOrganizationAccess(MemberRole.VIEWER),
+  async (req: Request, res: Response) => {
+    try {
+      const { orgId } = req.params;
+
+      const org = await prisma.organization.findUnique({ where: { id: orgId } });
+      if (!org) { res.status(404).json({ error: 'Organization not found' }); return; }
+      if (!org.externalReferenceId) { res.status(403).json({ error: 'Organization has no linked supplier' }); return; }
+
+      const customerId = validateSupplierId(org.externalReferenceId);
+      const env = process.env.DECOMPTE_ENV ?? 'test';
+
+      const data = await proxyRestPost(
+        '/api/myrportal/messages',
+        { cusomer_id: String(customerId), env },
+      );
+
+      await createAuditLog(
+        'PROXY_API_CALL',
+        req.user!.userId,
+        { orgId, externalReferenceId: org.externalReferenceId, endpoint: 'messages' },
+        orgId,
+      );
+
+      res.json(data);
+    } catch (error: unknown) {
+      console.error('Proxy messages request failed:', error);
+      const proxyErr = asProxyError(error);
+      const remoteStatus = proxyErr.response?.status;
+      res.status(remoteStatus ? 502 : 500).json({
+        error: 'Proxy request failed',
+        details: proxyErr.response?.data ?? proxyErr.message,
         remoteStatus,
       });
     }

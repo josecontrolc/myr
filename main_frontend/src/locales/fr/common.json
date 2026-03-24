@@ -213,6 +213,7 @@
     "contracts": { "title": "Contrats" },
     "services": { "title": "Contrats", "empty": "Vous n'avez aucun contrat correspondant à vos critères" },
     "kyc": { "title": "KYC", "empty": "Aucun document KYC trouvé." },
+    "messages": { "title": "Messages", "empty": "Aucun message pour le moment." },
     "security": { "title": "Sécurité" },
     "resources": {
       "title": "Ressources",
