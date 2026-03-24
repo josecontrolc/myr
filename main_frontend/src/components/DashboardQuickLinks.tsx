@@ -19,97 +19,99 @@ interface Section {
 // ── Icons ────────────────────────────────────────────────────────────────────
 
 const TicketIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M4 8.5C5.38 8.5 6.5 7.38 6.5 6 6.5 4.62 5.38 3.5 4 3.5H3.5v17H4c1.38 0 2.5-1.12 2.5-2.5S5.38 15.5 4 15.5" />
-    <path d="M20 8.5C18.62 8.5 17.5 7.38 17.5 6 17.5 4.62 18.62 3.5 20 3.5h.5v17H20c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5" />
-    <path d="M8.5 6h7M8.5 12h7M8.5 18h7" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M2 9a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v1.5a2.5 2.5 0 0 0 0 5V17a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1.5a2.5 2.5 0 0 0 0-5V9z" />
+    <path d="M9 8v8M9 12h6" />
   </svg>
 );
 
 const CalendarIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="4" y="5" width="16" height="15" rx="2" />
-    <path d="M8 3v4M16 3v4M4 10h16" />
-    <circle cx="12" cy="15" r="1.3" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="3" y="4" width="18" height="18" rx="2.5" />
+    <path d="M3 10h18M8 2v4M16 2v4" />
+    <path d="M8 15h.01M12 15h.01M16 15h.01" />
   </svg>
 );
 
 const ShieldIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 3.5 6 5.7v6.6c0 3.2 2.4 5.8 6 7.2 3.6-1.4 6-4 6-7.2V5.7z" />
-    <path d="M9.5 12.5 11 14l3.5-3.5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 2 4 5v6c0 4.4 3.4 8.5 8 9.9 4.6-1.4 8-5.5 8-9.9V5z" />
+    <path d="m9 12 2 2 4-4" />
   </svg>
 );
 
 const BookIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M6.5 4.5h8.5A2.5 2.5 0 0 1 17.5 7v12H8A2.5 2.5 0 0 0 5.5 16.5V7A2.5 2.5 0 0 1 8 4.5z" />
-    <path d="M7.5 8h6M7.5 11h4" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 19V6a3 3 0 0 1 3-3h13v13H7a3 3 0 0 0-3 3zm0 0a3 3 0 0 0 3 3h13" />
+    <path d="M9 7h7M9 11h5" />
   </svg>
 );
 
 const DocumentIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M8 3.5h6.5L20 9v11.5H8z" />
-    <path d="M14.5 3.5V9H20M10.5 13h5M10.5 16h3.5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <path d="M14 2v6h6M9 13h6M9 17h4" />
   </svg>
 );
 
 const EuroIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="12" cy="12" r="7.5" />
-    <path d="M9 10h4.5M9 14h4" />
-    <path d="M11.5 8.3A3.6 3.6 0 0 1 14 9.5M11.5 15.7A3.6 3.6 0 0 0 14 14.5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M17 6.5A7 7 0 1 0 17 17.5" />
+    <path d="M4 10h9M4 14h9" />
   </svg>
 );
 
 const UserIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="12" cy="9" r="3.2" />
-    <path d="M6.5 18.5C7.7 16.6 9.7 15.5 12 15.5s4.3 1.1 5.5 3" />
-    <circle cx="12" cy="12" r="7.5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
   </svg>
 );
 
 const KycIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="4" y="6" width="16" height="12" rx="2" />
-    <circle cx="9" cy="11" r="1.5" />
-    <path d="M6.5 15c.5-1.2 1.5-2 2.5-2s2 .8 2.5 2M13 10h3M13 13h2.5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="2" y="5" width="20" height="14" rx="2.5" />
+    <circle cx="8.5" cy="11" r="2" />
+    <path d="M5.5 17c.6-1.7 1.7-2.5 3-2.5s2.4.8 3 2.5" />
+    <path d="M14 9h5M14 12.5h3.5" />
   </svg>
 );
 
 const RoomIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="5" y="5" width="14" height="14" rx="2" />
-    <path d="M10 19V9h4v10" />
-    <circle cx="14.5" cy="13" r="0.9" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 21V7l9-4 9 4v14" />
+    <path d="M9 21v-6h6v6" />
+    <rect x="10" y="9" width="4" height="4" rx="0.5" />
   </svg>
 );
 
 const ChatIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M4.5 5.5h15A1.5 1.5 0 0 1 21 7v9a1.5 1.5 0 0 1-1.5 1.5H8l-3.5 3V7A1.5 1.5 0 0 1 4.5 5.5z" />
-    <path d="M8 10h8M8 13.5h5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <path d="M8 10h8M8 14h5" />
   </svg>
 );
 
 const TagIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M4.5 11.5 11.5 4.5l7 7-7 7-7-7z" />
-    <circle cx="10.1" cy="9.9" r="1.1" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12.5 2H6a2 2 0 0 0-2 2v6.5l9.3 9.3a2 2 0 0 0 2.8 0l4.5-4.5a2 2 0 0 0 0-2.8z" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
   </svg>
 );
 
 const BoxIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M4.5 8.5 12 4.5l7.5 4v7l-7.5 4-7.5-4zM4.5 8.5 12 12.5l7.5-4M12 12.5v7.5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 8l-9-5-9 5v8l9 5 9-5z" />
+    <path d="M3 8l9 5 9-5M12 13v8" />
+    <path d="M7.5 5.5 16.5 10.5" />
   </svg>
 );
 
 const ContractIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M8 3.5h7.5L20 8v12.5H8zM15.5 3.5V8H20M10 11h5M10 14h3.5M9 18.5 11 16l2 1.5 2-2.5" />
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M9 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9z" />
+    <path d="M9 2v7h10M9 13h6M9 17h4" />
+    <path d="m7 17 1.5-1.5L10 17l1.5-2" />
   </svg>
 );
 
@@ -180,11 +182,12 @@ const DashboardCard = ({ link, label, onClick, glassy = false }: CardProps) => {
       type="button"
       onClick={onClick}
       className={`relative group flex flex-col items-center justify-center gap-2 p-3 card--square-tl
-        transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary/60
+        hover:rounded-tl-xl hover:rounded-br-none
+        transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary/60
         w-full ${
         glassy
-          ? 'bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:border-white/35 hover:shadow-lg hover:shadow-black/20'
-          : 'bg-white dark:bg-surface-dark border border-border dark:border-white/10 hover:border-secondary/50 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-black/30'
+          ? 'bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/25 hover:border-white/35 hover:shadow-lg hover:shadow-black/20'
+          : 'bg-white dark:bg-surface-dark border border-border dark:border-white/10 hover:bg-secondary/5 dark:hover:bg-secondary/10 hover:border-secondary/50 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-black/30'
       }`}
     >
       {/* Badge */}
@@ -199,7 +202,7 @@ const DashboardCard = ({ link, label, onClick, glassy = false }: CardProps) => {
       )}
 
       {/* Icon container */}
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
         glassy
           ? 'bg-white/15 text-white/80 group-hover:text-white group-hover:bg-white/25'
           : 'bg-background dark:bg-black/25 text-icon-purple dark:text-white/75 group-hover:text-secondary dark:group-hover:text-white'
