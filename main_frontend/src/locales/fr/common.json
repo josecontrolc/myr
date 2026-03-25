@@ -57,6 +57,17 @@
       "submitLoading": "CONNEXION...",
       "forgotHint": "Mot de passe oublié ? Vous voulez reconfigurer l'authentification ?",
       "resetButton": "RÉINITIALISER LE COMPTE"
+    },
+    "forgot": {
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Entrez votre email et nous vous enverrons un lien pour créer un nouveau mot de passe.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "votre@email.com",
+      "sendButton": "ENVOYER LE LIEN",
+      "sendingButton": "ENVOI...",
+      "successMessage": "Si cette adresse est enregistrée, vous recevrez un email avec les instructions. Vérifiez votre boite de réception et vos spams.",
+      "backToLogin": "Retour à la connexion",
+      "tryAnother": "Utiliser un autre email"
     }
   },
   "register": {

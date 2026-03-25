@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
+import ForgotPasswordForm from '../components/ForgotPasswordForm';
 import ServiceStatusPanel from '../components/ServiceStatusPanel';
 import ThemeToggle from '../components/ThemeToggle';
 import LanguagePicker from '../components/LanguagePicker';
@@ -15,9 +16,10 @@ const Login = ({ initialView = 'login' }: LoginProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation('common');
   const [statusOpen, setStatusOpen] = useState(false);
-  const [view, setView] = useState<'login' | 'register'>(initialView);
+  const [view, setView] = useState<'login' | 'register' | 'forgot-password'>(initialView);
 
   const isRegister = view === 'register';
+  const isForgot = view === 'forgot-password';
 
   const handleSuccess = () => {
     navigate('/dashboard');
@@ -45,10 +47,10 @@ const Login = ({ initialView = 'login' }: LoginProps) => {
         {/* Heading */}
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-textPrimary dark:text-white mb-1">
-            {t(isRegister ? 'register.title' : 'login.title')}
+            {t(isRegister ? 'register.title' : isForgot ? 'login.forgot.title' : 'login.title')}
           </h1>
           <p className="text-sm text-textPrimary/60 dark:text-white/60">
-            {t(isRegister ? 'register.subtitle' : 'login.subtitle')}
+            {t(isRegister ? 'register.subtitle' : isForgot ? 'login.forgot.subtitle' : 'login.subtitle')}
           </p>
         </div>
 
@@ -56,7 +58,9 @@ const Login = ({ initialView = 'login' }: LoginProps) => {
         <div className="flex-1">
           {isRegister
             ? <RegisterForm onSuccess={handleSuccess} />
-            : <LoginForm onSuccess={handleSuccess} />
+            : isForgot
+              ? <ForgotPasswordForm onBack={() => setView('login')} />
+              : <LoginForm onSuccess={handleSuccess} onForgotPassword={() => setView('forgot-password')} />
           }
         </div>
 
@@ -80,6 +84,8 @@ const Login = ({ initialView = 'login' }: LoginProps) => {
                 {t('register.signIn')}
               </button>
             </div>
+          ) : isForgot ? (
+            <div />
           ) : (
             <div>
               <span className="mr-1">{t('login.firstVisit')}</span>

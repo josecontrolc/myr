@@ -16,7 +16,9 @@
       "Bash(docker-compose up:*)",
       "Bash(docker exec:*)",
       "Bash(npm run:*)",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "Bash(grep -r SG. /c/Dev/myr --include=*.env* --include=*.txt --include=*.json --include=*.md -l)",
+      "Bash(grep -r SG. /c/Dev/myr --include=*.env*)"
     ]
   }
 }

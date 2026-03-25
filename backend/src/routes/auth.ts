@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import express, { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { hashPassword } from 'better-auth/crypto';
 import prisma from '../lib/prisma';
-import { sendOtp } from '../lib/emailService';
+import { sendOtp, sendPasswordReset } from '../lib/emailService';
 import { auth } from '../lib/auth';
 
 const router = express.Router();
@@ -572,7 +573,7 @@ router.post('/request-password-reset', async (req: Request, res: Response): Prom
     )}`;
 
     try {
-      await sendOtp(user.email, `Reset link: ${resetLink}`, ttlMinutes);
+      await sendPasswordReset(user.email, resetLink, ttlMinutes);
     } catch (err) {
       console.error('Failed to send password reset email:', err);
       // Still respond success to avoid leaking state.
@@ -627,7 +628,7 @@ router.post('/reset-password', async (req: Request, res: Response): Promise<void
 
     const userId = verification.identifier.replace('reset:', '');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     await prisma.user.update({
       where: { id: userId },

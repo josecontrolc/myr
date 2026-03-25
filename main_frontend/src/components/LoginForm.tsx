@@ -5,9 +5,10 @@ import { useAuth } from '@shared/auth';
 
 interface LoginFormProps {
   onSuccess?: () => void;
+  onForgotPassword?: () => void;
 }
 
-const LoginForm = ({ onSuccess }: LoginFormProps) => {
+const LoginForm = ({ onSuccess, onForgotPassword }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [twoFactorMode, setTwoFactorMode] = useState(false);
@@ -73,7 +74,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
     <form onSubmit={handleSubmit} className="space-y-3">
       {/* Email */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-textPrimary/80 dark:text-textPrimary/80 mb-1">
+        <label htmlFor="email" className="block text-sm font-medium text-textPrimary/80 dark:text-white/80 mb-1">
           {t('login.form.emailLabel')}
         </label>
         <input
@@ -90,7 +91,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
       {/* Password */}
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-textPrimary/80 dark:text-textPrimary/80 mb-1">
+        <label htmlFor="password" className="block text-sm font-medium text-textPrimary/80 dark:text-white/80 mb-1">
           {t('login.form.passwordLabel')}
         </label>
         <input
@@ -115,7 +116,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
         </div>
 
         <div>
-          <label htmlFor="code" className="block text-sm font-medium text-textPrimary/80 dark:text-textPrimary/80 mb-1">
+          <label htmlFor="code" className="block text-sm font-medium text-textPrimary/80 dark:text-white/80 mb-1">
             {t('login.form.codeLabel')}
           </label>
           <input
@@ -185,7 +186,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
       </p>
       <button
         type="button"
-        onClick={() => navigate('/auth/forgot-password')}
+        onClick={onForgotPassword}
         className="w-full py-2.5 rounded-lg border border-border/30 dark:border-white/30 text-textPrimary/70 dark:text-white/70 text-xs font-semibold tracking-widest hover:bg-textPrimary/5 dark:hover:bg-white/10"
       >
         {t('login.form.resetButton')}

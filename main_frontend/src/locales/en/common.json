@@ -57,6 +57,17 @@
       "submitLoading": "SIGNING IN...",
       "forgotHint": "Forgot your password? Want to reconfigure authentication?",
       "resetButton": "RESET ACCOUNT"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we will send you a link to create a new password.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "sendButton": "SEND RESET LINK",
+      "sendingButton": "SENDING...",
+      "successMessage": "If this address is registered, you will receive an email with instructions. Check your inbox and spam folder.",
+      "backToLogin": "Back to sign in",
+      "tryAnother": "Use another email"
     }
   },
   "register": {

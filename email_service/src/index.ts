@@ -88,6 +88,53 @@ app.post('/send-otp', requireServiceSecret, async (req: Request, res: Response) 
   }
 });
 
+interface SendPasswordResetBody {
+  to: string;
+  resetLink: string;
+  expiresInMinutes?: number;
+}
+
+app.post('/send-password-reset', requireServiceSecret, async (req: Request, res: Response) => {
+  const { to, resetLink, expiresInMinutes = 60 } = req.body as SendPasswordResetBody;
+
+  if (!to || !resetLink) {
+    res.status(400).json({ error: '`to` and `resetLink` are required' });
+    return;
+  }
+
+  const msg = {
+    to,
+    from: SENDGRID_FROM_EMAIL,
+    subject: 'Reset your MyR password',
+    text: `You requested a password reset.\n\nClick the link below to set a new password (expires in ${expiresInMinutes} minutes):\n${resetLink}\n\nIf you did not request this, you can safely ignore this email.`,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e5e7eb;border-radius:8px;">
+        <h2 style="margin-top:0;color:#111827;">Reset your password</h2>
+        <p style="color:#374151;">We received a request to reset the password for your MyR account. Click the button below to choose a new password.</p>
+        <p style="color:#374151;">This link expires in <strong>${expiresInMinutes} minutes</strong>.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${resetLink}" style="display:inline-block;padding:12px 28px;background:#BF60B5;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:700;font-size:0.95rem;">
+            Reset password
+          </a>
+        </div>
+        <p style="font-size:0.85rem;color:#6b7280;">If the button does not work, copy and paste this link into your browser:</p>
+        <p style="font-size:0.8rem;color:#6b7280;word-break:break-all;">${resetLink}</p>
+        <p style="margin-bottom:0;font-size:0.875rem;color:#6b7280;">If you did not request a password reset, you can safely ignore this email.</p>
+      </div>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log(`Password reset email sent to ${to}`);
+    res.json({ success: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('SendGrid error:', message);
+    res.status(502).json({ error: 'Failed to send email', detail: message });
+  }
+});
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`Email service running on port ${PORT}`);
